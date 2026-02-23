@@ -1,0 +1,40 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "crypto-js": "^4.2.0",
+    "express": "^4.18.2",
+    "mssql": "^10.0.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.12",
+    "otp-generator": "^4.0.1",
+    "pkg": "^5.8.1",
+    "ws": "^8.18.3"
+  },
+  "pkg": {
+    "assets": [
+      "license",
+      "config/**/*",
+      "connection/**/*",
+      "controllers/**/*",
+      "routes/**/*",
+      "services/**/*",
+      "mailer.js",
+      "utils.js"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ],
+    "outputPath": "dist"
+  }
+}
