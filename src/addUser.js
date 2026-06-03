@@ -913,7 +913,7 @@ function UserInput({}) {
                     required
                     title="Please enter Expiry Date"
                     value={expiry_date}
-                    // min={new Date().toISOString().split("T")[0]}
+                    min={new Date().toISOString().split("T")[0]}
                     onChange={(e) => setexpiry_date(e.target.value)}
                     ref={expirydate}
                     onKeyDown={(e) => handleKeyDown(e, expirydate)}

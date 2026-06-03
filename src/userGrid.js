@@ -109,23 +109,27 @@ function UserGrid() {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-    useEffect(() => {
-    const company_code = sessionStorage.getItem("selectedCompanyCode");
+useEffect(() => {
+  const company_code = sessionStorage.getItem("selectedCompanyCode");
 
-    fetch(`${config.apiBaseUrl}/UserRole`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ company_code }),
+  fetch(`${config.apiBaseUrl}/UserRole`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ company_code }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      const roleOption = data.map((option) => ({
+        value: option.role_id,
+        label: `${option.role_id} - ${option.role_name}`,
+      }));
+
+      setRoleDrop(roleOption);
     })
-      .then((data) => data.json())
-      .then((data) => {
-        const RoleOption = data.map((option) => option.role_id);
-        setRoleDrop(RoleOption);
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+    .catch((error) => console.error("Error fetching data:", error));
+}, []);
 
   useEffect(() => {
     const company_code = sessionStorage.getItem('selectedCompanyCode');
@@ -467,18 +471,21 @@ function UserGrid() {
         values: gendergriddrop,
       },
     },
-    {
-      headerName: "Role ID",
-      field: "role_id",
-      editable: true,
-      cellStyle: { textAlign: "left" },
-      minWidth: 150,
-      cellEditor: "agSelectCellEditor",
-      cellEditorParams: {
-        maxLength: 10,
-        values: roleDrop,
-      },
-    },
+{
+  headerName: "Role ID",
+  field: "role_id",
+  editable: true,
+  cellStyle: { textAlign: "left" },
+  minWidth: 150,
+  cellEditor: "agSelectCellEditor",
+  cellEditorParams: {
+    values: roleDrop.map((d) => d.value),
+  },
+  valueFormatter: (params) => {
+    const role = roleDrop.find((d) => d.value === params.value);
+    return role ? role.label : params.value;
+  },
+},
     {
       headerName: "Expiry Date",
       field: "expiry_date",
