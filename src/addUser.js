@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import LoadingScreen from "./LoadingScreen";
 
-function UserInput({ }) {
+function UserInput({}) {
   const [user_code, setUser_code] = useState("");
   const [user_name, setUser_name] = useState("");
   const [first_name, setFirst_name] = useState("");
@@ -19,6 +19,7 @@ function UserInput({ }) {
   const [role_id, setRole] = useState("");
   const [email_id, setEmail_id] = useState("");
   const [dob, setDob] = useState("");
+  const [expiry_date, setexpiry_date] = useState("");
   const [gender, setGender] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
@@ -32,6 +33,7 @@ function UserInput({ }) {
   const [error, setError] = useState("");
   const [user_images, setuser_image] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const config = require("./Apiconfig");
   const navigate = useNavigate();
   const usercode = useRef(null);
@@ -44,6 +46,7 @@ function UserInput({ }) {
   const usertype = useRef(null);
   const email = useRef(null);
   const Dob = useRef(null);
+  const expirydate = useRef(null);
   const Gender = useRef(null);
   const ImagE = useRef(null);
   const [hasValueChanged, setHasValueChanged] = useState(false);
@@ -115,17 +118,25 @@ function UserInput({ }) {
 
       const toInputDate = (dateStr) => {
         if (!dateStr) return "";
-        const [dd, mm, yyyy] = dateStr.split("-");
-        return `${yyyy}-${mm}-${dd}`;
+
+        // For DOB format: 10-02-2026
+        if (dateStr.includes("-") && !dateStr.includes("T")) {
+          const [mm, dd, yyyy] = dateStr.split("-");
+          return `${yyyy}-${mm}-${dd}`;
+        }
+
+        // For ISO format: 2026-06-02T00:00:00.000Z
+        return dateStr.substring(0, 10);
       };
 
       setDob(toInputDate(selectedRow.dob));
+      setexpiry_date(toInputDate(selectedRow.expiry_date));
 
       if (selectedRow.user_images && selectedRow.user_images.data) {
         const base64Image = arrayBufferToBase64(selectedRow.user_images.data);
         const file = base64ToFile(
           `data:image/jpeg;base64,${base64Image}`,
-          "user_image.jpg"
+          "user_image.jpg",
         );
         setSelectedImage(`data:image/jpeg;base64,${base64Image}`);
         setuser_image(file);
@@ -329,13 +340,14 @@ function UserInput({ }) {
       const formData = new FormData();
       formData.append(
         "company_code",
-        sessionStorage.getItem("selectedCompanyCode")
+        sessionStorage.getItem("selectedCompanyCode"),
       );
       formData.append("user_code", user_code);
       formData.append("user_name", user_name);
       formData.append("first_name", first_name);
       formData.append("last_name", last_name);
       formData.append("user_password", user_password);
+      formData.append("expiry_date", expiry_date);
       formData.append("user_status", user_status);
       formData.append("log_in_out", log_in_out);
       formData.append("email_id", email_id);
@@ -389,7 +401,7 @@ function UserInput({ }) {
     nextFieldRef,
     value,
     hasValueChanged,
-    setHasValueChanged
+    setHasValueChanged,
   ) => {
     if (e.key === "Enter") {
       if (hasValueChanged) {
@@ -438,13 +450,14 @@ function UserInput({ }) {
       const formData = new FormData();
       formData.append(
         "company_code",
-        sessionStorage.getItem("selectedCompanyCode")
+        sessionStorage.getItem("selectedCompanyCode"),
       );
       formData.append("user_code", user_code);
       formData.append("user_name", user_name);
       formData.append("first_name", first_name);
       formData.append("last_name", last_name);
       formData.append("user_password", user_password);
+      formData.append("expiry_date", expiry_date);
       formData.append("user_status", user_status);
       formData.append("log_in_out", log_in_out);
       formData.append("email_id", email_id);
@@ -485,10 +498,17 @@ function UserInput({ }) {
   const maxDob = new Date(
     today.getFullYear() - 18,
     today.getMonth(),
-    today.getDate()
+    today.getDate(),
   )
     .toISOString()
     .split("T")[0];
+
+  const handleExpiryDateChange = (e) => {
+    const selectedDate = e.target.value;
+    const today = new Date().toISOString().split("T")[0];
+
+    setexpiry_date(selectedDate);
+  };
 
   return (
     <div class="container-fluid Topnav-screen ">
@@ -532,8 +552,9 @@ function UserInput({ }) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${error && !user_code ? "text-danger" : ""
-                          }`}
+                        className={`exp-form-labels ${
+                          error && !user_code ? "text-danger" : ""
+                        }`}
                       >
                         User Code
                       </label>
@@ -564,8 +585,9 @@ function UserInput({ }) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${error && !user_name ? "text-danger" : ""
-                          }`}
+                        className={`exp-form-labels ${
+                          error && !user_name ? "text-danger" : ""
+                        }`}
                       >
                         User Name
                       </label>
@@ -595,8 +617,9 @@ function UserInput({ }) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${error && !first_name ? "text-danger" : ""
-                          }`}
+                        className={`exp-form-labels ${
+                          error && !first_name ? "text-danger" : ""
+                        }`}
                       >
                         First Name
                       </label>
@@ -626,8 +649,9 @@ function UserInput({ }) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${error && !last_name ? "text-danger" : ""
-                          }`}
+                        className={`exp-form-labels ${
+                          error && !last_name ? "text-danger" : ""
+                        }`}
                       >
                         Last Name
                       </label>
@@ -657,8 +681,9 @@ function UserInput({ }) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${error && !user_password ? "text-danger" : ""
-                          }`}
+                        className={`exp-form-labels ${
+                          error && !user_password ? "text-danger" : ""
+                        }`}
                       >
                         Password
                       </label>
@@ -667,20 +692,32 @@ function UserInput({ }) {
                       <span className="text-danger">*</span>
                     </div>
                   </div>
-                  <input
-                    id="upass"
-                    class="exp-input-field form-control"
-                    type={mode === "update" ? "password" : "text"}
-                    placeholder=""
-                    required
-                    title="Please enter the password"
-                    value={user_password}
-                    onChange={(e) => setUser_password(e.target.value)}
-                    maxLength={50}
-                    ref={password}
-                    readOnly={mode === "update"}
-                    onKeyDown={(e) => handleKeyDown(e, Status, password)}
-                  />
+                  <div className="position-relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="form-control"
+                      value={user_password}
+                      onChange={(e) => setUser_password(e.target.value)}
+                    />
+
+                    <span
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      style={{
+                        position: "absolute",
+                        right: "10px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        cursor: "pointer",
+                        zIndex: 9999,
+                      }}
+                    >
+                      <i
+                        className={`fa-solid ${
+                          showPassword ? "fa-eye-slash" : "fa-eye"
+                        }`}
+                      />
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="col-md-3 form-group  mb-2">
@@ -689,8 +726,9 @@ function UserInput({ }) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${error && !user_status ? "text-danger" : ""
-                          }`}
+                        className={`exp-form-labels ${
+                          error && !user_status ? "text-danger" : ""
+                        }`}
                       >
                         {" "}
                         Status{" "}
@@ -737,8 +775,9 @@ function UserInput({ }) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${error && !role_id ? "text-danger" : ""
-                          }`}
+                        className={`exp-form-labels ${
+                          error && !role_id ? "text-danger" : ""
+                        }`}
                       >
                         Role ID
                       </label>
@@ -766,8 +805,9 @@ function UserInput({ }) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${error && !email_id ? "text-danger" : ""
-                          }`}
+                        className={`exp-form-labels ${
+                          error && !email_id ? "text-danger" : ""
+                        }`}
                       >
                         Email
                       </label>
@@ -850,10 +890,35 @@ function UserInput({ }) {
                     accept="image/*"
                     onChange={handleFileSelect}
                     ref={ImagE}
-                    onKeyDown={(e) => handleKeyDown(e, ImagE)}
+                    onKeyDown={(e) => handleKeyDown(e, expirydate, ImagE)}
                   />
                 </div>
               </div>
+
+              <div className="col-md-3 form-group mb-2">
+                <div className="exp-form-floating">
+                  <div className="d-flex justify-content-start">
+                    <div>
+                      <label htmlFor="expirydate" className={`exp-form-labels`}>
+                        Expiry Date
+                      </label>
+                    </div>
+                  </div>
+                  <input
+                    id="expirydate"
+                    className="exp-input-field form-control"
+                    type="date"
+                    required
+                    title="Please enter Expiry Date"
+                    value={expiry_date}
+                    // min={new Date().toISOString().split("T")[0]}
+                    onChange={(e) => setexpiry_date(e.target.value)}
+                    ref={expirydate}
+                    onKeyDown={(e) => handleKeyDown(e, expirydate)}
+                  />
+                </div>
+              </div>
+
               <div className="col-md-3 form-group  mb-2">
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
