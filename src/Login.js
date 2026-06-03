@@ -329,9 +329,9 @@ const Login = () => {
   )}
 
   {/* Forgot Password Link */}
-  <div className="forgot-password-container">
+  {/* <div className="forgot-password-container">
     <a onClick={handleClick} className="forgot-password">Forgot your password?</a>
-  </div>
+  </div> */}
 
   {/* Submit Button */}
   {/* <input type="submit" value="Log in" className="Submitbtn" /> */}
