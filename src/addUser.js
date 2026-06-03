@@ -703,7 +703,6 @@ function UserInput({}) {
                       onChange={(e) => setUser_password(e.target.value)}
                       style={{ paddingRight: "40px" }}
                     />
-
                     <span
                       className="eye"
                       onClick={() => setShowPassword(!showPassword)}
