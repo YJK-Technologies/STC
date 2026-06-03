@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import "./input.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { useLocation } from "react-router-dom";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
@@ -694,27 +696,28 @@ function UserInput({}) {
                   </div>
                   <div className="position-relative">
                     <input
+                      id="upass"
+                      className="exp-input-field form-control"
                       type={showPassword ? "text" : "password"}
-                      className="form-control"
                       value={user_password}
                       onChange={(e) => setUser_password(e.target.value)}
+                      style={{ paddingRight: "40px" }}
                     />
 
                     <span
-                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="eye"
+                      onClick={() => setShowPassword(!showPassword)}
                       style={{
                         position: "absolute",
-                        right: "10px",
+                        right: "12px",
                         top: "50%",
                         transform: "translateY(-50%)",
                         cursor: "pointer",
-                        zIndex: 9999,
+                        zIndex: 999,
                       }}
                     >
-                      <i
-                        className={`fa-solid ${
-                          showPassword ? "fa-eye-slash" : "fa-eye"
-                        }`}
+                      <FontAwesomeIcon
+                        icon={showPassword ? faEye : faEyeSlash}
                       />
                     </span>
                   </div>
