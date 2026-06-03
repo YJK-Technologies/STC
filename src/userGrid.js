@@ -483,6 +483,7 @@ function UserGrid() {
       headerName: "Expiry Date",
       field: "expiry_date",
       editable: true,
+      hide: true,
       valueFormatter: (params) => {
         if (!params.value) return "";
       
@@ -492,7 +493,7 @@ function UserGrid() {
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
       
-        return `${day}-${month}-${year}`;
+        return `${month}-${day}-${year}`;
       },
       cellStyle: { textAlign: "left" },
       minWidth: 150,
