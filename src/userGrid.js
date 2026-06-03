@@ -38,6 +38,7 @@ function UserGrid() {
   const [statusgriddrop, setStatusGriddrop] = useState([]);
   const [usergriddrop, setUserGriddrop] = useState([]);
   const [gendergriddrop, setGenderGriddrop] = useState([]);
+  const [roleDrop, setRoleDrop] = useState([]);
   const [loggriddrop, setLogGriddrop] = useState([]);
   const [hasValueChanged, setHasValueChanged] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -104,6 +105,24 @@ function UserGrid() {
       .then((data) => {
         const statusOption = data.map((option) => option.attributedetails_name);
         setGenderGriddrop(statusOption);
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
+
+    useEffect(() => {
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
+
+    fetch(`${config.apiBaseUrl}/UserRole`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ company_code }),
+    })
+      .then((data) => data.json())
+      .then((data) => {
+        const RoleOption = data.map((option) => option.role_id);
+        setRoleDrop(RoleOption);
       })
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
@@ -448,6 +467,36 @@ function UserGrid() {
         values: gendergriddrop,
       },
     },
+    {
+      headerName: "Role ID",
+      field: "role_id",
+      editable: true,
+      cellStyle: { textAlign: "left" },
+      minWidth: 150,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: {
+        maxLength: 10,
+        values: roleDrop,
+      },
+    },
+    {
+      headerName: "Expiry Date",
+      field: "expiry_date",
+      editable: true,
+      valueFormatter: (params) => {
+        if (!params.value) return "";
+      
+        const date = new Date(params.value);
+      
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+      
+        return `${day}-${month}-${year}`;
+      },
+      cellStyle: { textAlign: "left" },
+      minWidth: 150,
+    }
   ];
 
   const defaultColDef = {
