@@ -314,6 +314,10 @@ const userAddData = async (req, res) => {
     }
     let encryptedContent = fs.readFileSync(LICENSE_FILE, "utf8").trim();
     let licenseData = aesGcmDecryptPayload(encryptedContent, CONFIG_PASSPHRASE);
+    // --- Optional: Date Format for license expiry date To show in toast  ---
+    const formattedLicenseExpiry = new Date(
+      licenseData.license.expiryDate,
+    ).toLocaleDateString("en-GB");
     // --- Step 2: Validate user expiry date against license expiry date ---
     const licenseExpiry = new Date(licenseData.license.expiryDate);
     const userExpiry = new Date(expiry_date);
@@ -324,7 +328,7 @@ const userAddData = async (req, res) => {
     if (userExpiry > licenseExpiry) {
       return res.status(400).json({
         success: false,
-        message: "User expiry date cannot exceed license expiry date",
+        message: `User expiry date cannot exceed license expiry date (${formattedLicenseExpiry})`,
       });
     }
 
@@ -411,27 +415,29 @@ const UsersaveEditedData = async (req, res) => {
   }
 
   try {
-     // Read License File
+    // Read License File
     const encryptedContent = fs.readFileSync(LICENSE_FILE, "utf8");
     const licenseData = aesGcmDecryptPayload(
       encryptedContent,
-      CONFIG_PASSPHRASE
+      CONFIG_PASSPHRASE,
     );
+    const formattedLicenseExpiry = new Date(
+      licenseData.license.expiryDate
+    ).toLocaleDateString("en-GB");
 
     const licenseExpiry = new Date(licenseData.license.expiryDate);
     licenseExpiry.setHours(0, 0, 0, 0);
-    
+
     const pool = await connection.connectToDatabase(dbConfig);
 
     for (const updatedRow of editedData) {
-
       const rowExpiry = new Date(updatedRow.expiry_date);
       rowExpiry.setHours(0, 0, 0, 0);
 
       if (rowExpiry > licenseExpiry) {
         return res.status(400).json({
           success: false,
-          message: `User ${updatedRow.user_code} expiry date cannot exceed license expiry date`
+          message: `User ${updatedRow.user_code} expiry date cannot exceed license expiry date (${formattedLicenseExpiry})`,
         });
       }
       await pool
@@ -450,7 +456,11 @@ const UsersaveEditedData = async (req, res) => {
         .input("dob", sql.NVarChar, formatDateForSQL(updatedRow.dob))
         .input("gender", sql.NVarChar, updatedRow.gender)
         .input("role_id", sql.NVarChar, updatedRow.role_id)
-        .input("expiry_date", sql.NVarChar, formatDateForSQL(updatedRow.expiry_date), ) 
+        .input(
+          "expiry_date",
+          sql.NVarChar,
+          formatDateForSQL(updatedRow.expiry_date),
+        )
         .input("created_by", sql.NVarChar, updatedRow.created_by)
         .input("modified_by", sql.NVarChar, req.headers["modified-by"])
         .input("tempstr1", sql.NVarChar, updatedRow.tempstr1)
@@ -629,6 +639,9 @@ const UserUpdate = async (req, res) => {
       encryptedContent,
       CONFIG_PASSPHRASE,
     );
+    const formattedLicenseExpiry = new Date(
+      licenseData.license.expiryDate
+    ).toLocaleDateString("en-GB");
 
     const licenseExpiry = new Date(licenseData.license.expiryDate);
     const userExpiry = new Date(expiry_date);
@@ -639,7 +652,7 @@ const UserUpdate = async (req, res) => {
     if (userExpiry > licenseExpiry) {
       return res.status(400).json({
         success: false,
-        message: "User expiry date cannot exceed license expiry date",
+        message: `User expiry date cannot exceed license expiry date (${formattedLicenseExpiry})`,
       });
     }
 
