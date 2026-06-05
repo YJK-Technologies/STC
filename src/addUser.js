@@ -699,6 +699,7 @@ function UserInput({}) {
                     <input
                       id="upass"
                       className="exp-input-field form-control"
+                      title="Please enter the password"
                       type={showPassword ? "text" : "password"}
                       value={user_password}
                       onChange={(e) => setUser_password(e.target.value)}
@@ -741,6 +742,7 @@ function UserInput({}) {
                       <span className="text-danger">*</span>
                     </div>
                   </div>
+                  <div title="Please select the status">
                   <Select
                     id="status"
                     value={selectedStatus}
@@ -753,12 +755,14 @@ function UserInput({}) {
                     onKeyDown={(e) => handleKeyDown(e, loginlogout, Status)}
                   />
                 </div>
+                </div>
               </div>
               <div className="col-md-3 form-group  mb-2">
                 <div class="exp-form-floating">
                   <label for="loginout" class="exp-form-labels">
                     Log IN/OUT
                   </label>
+                  <div title="Please select the Log IN/OUT status">
                   <Select
                     id="loginout"
                     value={selectedLog}
@@ -770,6 +774,7 @@ function UserInput({}) {
                     ref={loginlogout}
                     onKeyDown={(e) => handleKeyDown(e, usertype, loginlogout)}
                   />
+                </div>
                 </div>
               </div>
               <div className="col-md-3 form-group  mb-2 ">
@@ -789,6 +794,7 @@ function UserInput({}) {
                       <span className="text-danger">*</span>
                     </div>
                   </div>
+                  <div title="Please select the Role ID">
                   <Select
                     id="usertype"
                     value={selectedRole}
@@ -800,6 +806,7 @@ function UserInput({}) {
                     ref={usertype}
                     onKeyDown={(e) => handleKeyDown(e, email, usertype)}
                   />
+                </div>
                 </div>
               </div>
               <div className="col-md-3 form-group  mb-2">
@@ -869,6 +876,7 @@ function UserInput({}) {
                   <label for="gender" class="exp-form-labels">
                     Gender
                   </label>
+                  <div title="Please select the Gender">
                   <Select
                     id="gender"
                     value={selectedGender}
@@ -880,6 +888,7 @@ function UserInput({}) {
                     ref={Gender}
                     onKeyDown={(e) => handleKeyDown(e, ImagE, Gender)}
                   />
+                </div>
                 </div>
               </div>
               <div className="col-md-3 form-group mb-2 ">
