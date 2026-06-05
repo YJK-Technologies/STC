@@ -955,6 +955,7 @@ useEffect(() => {
                 <label for="usts" class="exp-form-labels">
                   User Status
                 </label>
+                  <div title="Please select the User Status">
                 <Select
                   id="status"
                   value={selectedStatus}
@@ -964,6 +965,7 @@ useEffect(() => {
                   className="exp-input-field"
                   placeholder=""
                 />
+              </div>
               </div>
             </div>
             {/* <div className="col-md-3 form-group">
@@ -1005,6 +1007,7 @@ useEffect(() => {
                 <label for="gender" class="exp-form-labels">
                   Gender
                 </label>
+                  <div title="Please select the Gender">
                 <Select
                   id="gender"
                   value={selectedGender}
@@ -1014,6 +1017,7 @@ useEffect(() => {
                   className="exp-input-field"
                   placeholder=""
                 />
+              </div>
               </div>
             </div>
             <div className="col-12 d-flex justify-content-end align-items-center mt-4">
