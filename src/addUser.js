@@ -77,6 +77,7 @@ function UserInput({}) {
     setSelectedGender("");
     setEmail_id("");
     setDob("");
+    setexpiry_date("");
     setSelectedImage("");
   };
 
