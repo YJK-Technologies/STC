@@ -14,4 +14,12 @@ module.exports = {
   options: {
     encrypt: false,
   },   
+  // user: "YJK_DB_USER",
+  // password: "YJK$ql2022",
+  // server: "10.128.4.138",
+  // database: "YJK_Admin",
+  // port: 1433,
+  // options: {
+  //   encrypt: false,
+  // },   
 };

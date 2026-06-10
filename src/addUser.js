@@ -58,6 +58,7 @@ function UserInput({}) {
   const [loading, setLoading] = useState(false);
   const location = useLocation();
   const { mode, selectedRow } = location.state || {};
+  const [super_admin, setsuper_admin] = useState(false);
 
   console.log(selectedRow);
 
@@ -351,6 +352,7 @@ function UserInput({}) {
       formData.append("last_name", last_name);
       formData.append("user_password", user_password);
       formData.append("expiry_date", expiry_date);
+      formData.append("super_admin", super_admin);
       formData.append("user_status", user_status);
       formData.append("log_in_out", log_in_out);
       formData.append("email_id", email_id);
@@ -743,18 +745,18 @@ function UserInput({}) {
                     </div>
                   </div>
                   <div title="Please select the status">
-                  <Select
-                    id="status"
-                    value={selectedStatus}
-                    onChange={handleChangeStatus}
-                    options={filteredOptionStatus}
-                    className="exp-input-field"
-                    placeholder=""
-                    maxLength={50}
-                    ref={Status}
-                    onKeyDown={(e) => handleKeyDown(e, loginlogout, Status)}
-                  />
-                </div>
+                    <Select
+                      id="status"
+                      value={selectedStatus}
+                      onChange={handleChangeStatus}
+                      options={filteredOptionStatus}
+                      className="exp-input-field"
+                      placeholder=""
+                      maxLength={50}
+                      ref={Status}
+                      onKeyDown={(e) => handleKeyDown(e, loginlogout, Status)}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="col-md-3 form-group  mb-2">
@@ -763,18 +765,18 @@ function UserInput({}) {
                     Log IN/OUT
                   </label>
                   <div title="Please select the Log IN/OUT status">
-                  <Select
-                    id="loginout"
-                    value={selectedLog}
-                    onChange={handleChangeLog}
-                    options={filteredOptionLog}
-                    className="exp-input-field"
-                    placeholder=""
-                    maxLength={3}
-                    ref={loginlogout}
-                    onKeyDown={(e) => handleKeyDown(e, usertype, loginlogout)}
-                  />
-                </div>
+                    <Select
+                      id="loginout"
+                      value={selectedLog}
+                      onChange={handleChangeLog}
+                      options={filteredOptionLog}
+                      className="exp-input-field"
+                      placeholder=""
+                      maxLength={3}
+                      ref={loginlogout}
+                      onKeyDown={(e) => handleKeyDown(e, usertype, loginlogout)}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="col-md-3 form-group  mb-2 ">
@@ -795,18 +797,18 @@ function UserInput({}) {
                     </div>
                   </div>
                   <div title="Please select the Role ID">
-                  <Select
-                    id="usertype"
-                    value={selectedRole}
-                    onChange={handleChangeRole}
-                    options={filteredOptionRole}
-                    className="exp-input-field"
-                    placeholder=""
-                    maxLength={50}
-                    ref={usertype}
-                    onKeyDown={(e) => handleKeyDown(e, email, usertype)}
-                  />
-                </div>
+                    <Select
+                      id="usertype"
+                      value={selectedRole}
+                      onChange={handleChangeRole}
+                      options={filteredOptionRole}
+                      className="exp-input-field"
+                      placeholder=""
+                      maxLength={50}
+                      ref={usertype}
+                      onKeyDown={(e) => handleKeyDown(e, email, usertype)}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="col-md-3 form-group  mb-2">
@@ -877,18 +879,18 @@ function UserInput({}) {
                     Gender
                   </label>
                   <div title="Please select the Gender">
-                  <Select
-                    id="gender"
-                    value={selectedGender}
-                    onChange={handleChangeGender}
-                    options={filteredOptionGender}
-                    className="exp-input-field"
-                    placeholder=""
-                    maxLength={50}
-                    ref={Gender}
-                    onKeyDown={(e) => handleKeyDown(e, ImagE, Gender)}
-                  />
-                </div>
+                    <Select
+                      id="gender"
+                      value={selectedGender}
+                      onChange={handleChangeGender}
+                      options={filteredOptionGender}
+                      className="exp-input-field"
+                      placeholder=""
+                      maxLength={50}
+                      ref={Gender}
+                      onKeyDown={(e) => handleKeyDown(e, ImagE, Gender)}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="col-md-3 form-group mb-2 ">
@@ -963,6 +965,7 @@ function UserInput({}) {
                   </div>
                 </div>
               )}
+
               <div className="col-md-3 form-group  mb-2">
                 {mode === "create" ? (
                   <div class="exp-form-floating">
@@ -1004,6 +1007,20 @@ function UserInput({}) {
                   </div>
                 )}
               </div>
+              <div className="col-md-3 form-group mt-3">
+                <div className="exp-form-floating d-flex align-items-center gap-2" style={{ minHeight: "58px" }} >
+                  <input
+                    className="form-check-input m-2"
+                    type="checkbox"
+                    id="superAdmin"
+                    checked={super_admin}
+                    onChange={(e) => setsuper_admin(e.target.checked)}
+                    style={{ width: "1.5em", height: "1.5em", cursor: "pointer", }}
+                  />
+                  <label htmlFor="superAdmin" className="exp-form-labels m-0" style={{ cursor: "pointer" }} >Super Admin</label>
+                </div>
+              </div>
+
               <div class="col-12 d-flex justify-content-end align-items-center">
                 {mode === "create" ? (
                   <button onClick={handleInsert} className="mt-4" title="Save">

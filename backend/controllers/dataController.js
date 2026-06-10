@@ -146,7 +146,7 @@ const forgetPassword = async (req, res) => {
       .input("user_code", sql.NVarChar, user_code)
       .input("email_id", sql.NVarChar, email_id)
       .query(
-        `EXEC sp_user_info_hdr @mode,'',@user_code,'','','','','','','',@email_id,'','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL`,
+        `EXEC sp_user_info_hdr @mode,'',@user_code,'','','','','','','',@email_id,'','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL`,
       );
     if (result.recordset.length > 0) {
       const otp = generateOTP();
@@ -176,7 +176,7 @@ const Passwords = async (req, res) => {
       .input("email_id", sql.NVarChar, email_id)
       .input("user_password", sql.NVarChar, user_password)
       .query(
-        "EXEC sp_user_info_hdr @mode,'',@user_code,'','','',@user_password,'','','',@email_id,'','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL",
+        "EXEC sp_user_info_hdr @mode,'',@user_code,'','','',@user_password,'','','',@email_id,'','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL",
       );
     res.status(200).json({ message: "Password updated successfully" });
   } catch (err) {
@@ -214,11 +214,11 @@ const login = async (req, res) => {
       .input("user_code", sql.NVarChar, decryptedUserCode)
       .input("user_password", sql.NVarChar, decryptedPassword)
       .query(
-        `EXEC sp_user_info_hdr 'LUC','',@user_code,'','','',@user_password,'','','','','','','','','','','','','','','','','','',''`,
+        `EXEC sp_user_info_hdr 'LUC','',@user_code,'','','',@user_password,'','','','','','','','','','','','','','','','','','','',''`,
       );
     if (result.recordset.length > 0) {
       res.status(200).json(result.recordset);
-    } else {
+    } else { 
       res.status(404).json("Data not found");
     }
   } catch (err) {
@@ -231,7 +231,7 @@ const getUsercode = async (req, res) => {
   try {
     await connection.connectToDatabase();
     const result = await sql.query(
-      "EXEC sp_user_info_hdr 'F','','user_code','','', '' ,'','','','','','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL",
+      "EXEC sp_user_info_hdr 'F','','user_code','','', '' ,'','','','','','','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL",
     );
     res.json(result.recordset);
   } catch (err) {
@@ -244,7 +244,7 @@ const getAlluserData = async (req, res) => {
   try {
     await connection.connectToDatabase();
     const result = await sql.query(
-      `EXEC sp_user_info_hdr 'A','','','','',' ','','','','','','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL`,
+      `EXEC sp_user_info_hdr 'A','','','','','','','','','','','','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL`,
     );
 
     res.json(result.recordset);
@@ -290,6 +290,7 @@ const userAddData = async (req, res) => {
     gender,
     role_id,
     expiry_date,
+    super_admin,
     created_by,
     modified_by,
     tempstr1,
@@ -359,6 +360,7 @@ const userAddData = async (req, res) => {
       .input("role_id", sql.NVarChar, role_id)
       .input("user_img", sql.VarBinary, user_img)
       .input("expiry_date", sql.NVarChar, expiry_date)
+      .input("super_admin", sql.NVarChar, super_admin)
       .input("created_by", sql.NVarChar, created_by)
       .input("modified_by", sql.NVarChar, modified_by)
       .input("tempstr1", sql.NVarChar, tempstr1)
@@ -370,7 +372,7 @@ const userAddData = async (req, res) => {
       .input("datetime3", sql.NVarChar, datetime3)
       .input("datetime4", sql.NVarChar, datetime4)
       .query(
-        `EXEC sp_user_info_hdr @mode,@company_code,@user_code,@user_name,@first_name,@last_name,@user_password,@user_status,@log_in_out,@user_type,@email_id,@dob,@gender,@role_id,@user_img,@expiry_date,@created_by,@modified_by,@tempstr1, @tempstr2, @tempstr3, @tempstr4,@datetime1, @datetime2, @datetime3, @datetime4`,
+        `EXEC sp_user_info_hdr @mode,@company_code,@user_code,@user_name,@first_name,@last_name,@user_password,@user_status,@log_in_out,@user_type,@email_id,@dob,@gender,@role_id,@user_img,@expiry_date,@super_admin,@created_by,@modified_by,@tempstr1, @tempstr2, @tempstr3, @tempstr4,@datetime1, @datetime2, @datetime3, @datetime4`,
       );
 
     // Return success response
@@ -462,6 +464,7 @@ const UsersaveEditedData = async (req, res) => {
           formatDateForSQL(updatedRow.expiry_date),
         )
         .input("created_by", sql.NVarChar, updatedRow.created_by)
+        .input("super_admin", sql.NVarChar, updatedRow.super_admin)
         .input("modified_by", sql.NVarChar, req.headers["modified-by"])
         .input("tempstr1", sql.NVarChar, updatedRow.tempstr1)
         .input("tempstr2", sql.NVarChar, updatedRow.tempstr2)
@@ -475,7 +478,7 @@ const UsersaveEditedData = async (req, res) => {
           `EXEC sp_user_info_hdr 
             'U',@company_code, @user_code, @user_name, @first_name, @last_name, 
             @user_password, @user_status, @log_in_out, @user_type, 
-            @email_id, @dob, @gender, @role_id, '', @expiry_date, @created_by,  
+            @email_id, @dob, @gender, @role_id, '', @expiry_date, @super_admin, @created_by,  
             @modified_by, @tempstr1, @tempstr2, @tempstr3, 
             @tempstr4, @datetime1, @datetime2, @datetime3, @datetime4`,
         );
@@ -506,7 +509,7 @@ const UserdeleteData = async (req, res) => {
         .input("company_code", sql.NVarChar, req.headers["company_code"])
         .input("modified_by", sql.NVarChar, req.headers["modified-by"])
         .query(`EXEC sp_user_info_hdr 'D',@company_code,@user_code,'','','', 
-            '', '', '', '','','','','','','','',@modified_by,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL`);
+            '', '', '', '','','','','','','','','',@modified_by,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL`);
     }
 
     res.status(200).json("user deleted successfully");
@@ -529,6 +532,7 @@ const getUsersearchdata = async (req, res) => {
     gender,
     role_id,
     user_img,
+    created_by,
   } = req.body;
 
   try {
@@ -550,8 +554,9 @@ const getUsersearchdata = async (req, res) => {
       .input("gender", sql.NVarChar, gender)
       .input("role_id", sql.NVarChar, role_id)
       .input("user_img", sql.NVarChar, user_img)
+      .input("created_by", sql.NVarChar, created_by)
       .query(
-        ` EXEC sp_user_info_hdr @mode,@company_code,@user_code,@user_name,@first_name,@last_name,'',@user_status,'','',@email_id,@dob,@gender,@role_id,@user_img,'','','','','','','','','','',''`,
+        ` EXEC sp_user_info_hdr @mode,@company_code,@user_code,@user_name,@first_name,@last_name,'',@user_status,'','',@email_id,@dob,@gender,@role_id,@user_img,'','',@created_by,'','','','','','','','',''`, 
       );
 
     // Send response
@@ -583,7 +588,7 @@ const UpdateUserImage = async (req, res) => {
       .request()
       .input("user_code", sql.NVarChar, user_code)
       .input("user_img", sql.VarBinary, user_img)
-      .query(`EXEC sp_user_info_hdr 'UI','',@user_code,'','','','','','','','','','','',@user_img,'','','',
+      .query(`EXEC sp_user_info_hdr 'UI','',@user_code,'','','','','','','','','','','',@user_img,'','','','',
                     NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL`);
 
     // Return success response
@@ -623,6 +628,7 @@ const UserUpdate = async (req, res) => {
     gender,
     role_id,
     expiry_date,
+    super_admin,
     created_by,
     modified_by,
   } = req.body;
@@ -677,9 +683,10 @@ const UserUpdate = async (req, res) => {
       .input("expiry_date", sql.NVarChar, expiry_date)
       .input("created_by", sql.NVarChar, created_by)
       .input("modified_by", sql.NVarChar, modified_by)
+      .input("super_admin", sql.NVarChar, super_admin)
       .query(
         `EXEC sp_user_info_hdr @mode,@company_code, @user_code, @user_name, @first_name, @last_name, @user_password, @user_status, @log_in_out, @user_type, 
-            @email_id, @dob, @gender, @role_id, @user_images, @expiry_date, @created_by, @modified_by, '', '', '', '', '', '', '', ''`,
+            @email_id, @dob, @gender, @role_id, @user_images, @expiry_date, @super_admin, @created_by, @modified_by, '', '', '', '', '', '', '', ''`,
       );
     res.status(200).json("Edited data saved successfully");
   } catch (err) {
@@ -698,8 +705,8 @@ const Userdropdown = async (req, res) => {
       .request()
       .input("mode", sql.NVarChar, "MG")
       .input("user_code", sql.NVarChar, user_code)
-      .query(`EXEC [sp_user_info_hdr] @mode,'',@user_code,'','','','','','','','','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL
-`);
+      .query(`EXEC [sp_user_info_hdr] @mode,'',@user_code,'','','','','','','','','','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL
+`); 
     res.json(result.recordset);
   } catch (err) {
     console.error("Error during update:", err);
@@ -2954,7 +2961,7 @@ const logout = async (req, res) => {
       .input("mode", sql.NVarChar, "LOC")
       .input("user_code", sql.NVarChar, user_code)
       .query(
-        `EXEC sp_user_info_hdr 'LOC','',@user_code,'','','','','','','','','','','','','','','','','','','','','','',''`,
+        `EXEC sp_user_info_hdr 'LOC','',@user_code,'','','','','','','','','','','','','','','','','','','','','','','',''`,
       );
 
     res.status(200).json({ message: "Logout successful" });
