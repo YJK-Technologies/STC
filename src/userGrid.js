@@ -245,6 +245,7 @@ useEffect(() => {
     try {
       setLoading(true);
       const company_code = sessionStorage.getItem("selectedCompanyCode");
+      const created_by = sessionStorage.getItem("selectedUserCode");
       const response = await fetch(`${config.apiBaseUrl}/usersearchcriteria`, {
         method: "POST",
         headers: {
@@ -253,6 +254,7 @@ useEffect(() => {
         },
         body: JSON.stringify({
           company_code: company_code,
+          created_by: created_by,
           user_code,
           user_name,
           first_name,
