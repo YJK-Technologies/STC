@@ -109,27 +109,27 @@ function UserGrid() {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-useEffect(() => {
-  const company_code = sessionStorage.getItem("selectedCompanyCode");
+  useEffect(() => {
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
 
-  fetch(`${config.apiBaseUrl}/UserRole`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ company_code }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      const roleOption = data.map((option) => ({
-        value: option.role_id,
-        label: `${option.role_id} - ${option.role_name}`,
-      }));
-
-      setRoleDrop(roleOption);
+    fetch(`${config.apiBaseUrl}/UserRole`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ company_code }),
     })
-    .catch((error) => console.error("Error fetching data:", error));
-}, []);
+      .then((response) => response.json())
+      .then((data) => {
+        const roleOption = data.map((option) => ({
+          value: option.role_id,
+          label: `${option.role_id} - ${option.role_name}`,
+        }));
+
+        setRoleDrop(roleOption);
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
 
   useEffect(() => {
     const company_code = sessionStorage.getItem('selectedCompanyCode');
@@ -473,21 +473,21 @@ useEffect(() => {
         values: gendergriddrop,
       },
     },
-{
-  headerName: "Role ID",
-  field: "role_id",
-  editable: true,
-  cellStyle: { textAlign: "left" },
-  minWidth: 150,
-  cellEditor: "agSelectCellEditor",
-  cellEditorParams: {
-    values: roleDrop.map((d) => d.value),
-  },
-  valueFormatter: (params) => {
-    const role = roleDrop.find((d) => d.value === params.value);
-    return role ? role.label : params.value;
-  },
-},
+    {
+      headerName: "Role ID",
+      field: "role_id",
+      editable: true,
+      cellStyle: { textAlign: "left" },
+      minWidth: 150,
+      cellEditor: "agSelectCellEditor",
+      cellEditorParams: {
+        values: roleDrop.map((d) => d.value),
+      },
+      valueFormatter: (params) => {
+        const role = roleDrop.find((d) => d.value === params.value);
+        return role ? role.label : params.value;
+      },
+    },
     {
       headerName: "Expiry Date",
       field: "expiry_date",
@@ -495,13 +495,13 @@ useEffect(() => {
       hide: true,
       valueFormatter: (params) => {
         if (!params.value) return "";
-      
+
         const date = new Date(params.value);
-      
+
         const day = String(date.getDate()).padStart(2, "0");
         const month = String(date.getMonth() + 1).padStart(2, "0");
         const year = date.getFullYear();
-      
+
         return `${month}-${day}-${year}`;
       },
       cellStyle: { textAlign: "left" },
@@ -535,8 +535,9 @@ useEffect(() => {
         "User Status": row.user_status,
         "Log In/Out": row.log_in_out,
         "Email Id": row.email_id,
-        DOB: row.dob,
-        Gender: row.gender,
+        "DOB": row.dob,
+        "Gender": row.gender,
+        "Role ID": row.role_id,
       };
     });
 
@@ -957,17 +958,17 @@ useEffect(() => {
                 <label for="usts" class="exp-form-labels">
                   User Status
                 </label>
-                  <div title="Please select the User Status">
-                <Select
-                  id="status"
-                  value={selectedStatus}
-                  onChange={handleChangeStatus}
-                  onKeyDown={handleKeyDownStatus}
-                  options={filteredOptionStatus}
-                  className="exp-input-field"
-                  placeholder=""
-                />
-              </div>
+                <div title="Please select the User Status">
+                  <Select
+                    id="status"
+                    value={selectedStatus}
+                    onChange={handleChangeStatus}
+                    onKeyDown={handleKeyDownStatus}
+                    options={filteredOptionStatus}
+                    className="exp-input-field"
+                    placeholder=""
+                  />
+                </div>
               </div>
             </div>
             {/* <div className="col-md-3 form-group">
@@ -1009,17 +1010,17 @@ useEffect(() => {
                 <label for="gender" class="exp-form-labels">
                   Gender
                 </label>
-                  <div title="Please select the Gender">
-                <Select
-                  id="gender"
-                  value={selectedGender}
-                  onChange={handleChangeGender}
-                  onKeyDown={handleKeyDownStatus}
-                  options={filteredOptionGender}
-                  className="exp-input-field"
-                  placeholder=""
-                />
-              </div>
+                <div title="Please select the Gender">
+                  <Select
+                    id="gender"
+                    value={selectedGender}
+                    onChange={handleChangeGender}
+                    onKeyDown={handleKeyDownStatus}
+                    options={filteredOptionGender}
+                    className="exp-input-field"
+                    placeholder=""
+                  />
+                </div>
               </div>
             </div>
             <div className="col-12 d-flex justify-content-end align-items-center mt-4">
