@@ -10,7 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer, toast } from "react-toastify";
 import LoadingScreen from "./LoadingScreen";
 
-function UserInput({}) {
+function UserInput({ }) {
   const [user_code, setUser_code] = useState("");
   const [user_name, setUser_name] = useState("");
   const [first_name, setFirst_name] = useState("");
@@ -80,6 +80,7 @@ function UserInput({}) {
     setDob("");
     setexpiry_date("");
     setSelectedImage("");
+    setsuper_admin(false);
   };
 
   const arrayBufferToBase64 = (buffer) => {
@@ -99,6 +100,9 @@ function UserInput({}) {
       setLast_name(selectedRow.last_name || "");
       setUser_password(selectedRow.user_password || "");
       setUser_status(selectedRow.user_status || "");
+      setsuper_admin(
+        selectedRow.super_admin?.toLowerCase() === "yes"
+      );
       setSelectedStatus({
         label: selectedRow.user_status,
         value: selectedRow.user_status,
@@ -301,9 +305,20 @@ function UserInput({}) {
     setUser_status(selectedStatus ? selectedStatus.value : "");
   };
 
+  // const handleChangeRole = (selectedRole) => {
+  //   setSelectedRole(selectedRole);
+  //   setRole(selectedRole ? selectedRole.value : "");
+  // };
+
   const handleChangeRole = (selectedRole) => {
     setSelectedRole(selectedRole);
-    setRole(selectedRole ? selectedRole.value : "");
+
+    const roleValue = selectedRole?.value || '';
+    setRole(roleValue);
+
+    if (['user', 'us', 'admin', 'ad'].includes(roleValue.toLowerCase())) {
+      setsuper_admin(false);
+    }
   };
 
   const handleChangeLog = (selectedLog) => {
@@ -352,7 +367,7 @@ function UserInput({}) {
       formData.append("last_name", last_name);
       formData.append("user_password", user_password);
       formData.append("expiry_date", expiry_date);
-      formData.append("super_admin", super_admin);
+      formData.append("super_admin", super_admin ? "Yes" : "No");
       formData.append("user_status", user_status);
       formData.append("log_in_out", log_in_out);
       formData.append("email_id", email_id);
@@ -463,6 +478,7 @@ function UserInput({}) {
       formData.append("last_name", last_name);
       formData.append("user_password", user_password);
       formData.append("expiry_date", expiry_date);
+      formData.append("super_admin", super_admin ? "Yes" : "No");
       formData.append("user_status", user_status);
       formData.append("log_in_out", log_in_out);
       formData.append("email_id", email_id);
@@ -557,9 +573,8 @@ function UserInput({}) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${
-                          error && !user_code ? "text-danger" : ""
-                        }`}
+                        className={`exp-form-labels ${error && !user_code ? "text-danger" : ""
+                          }`}
                       >
                         User Code
                       </label>
@@ -590,9 +605,8 @@ function UserInput({}) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${
-                          error && !user_name ? "text-danger" : ""
-                        }`}
+                        className={`exp-form-labels ${error && !user_name ? "text-danger" : ""
+                          }`}
                       >
                         User Name
                       </label>
@@ -622,9 +636,8 @@ function UserInput({}) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${
-                          error && !first_name ? "text-danger" : ""
-                        }`}
+                        className={`exp-form-labels ${error && !first_name ? "text-danger" : ""
+                          }`}
                       >
                         First Name
                       </label>
@@ -654,9 +667,8 @@ function UserInput({}) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${
-                          error && !last_name ? "text-danger" : ""
-                        }`}
+                        className={`exp-form-labels ${error && !last_name ? "text-danger" : ""
+                          }`}
                       >
                         Last Name
                       </label>
@@ -686,9 +698,8 @@ function UserInput({}) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${
-                          error && !user_password ? "text-danger" : ""
-                        }`}
+                        className={`exp-form-labels ${error && !user_password ? "text-danger" : ""
+                          }`}
                       >
                         Password
                       </label>
@@ -732,9 +743,8 @@ function UserInput({}) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${
-                          error && !user_status ? "text-danger" : ""
-                        }`}
+                        className={`exp-form-labels ${error && !user_status ? "text-danger" : ""
+                          }`}
                       >
                         {" "}
                         Status{" "}
@@ -785,9 +795,8 @@ function UserInput({}) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${
-                          error && !role_id ? "text-danger" : ""
-                        }`}
+                        className={`exp-form-labels ${error && !role_id ? "text-danger" : ""
+                          }`}
                       >
                         Role ID
                       </label>
@@ -817,9 +826,8 @@ function UserInput({}) {
                     <div>
                       <label
                         for="state"
-                        className={`exp-form-labels ${
-                          error && !email_id ? "text-danger" : ""
-                        }`}
+                        className={`exp-form-labels ${error && !email_id ? "text-danger" : ""
+                          }`}
                       >
                         Email
                       </label>
@@ -1014,6 +1022,7 @@ function UserInput({}) {
                     type="checkbox"
                     id="superAdmin"
                     checked={super_admin}
+                    disabled={['user', 'us', 'admin', 'ad'].includes(role_id?.toLowerCase())}
                     onChange={(e) => setsuper_admin(e.target.checked)}
                     style={{ width: "1.5em", height: "1.5em", cursor: "pointer", }}
                   />
