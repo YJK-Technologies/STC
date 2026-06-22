@@ -111,13 +111,50 @@ function validateLicense() {
   }
 
   const today = new Date();
-  const expiryDate = new Date(config.license.expiryDate);
-  console.log(expiryDate);
-  console.log(today);
-  if (expiryDate < today) throw new Error("License has expired");
+  today.setHours(0, 0, 0, 0);
 
-  return config; // valid license data
+  const expiryDate = new Date(config.license.expiryDate);
+  expiryDate.setHours(0, 0, 0, 0);
+
+  // 15 days before expiry
+  const warningDate = new Date(expiryDate);
+  warningDate.setDate(warningDate.getDate() - 14);
+
+  // 6 months after expiry
+  const corruptedDate = new Date(expiryDate);
+  corruptedDate.setMonth(corruptedDate.getMonth() + 6);
+
+  let supportStatus = "NORMAL";
+  let supportMessage = "";
+
+  if (today >= warningDate && today <= expiryDate) {
+  supportStatus = "WARNING";
+  supportMessage = "Application Support Expiring Soon";
+  }
+  else if (today > expiryDate && today < corruptedDate) {
+    supportStatus = "EXPIRED";
+    supportMessage = "Please Contact Application Head Office";
+  }
+  else if (today >= corruptedDate) {
+    supportStatus = "CORRUPTED";
+    supportMessage = "Application Corrupted";
+  }
+
+  return {
+    config,
+    supportStatus,
+    supportMessage
+  };
 }
+
+//   const today = new Date();
+//   const expiryDate = new Date(config.license.expiryDate);
+//   console.log(expiryDate);
+//   console.log(today);
+//   if (expiryDate < today) throw new Error("License has expired");
+
+//   return config; // valid license data
+// }
 
 const sendOTP = async (email, otp) => {
   const mailOptions = {
@@ -190,8 +227,17 @@ const login = async (req, res) => {
   const secretKey = "yjk26012024";
 
   try {
+    // try {
+    //   validateLicense();
+    // } catch (licenseErr) {
+    //   return res
+    //     .status(403)
+    //     .json({ success: false, message: licenseErr.message });
+    // }
+    let licenseInfo;
+
     try {
-      validateLicense();
+      licenseInfo = validateLicense();
     } catch (licenseErr) {
       return res
         .status(403)
@@ -216,9 +262,17 @@ const login = async (req, res) => {
       .query(
         `EXEC sp_user_info_hdr 'LUC','',@user_code,'','','',@user_password,'','','','','','','','','','','','','','','','','','','',''`,
       );
+    // if (result.recordset.length > 0) {
+    //   res.status(200).json(result.recordset);
+    // }
     if (result.recordset.length > 0) {
-      res.status(200).json(result.recordset);
-    } else { 
+      res.status(200).json({
+        userData: result.recordset,
+        supportStatus: licenseInfo.supportStatus,
+        supportMessage: licenseInfo.supportMessage,
+      });
+    }
+     else { 
       res.status(404).json("Data not found");
     }
   } catch (err) {
@@ -326,12 +380,12 @@ const userAddData = async (req, res) => {
     licenseExpiry.setHours(0, 0, 0, 0);
     userExpiry.setHours(0, 0, 0, 0);
 
-    if (userExpiry > licenseExpiry) {
-      return res.status(400).json({
-        success: false,
-        message: `User expiry date cannot exceed license expiry date (${formattedLicenseExpiry})`,
-      });
-    }
+    // if (userExpiry > licenseExpiry) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: `User expiry date cannot exceed license expiry date (${formattedLicenseExpiry})`,
+    //   });
+    // }
 
     // --- Step 2: Check remaining user count ---
     if (licenseData.license.noOfUsers <= 0) {
@@ -639,12 +693,12 @@ const UserUpdate = async (req, res) => {
     licenseExpiry.setHours(0, 0, 0, 0);
     userExpiry.setHours(0, 0, 0, 0);
 
-    if (userExpiry > licenseExpiry) {
-      return res.status(400).json({
-        success: false,
-        message: `User expiry date cannot exceed license expiry date (${formattedLicenseExpiry})`,
-      });
-    }
+    // if (userExpiry > licenseExpiry) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: `User expiry date cannot exceed license expiry date (${formattedLicenseExpiry})`,
+    //   });
+    // }
 
     pool = await connection.connectToDatabase();
     await pool

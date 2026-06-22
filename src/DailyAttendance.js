@@ -354,9 +354,22 @@ const QOanalysis = () => {
 
     const transformedData = transformRowData(rowData);
 
-    const worksheet = XLSX.utils.aoa_to_sheet(headerData);
+// Export only visible columns
+const visibleColumns = columnDefs.filter(col => !col.hide);
 
-    XLSX.utils.sheet_add_json(worksheet, transformedData, { origin: "A5" });
+const exportData = transformedData.map(row => {
+  const filteredRow = {};
+
+  visibleColumns.forEach(col => {
+    filteredRow[col.headerName] = row[col.field];
+  });
+
+  return filteredRow;
+});
+
+const worksheet = XLSX.utils.aoa_to_sheet(headerData);
+
+XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A5" });
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Report");
@@ -396,36 +409,90 @@ const QOanalysis = () => {
     window.location.reload();
   };
 
-  const exportPDF = () => {
-    const doc = new jsPDF({
-      orientation: "landscape", // Landscape mode
-      unit: "mm",
-      format: "a4",
-    });
+const exportPDF = () => {
+  if (rowData.length === 0) {
+    toast.warning("There is no data to export.");
+    return;
+  }
 
-    doc.setFontSize(6); // Very Small Font
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4",
+  });
 
-    // Extract headers from columnDefs
-    const headers = columnDefs.map((col) => col.headerName);
+  const reportName = "Daily Attendance Report";
+  const companyNameValue =
+    sessionStorage.getItem("selectedCompanyName") || companyName || "-";
 
-    // Extract data from rowData
-    const data = rowData.map(
-      (row) => columnDefs.map((col) => row[col.field] || "-") // Handle empty values
+  const userName =
+    sessionStorage.getItem("selectedUserName") ||
+    sessionStorage.getItem("selectedUserName") ||
+    sessionStorage.getItem("selectedUserName") ||
+    "-";
+
+  const currentDateTime = new Date().toLocaleString();
+
+  // Export ONLY visible columns
+  const visibleColumns = columnDefs.filter((col) => !col.hide);
+
+  const headers = visibleColumns.map((col) => col.headerName);
+
+  const data = rowData.map((row) =>
+    visibleColumns.map((col) => row[col.field] ?? "-")
+  );
+
+autoTable(doc, {
+  head: [headers],
+  body: data,
+  startY: 15,
+  styles: {
+    fontSize: 4,
+    cellPadding: 1,
+  },
+  headStyles: {
+    fillColor: [100, 100, 255],
+    fontSize: 4,
+  },
+  margin: {
+    top: 15,
+    left: 5,
+    right: 5,
+    bottom: 10,
+  },
+  didDrawPage: function () {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    doc.setFontSize(8);
+
+    // Header
+    doc.text(`Report Name: ${reportName}`, 10, 8);
+
+    doc.text(
+      `Company Name: ${companyName || ""}`,
+      pageWidth - 10,
+      8,
+      { align: "right" }
     );
 
-    // AutoTable Configuration
-    autoTable(doc, {
-      head: [headers],
-      body: data,
-      startY: 10,
-      styles: { fontSize: 4, cellPadding: 1 }, // Very Small Font Size
-      headStyles: { fillColor: [100, 100, 255], fontSize: 4 }, // Light Blue Header
-      columnStyles: { 0: { cellWidth: "auto" } }, // Auto column width
-      margin: { top: 10, left: 5, right: 5 }, // Reduce margins for more space
-    });
+    // Footer
+    doc.text(
+      `User Name: ${userName}`,
+      10,
+      pageHeight - 5
+    );
 
-    doc.save("Daily_Attendance_Report.pdf"); // Save PDF File
-  };
+    doc.text(
+      `Date & Time: ${currentDateTime}`,
+      pageWidth - 10,
+      pageHeight - 5,
+      { align: "right" }
+    );
+  },
+});
+  doc.save("Daily_Attendance_Report.pdf");
+};
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
