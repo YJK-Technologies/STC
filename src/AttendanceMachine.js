@@ -317,9 +317,22 @@ const DCanalysis = () => {
 
     const transformedData = transformRowData(rowData);
 
-    const worksheet = XLSX.utils.aoa_to_sheet(headerData);
+// Only export visible columns
+const visibleColumns = columnDefs.filter(col => !col.hide);
 
-    XLSX.utils.sheet_add_json(worksheet, transformedData, { origin: "A5" });
+const exportData = transformedData.map(row => {
+  const filteredRow = {};
+
+  visibleColumns.forEach(col => {
+    filteredRow[col.headerName] = row[col.headerName];
+  });
+
+  return filteredRow;
+});
+
+const worksheet = XLSX.utils.aoa_to_sheet(headerData);
+
+XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A5" });
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Machine Log");
@@ -345,36 +358,117 @@ const DCanalysis = () => {
     window.location.reload();
   };
 
-  const exportPDF = () => {
-    const doc = new jsPDF({
-      orientation: "landscape", // Landscape mode
-      unit: "mm",
-      format: "a4",
-    });
+const exportPDF = () => {
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4",
+  });
 
-    doc.setFontSize(6); // Very Small Font
+  doc.setFontSize(6);
 
-    // Extract headers from columnDefs
-    const headers = columnDefs.map((col) => col.headerName);
+  const reportName = "Attendance Machine Log";
 
-    // Extract data from rowData
-    const data = rowData.map(
-      (row) => columnDefs.map((col) => row[col.field] || "-") // Handle empty values
+  const userName =
+    sessionStorage.getItem("selectedUserName") || "User";
+
+  const currentDateTime = new Date().toLocaleString("en-GB");
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Top Left - Report Name
+  doc.setFontSize(8);
+  doc.text(`Report Name: ${reportName}`, 10, 8);
+
+  // Top Right - Company Name
+  doc.text(
+    `Company Name: ${companyName || ""}`,
+    pageWidth - 10,
+    8,
+    { align: "right" }
+  );
+
+  // Only visible columns
+  const visibleColumns = columnDefs.filter((col) => !col.hide);
+
+  // Headers from visible columns
+  const headers = visibleColumns.map((col) => col.headerName);
+
+  // Data from visible columns
+  const data = rowData.map((row) =>
+    visibleColumns.map((col) => row[col.field] || "-")
+  );
+
+autoTable(doc, {
+  head: [headers],
+  body: data,
+  startY: 15,
+  styles: {
+    fontSize: 4,
+    cellPadding: 1,
+  },
+  headStyles: {
+    fillColor: [100, 100, 255],
+    fontSize: 4,
+  },
+  margin: {
+    top: 15,
+    left: 5,
+    right: 5,
+    bottom: 10,
+  },
+  didDrawPage: function () {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    doc.setFontSize(8);
+
+    // Header
+    doc.text(`Report Name: ${reportName}`, 10, 8);
+
+    doc.text(
+      `Company Name: ${companyName || ""}`,
+      pageWidth - 10,
+      8,
+      { align: "right" }
     );
 
-    // AutoTable Configuration
-    autoTable(doc, {
-      head: [headers],
-      body: data,
-      startY: 10,
-      styles: { fontSize: 4, cellPadding: 1 }, // Very Small Font Size
-      headStyles: { fillColor: [100, 100, 255], fontSize: 4 }, // Light Blue Header
-      columnStyles: { 0: { cellWidth: "auto" } }, // Auto column width
-      margin: { top: 10, left: 5, right: 5 }, // Reduce margins for more space
-    });
+    // Footer
+    doc.text(
+      `User Name: ${userName}`,
+      10,
+      pageHeight - 5
+    );
 
-    doc.save("Attendance_Machine_Log.pdf"); // Save PDF File
-  };
+    doc.text(
+      `Date & Time: ${currentDateTime}`,
+      pageWidth - 10,
+      pageHeight - 5,
+      { align: "right" }
+    );
+  },
+});
+
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  // Bottom Left - User Name
+  doc.setFontSize(8);
+  doc.text(
+    `User Name: ${userName}`,
+    10,
+    pageHeight - 5
+  );
+
+  // Bottom Right - Date & Time
+  doc.text(
+    `Date & Time: ${currentDateTime}`,
+    pageWidth - 10,
+    pageHeight - 5,
+    { align: "right" }
+  );
+
+  doc.save("Attendance_Machine_Log.pdf");
+ };
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");

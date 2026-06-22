@@ -462,9 +462,22 @@ const DCanalysis = () => {
 
     const transformedData = transformRowData(rowData);
 
+    // Get only visible columns
+    const visibleColumns = columnDefs.filter(col => !col.hide);
+
+    const exportData = transformedData.map(row => {
+      const filteredRow = {};
+    
+      visibleColumns.forEach(col => {
+        filteredRow[col.headerName] = row[col.field];
+      });
+    
+      return filteredRow;
+    });
+
     const worksheet = XLSX.utils.aoa_to_sheet(headerData);
 
-    XLSX.utils.sheet_add_json(worksheet, transformedData, { origin: 'A5' });
+    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: 'A5' });
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance Summary Report');
@@ -481,36 +494,118 @@ const DCanalysis = () => {
     setEndDate(e.target.value);
   };
 
-  const exportPDF = () => {
-    const doc = new jsPDF({
-      orientation: "landscape", // Landscape mode
-      unit: "mm",
-      format: "a4",
-    });
+const exportPDF = () => {
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4",
+  });
 
-    doc.setFontSize(6); // Very Small Font
+  doc.setFontSize(6);
 
-    // Extract headers from columnDefs
-    const headers = columnDefs.map(col => col.headerName);
+  const reportName = "Attendance Summary Contracts";
+  const userName =
+    sessionStorage.getItem("selectedUserName") ||
+    sessionStorage.getItem("selectedUserName") ||
+    "User";
 
-    // Extract data from rowData
-    const data = rowData.map(row =>
-      columnDefs.map(col => row[col.field] || "-") // Handle empty values
+  const currentDateTime = new Date().toLocaleString("en-GB");
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Top Left
+  doc.setFontSize(8);
+  doc.text(`Report Name: ${reportName}`, 10, 8);
+
+  // Top Right
+  doc.text(
+    `Company Name: ${companyName}`,
+    pageWidth - 10,
+    8,
+    { align: "right" }
+  );
+
+  // Only visible columns
+  const visibleColumns = columnDefs.filter(col => !col.hide);
+
+  // Headers
+  const headers = visibleColumns.map(col => col.headerName);
+
+  // Data
+  const data = rowData.map(row =>
+    visibleColumns.map(col => row[col.field] || "-")
+  );
+
+autoTable(doc, {
+  head: [headers],
+  body: data,
+  startY: 15,
+  styles: {
+    fontSize: 4,
+    cellPadding: 1,
+  },
+  headStyles: {
+    fillColor: [100, 100, 255],
+    fontSize: 4,
+  },
+  margin: {
+    top: 15,
+    left: 5,
+    right: 5,
+    bottom: 10,
+  },
+  didDrawPage: function () {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    doc.setFontSize(8);
+
+    // Header
+    doc.text(`Report Name: ${reportName}`, 10, 8);
+
+    doc.text(
+      `Company Name: ${companyName || ""}`,
+      pageWidth - 10,
+      8,
+      { align: "right" }
     );
 
-    autoTable(doc, {
-      head: [headers],
-      body: data,
-      startY: 10,
-      styles: { fontSize: 4 },
-      headStyles: { fillColor: [100, 100, 255], fontSize: 4 },
-      columnWidth: "wrap",
-      margin: { top: 10, left: 5, right: 5 },
-    });
+    // Footer
+    doc.text(
+      `User Name: ${userName}`,
+      10,
+      pageHeight - 5
+    );
 
-    doc.save("Attendance_Summary_Report.pdf");
-  };
+    doc.text(
+      `Date & Time: ${currentDateTime}`,
+      pageWidth - 10,
+      pageHeight - 5,
+      { align: "right" }
+    );
+  },
+});
 
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  // Bottom Left
+  doc.setFontSize(8);
+  doc.text(
+    `User Name: ${userName}`,
+    10,
+    pageHeight - 5
+  );
+
+  // Bottom Right
+  doc.text(
+    `Date & Time: ${currentDateTime}`,
+    pageWidth - 10,
+    pageHeight - 5,
+    { align: "right" }
+  );
+
+  doc.save("Attendance_Summary_Contracts.pdf");
+};
   // const defaultColDef = {
   //   flex: 1,
   //   minWidth: 130,
