@@ -402,36 +402,112 @@ const DCanalysis = () => {
     XLSX.writeFile(workbook, 'Employee_Master.xlsx');
   };
 
-  const exportPDF = () => {
-    const doc = new jsPDF({
-      orientation: "landscape", // Landscape Mode
-      unit: "mm",
-      format: "a4",
-    });
+ const exportPDF = () => {
+  const doc = new jsPDF({
+    orientation: "landscape",
+    unit: "mm",
+    format: "a4",
+  });
 
-    doc.setFontSize(8); // Small Font Size
+  const reportName = "Employee Master";
 
-    // Table Headers
-    const headers = columnDefs.map(col => col.headerName);
+  const userName =
+    sessionStorage.getItem("selectedUserName") || "User";
 
-    // Table Data
-    const data = rowData.map(row =>
-      columnDefs.map(col => row[col.field] || "-") // Handle empty values
+  const currentDateTime = new Date().toLocaleString("en-GB");
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  // Top Left - Report Name
+  doc.setFontSize(8);
+  doc.text(`Report Name: ${reportName}`, 10, 8);
+
+  // Top Right - Company Name
+  doc.text(
+    `Company Name: ${companyName || ""}`,
+    pageWidth - 10,
+    8,
+    { align: "right" }
+  );
+
+  // Headers
+  const headers = columnDefs.map((col) => col.headerName);
+
+  // Data
+  const data = rowData.map((row) =>
+    columnDefs.map((col) => row[col.field] ?? "-")
+  );
+
+autoTable(doc, {
+  head: [headers],
+  body: data,
+  startY: 15,
+  styles: {
+    fontSize: 4,
+    cellPadding: 1,
+  },
+  headStyles: {
+    fillColor: [100, 100, 255],
+    fontSize: 4,
+  },
+  margin: {
+    top: 15,
+    left: 5,
+    right: 5,
+    bottom: 10,
+  },
+  didDrawPage: function () {
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    doc.setFontSize(8);
+
+    // Header
+    doc.text(`Report Name: ${reportName}`, 10, 8);
+
+    doc.text(
+      `Company Name: ${companyName || ""}`,
+      pageWidth - 10,
+      8,
+      { align: "right" }
     );
 
-    // AutoTable Configuration
-    autoTable(doc, {
-      head: [headers],
-      body: data,
-      startY: 10,
-      styles: { fontSize: 4, cellPadding: 1 }, // Very Small Font Size
-      headStyles: { fillColor: [100, 100, 255], fontSize: 4 }, // Light Blue Header
-      columnStyles: { 0: { cellWidth: "auto" } }, // Auto column width
-      margin: { top: 10, left: 5, right: 5 }, // Reduce margins for more space
-    });
+    // Footer
+    doc.text(
+      `User Name: ${userName}`,
+      10,
+      pageHeight - 5
+    );
 
-    doc.save("Employee_Data.pdf"); // Download PDF
-  };
+    doc.text(
+      `Date & Time: ${currentDateTime}`,
+      pageWidth - 10,
+      pageHeight - 5,
+      { align: "right" }
+    );
+  },
+});
+
+  const pageHeight = doc.internal.pageSize.getHeight();
+
+  // Bottom Left - User Name
+  doc.setFontSize(8);
+  doc.text(
+    `User Name: ${userName}`,
+    10,
+    pageHeight - 5
+  );
+
+  // Bottom Right - Date & Time
+  doc.text(
+    `Date & Time: ${currentDateTime}`,
+    pageWidth - 10,
+    pageHeight - 5,
+    { align: "right" }
+  );
+
+  doc.save("Employee_Master.pdf");
+};
 
   const defaultColDef = {
     flex: 1,
