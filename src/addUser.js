@@ -138,17 +138,15 @@ function UserInput({ }) {
       // };
 
       const toInputDate = (dateStr) => {
-  if (!dateStr) return "";
-
-  // DD-MM-YYYY format
-  if (dateStr.includes("-") && !dateStr.includes("T")) {
-    const [dd, mm, yyyy] = dateStr.split("-");
-    return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
-  }
-
-  // ISO format
-  return dateStr.substring(0, 10);
-};
+        if (!dateStr) return "";
+        // DD-MM-YYYY format
+        if (dateStr.includes("-") && !dateStr.includes("T")) {
+          const [dd, mm, yyyy] = dateStr.split("-");
+          return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+        }
+        // ISO format
+        return dateStr.substring(0, 10);
+      };
 
       setDob(toInputDate(selectedRow.dob));
       setexpiry_date(toInputDate(selectedRow.expiry_date));
@@ -512,7 +510,7 @@ function UserInput({ }) {
         console.log("Data Updated successfully");
         setTimeout(() => {
           toast.success("Data updated successfully!", {
-            onClose: () => clearInputFields(),
+            // onClose: () => clearInputFields(),
           });
         }, 1000);
       } else {
