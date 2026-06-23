@@ -124,18 +124,31 @@ function UserInput({ }) {
       });
       setEmail_id(selectedRow.email_id || "");
 
+      // const toInputDate = (dateStr) => {
+      //   if (!dateStr) return "";
+
+      //   // For DOB format: 10-02-2026
+      //   if (dateStr.includes("-") && !dateStr.includes("T")) {
+      //     const [mm, dd, yyyy] = dateStr.split("-");
+      //     return `${yyyy}-${mm}-${dd}`;
+      //   }
+
+      //   // For ISO format: 2026-06-02T00:00:00.000Z
+      //   return dateStr.substring(0, 10);
+      // };
+
       const toInputDate = (dateStr) => {
-        if (!dateStr) return "";
+  if (!dateStr) return "";
 
-        // For DOB format: 10-02-2026
-        if (dateStr.includes("-") && !dateStr.includes("T")) {
-          const [mm, dd, yyyy] = dateStr.split("-");
-          return `${yyyy}-${mm}-${dd}`;
-        }
+  // DD-MM-YYYY format
+  if (dateStr.includes("-") && !dateStr.includes("T")) {
+    const [dd, mm, yyyy] = dateStr.split("-");
+    return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+  }
 
-        // For ISO format: 2026-06-02T00:00:00.000Z
-        return dateStr.substring(0, 10);
-      };
+  // ISO format
+  return dateStr.substring(0, 10);
+};
 
       setDob(toInputDate(selectedRow.dob));
       setexpiry_date(toInputDate(selectedRow.expiry_date));
