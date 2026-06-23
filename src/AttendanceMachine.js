@@ -77,6 +77,7 @@ const DCanalysis = () => {
     new Date().toISOString().split("T")[0]
   );
   const companyName = sessionStorage.getItem("selectedCompanyName");
+  const userName = sessionStorage.getItem('selectedUserName');
   const [loading, setLoading] = useState(false);
   const [templateList, setTemplateList] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -294,7 +295,7 @@ const DCanalysis = () => {
       EMPID: row.EmpId,
       "EMP NAME": row.EmpDs,
       DEPARTMENT: row.DepartmentDs,
-      DATE: row.EMPDATE,
+      DATE: formatDate(row.EMPDATE),
       "PUNCH TIME": row.EmpTime,
       "READER NAME": row.ReaderName,
     }));
@@ -306,12 +307,16 @@ const DCanalysis = () => {
       return;
     }
 
-    const formatDate = (date) => date.split("-").reverse().join("/");
+    const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
+    };
 
     const headerData = [
       ["Attendance Machine Log"],
       [`Company Name: ${companyName}`],
       [`Date Range: ${formatDate(startDate)} to ${formatDate(endDate)}`],
+      [`User Name: ${userName}`],
       [],
     ];
 
@@ -332,7 +337,25 @@ const exportData = transformedData.map(row => {
 
 const worksheet = XLSX.utils.aoa_to_sheet(headerData);
 
-XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A5" });
+XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A6" });
+
+    // Auto-fit column width
+    const colWidths = visibleColumns.map(col => {
+      const headerLength = col.headerName.length;
+    
+      const maxDataLength = Math.max(
+        ...exportData.map(row =>
+          row[col.headerName]
+            ? row[col.headerName].toString().length
+            : 0
+        ),
+        headerLength
+      );
+    
+      return { wch: maxDataLength + 5 }; // extra padding
+    });
+
+    worksheet['!cols'] = colWidths;
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Machine Log");
@@ -372,7 +395,12 @@ const exportPDF = () => {
   const userName =
     sessionStorage.getItem("selectedUserName") || "User";
 
-  const currentDateTime = new Date().toLocaleString("en-GB");
+  const now = new Date();
+
+const currentDateTime =
+  now.toLocaleDateString("en-GB").replace(/\//g, "-") +
+  ", " +
+  now.toLocaleTimeString("en-GB");
 
   const pageWidth = doc.internal.pageSize.getWidth();
 

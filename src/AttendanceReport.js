@@ -133,6 +133,7 @@ const DCanalysis = () => {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const companyName = sessionStorage.getItem('selectedCompanyName');
+  const userName = sessionStorage.getItem('selectedUserName');
   const [loading, setLoading] = useState(false);
   const [templateList, setTemplateList] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -307,26 +308,26 @@ const DCanalysis = () => {
 
     const reportData = selectedRows.map((row) => {
       return {
-        "EMPLOYEE_NUMBER": row.EMPLOYEE_NUMBER,
-        "START_DATE": row.START_DATE,
-        "END_DATE": row.END_DATE,
-        "START_TIME": row.START_TIME,
-        "END_TIME": row.END_TIME,
-        "STATUS": row.STATUS,
-        "MESSAGE": row.MESSAGE,
-        "NAME": row.NAME,
-        "STARTDATE": row.STARTDATE,
-        "ENDDATE": row.ENDDATE,
-        "CARDID": row.CARDID,
-        "DAY": row.DAY,
-        "WORKINGHOURS": row.WORKINGHOURS,
-        "DELAYEDBY": row.DELAYEDBY,
-        "LEFTEARLY": row.LEFTEARLY,
-        "ADJUSTMENTINTIME": row.ADJUSTMENTINTIME,
-        "ADJUSTMENTOUTTIME": row.ADJUSTMENTOUTTIME,
-        "LOCATION_IN": row.LOCATION_IN,
-        "LOCATION_OUT": row.LOCATION_OUT,
-        "Department": row.Department,
+      "Employee Number": row.EMPLOYEE_NUMBER,
+      "Start_Date": formatDate(row.START_DATE),
+      "End_Date": formatDate(row.END_DATE),
+      "Start_Time": row.START_TIME,
+      "End_Time": row.END_TIME,
+      "Status": row.STATUS,
+      "Message": row.MESSAGE,
+      "Name": row.NAME,
+      "Start Date": formatDate(row.STARTDATE),
+      "End Date": formatDate(row.ENDDATE),
+      "Cardid": row.CARDID,
+      "Day": row.DAY,
+      "Working Hours": row.WORKINGHOURS,
+      "Delayed By": row.DELAYEDBY,
+      "Left Early": row.LEFTEARLY,
+      "Adjustment In Time": row.ADJUSTMENTINTIME,
+      "Adjustment Out Time": row.ADJUSTMENTOUTTIME,
+      "Location In": row.LOCATION_IN,
+      "Location Out": row.LOCATION_OUT,
+      "Department": row.Department,
       };
     });
 
@@ -423,15 +424,15 @@ const DCanalysis = () => {
   const transformRowData = (data) => {
     return data.map(row => ({
       "EMPLOYEE_NUMBER": row.EMPLOYEE_NUMBER,
-      "START_DATE": row.START_DATE,
-      "END_DATE": row.END_DATE,
+      "START_DATE": formatDate(row.START_DATE),
+      "END_DATE": formatDate(row.END_DATE),
       "START_TIME": row.START_TIME,
       "END_TIME": row.END_TIME,
       "STATUS": row.STATUS,
       "MESSAGE": row.MESSAGE,
       "NAME": row.NAME,
-      "STARTDATE": row.STARTDATE,
-      "ENDDATE": row.ENDDATE,
+      "STARTDATE": formatDate(row.STARTDATE),
+      "ENDDATE": formatDate(row.ENDDATE),
       "CARDID": row.CARDID,
       "DAY": row.DAY,
       "WORKINGHOURS": row.WORKINGHOURS,
@@ -451,12 +452,16 @@ const DCanalysis = () => {
       return;
     }
 
-    const formatDate = (date) => date.split('-').reverse().join('/');
+    const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
+    };
 
     const headerData = [
       ['Attendance Summary Report'],
       [`Company Name: ${companyName}`],
       [`Date Range: ${formatDate(startDate)} to ${formatDate(endDate)}`],
+      [`User Name: ${userName}`],
       []
     ];
 
@@ -477,7 +482,25 @@ const DCanalysis = () => {
 
     const worksheet = XLSX.utils.aoa_to_sheet(headerData);
 
-    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: 'A5' });
+    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: 'A6' });
+
+    // Auto-fit column width
+    const colWidths = visibleColumns.map(col => {
+      const headerLength = col.headerName.length;
+    
+      const maxDataLength = Math.max(
+        ...exportData.map(row =>
+          row[col.headerName]
+            ? row[col.headerName].toString().length
+            : 0
+        ),
+        headerLength
+      );
+    
+      return { wch: maxDataLength + 5 }; // extra padding
+    });
+
+    worksheet['!cols'] = colWidths;
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance Summary Report');
@@ -503,13 +526,18 @@ const exportPDF = () => {
 
   doc.setFontSize(6);
 
-  const reportName = "Attendance Summary Contracts";
+  const reportName = "Attendance Summary Report";
   const userName =
     sessionStorage.getItem("selectedUserName") ||
     sessionStorage.getItem("selectedUserName") ||
     "User";
 
-  const currentDateTime = new Date().toLocaleString("en-GB");
+  const now = new Date();
+
+const currentDateTime =
+  now.toLocaleDateString("en-GB").replace(/\//g, "-") +
+  ", " +
+  now.toLocaleTimeString("en-GB");
 
   const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -604,7 +632,7 @@ autoTable(doc, {
     { align: "right" }
   );
 
-  doc.save("Attendance_Summary_Contracts.pdf");
+  doc.save("Attendance_Summary_Report.pdf");
 };
   // const defaultColDef = {
   //   flex: 1,

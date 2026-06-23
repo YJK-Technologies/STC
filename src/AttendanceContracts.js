@@ -70,6 +70,7 @@ const PurchaseOrderAnalysis = () => {
   const [employeeName, setEmployeeName] = useState("");
   const [contractorName, setContractorName] = useState("");
   const companyName = sessionStorage.getItem('selectedCompanyName');
+  const userName = sessionStorage.getItem('selectedUserName');
   const [open, setOpen] = React.useState(false);
   const [open1, setOpen1] = React.useState(false);
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
@@ -313,15 +314,15 @@ const PurchaseOrderAnalysis = () => {
   const transformRowData = (data) => {
     return data.map(row => ({
       "EMPLOYEE_NUMBER": row.EMPLOYEE_NUMBER,
-      "START_DATE": row.START_DATE,
-      "END_DATE": row.END_DATE,
+      "START_DATE": formatDate(row.START_DATE),
+      "END_DATE": formatDate(row.END_DATE),
       "START_TIME": row.START_TIME,
       "END_TIME": row.END_TIME,
       "STATUS": row.STATUS,
       "MESSAGE": row.MESSAGE,
       "NAME": row.NAME,
-      "STARTDATE": row.STARTDATE,
-      "ENDDATE": row.ENDDATE,
+      "STARTDATE": formatDate(row.STARTDATE),
+      "ENDDATE": formatDate(row.ENDDATE),
       "CARDID": row.CARDID,
       "DAY": row.DAY,
       "WORKINGHOURS": row.WORKINGHOURS,
@@ -341,12 +342,16 @@ const PurchaseOrderAnalysis = () => {
       return;
     }
 
-    const formatDate = (date) => date.split('-').reverse().join('/');
+    const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
+    };
 
     const headerData = [
-      ['Attendance Summary for Contracts'],
+      ['Attendance Summary Contracts'],
       [`Company Name: ${companyName}`],
       [`Date Range: ${formatDate(startDate)} to ${formatDate(endDate)}`],
+      [`User Name: ${userName}`],
       []
     ];
 
@@ -367,11 +372,29 @@ const PurchaseOrderAnalysis = () => {
 
     const worksheet = XLSX.utils.aoa_to_sheet(headerData);
 
-    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: 'A5' });
+    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: 'A6' });
+
+    // Auto-fit column width
+    const colWidths = visibleColumns.map(col => {
+      const headerLength = col.headerName.length;
+    
+      const maxDataLength = Math.max(
+        ...exportData.map(row =>
+          row[col.headerName]
+            ? row[col.headerName].toString().length
+            : 0
+        ),
+        headerLength
+      );
+    
+      return { wch: maxDataLength + 5 }; // extra padding
+    });
+
+    worksheet['!cols'] = colWidths;
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance Summary');
-    XLSX.writeFile(workbook, 'Attendance_Summary_for_Contracts.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance Summary Contracts');
+    XLSX.writeFile(workbook, 'Attendance_Summary_Contracts.xlsx');
   };
 
   const handleEmployeeData = async (data) => {
@@ -414,7 +437,12 @@ const exportPDF = () => {
     sessionStorage.getItem("selectedUserName") ||
     "User";
 
-  const currentDateTime = new Date().toLocaleString("en-GB");
+  const now = new Date();
+
+const currentDateTime =
+  now.toLocaleDateString("en-GB").replace(/\//g, "-") +
+  ", " +
+  now.toLocaleTimeString("en-GB");
 
   const pageWidth = doc.internal.pageSize.getWidth();
 

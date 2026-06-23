@@ -96,6 +96,7 @@ const DCanalysis = () => {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const companyName = sessionStorage.getItem('selectedCompanyName');
+  const userName = sessionStorage.getItem('selectedUserName');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -114,6 +115,11 @@ const DCanalysis = () => {
   const employeeInfoPermission = permissions
     .filter((permission) => permission.screen_type === "EmployeeInfo")
     .map((permission) => permission.permission_type.toLowerCase());
+
+  const formatDate = (dateString) => {
+    const [month, day, year] = dateString.includes("/") ? dateString.split("/") : dateString.split("-");
+    return `${day}-${month}-${year}`;
+  };
 
   useEffect(() => {
     fetch(`${config.apiBaseUrl}/getDeptType_Atte_Report`)
@@ -365,7 +371,7 @@ const DCanalysis = () => {
     return data.map(row => ({
       "Employee ID": row.employeeId,
       "Employee Name": row.employeeName,
-      "Join Date": row.joinDate,
+      "Join Date": formatDate(row.joinDate),
       "Department": row.department,
       "Designation": row.designation,
       "Grade": row.Grade,
@@ -382,12 +388,16 @@ const DCanalysis = () => {
       return;
     }
 
-    const formatDate = (date) => date.split('-').reverse().join('/');
+    const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
+    };
 
     const headerData = [
       ['Employee Master'],
       [`Company Name: ${companyName}`],
       [`Date Range: ${formatDate(startDate)} to ${formatDate(endDate)}`],
+      [`User Name: ${userName}`],
       []
     ];
 
@@ -395,7 +405,23 @@ const DCanalysis = () => {
 
     const worksheet = XLSX.utils.aoa_to_sheet(headerData);
 
-    XLSX.utils.sheet_add_json(worksheet, transformedData, { origin: 'A5' });
+    XLSX.utils.sheet_add_json(worksheet, transformedData, { origin: 'A6' });
+
+    // Auto Adjust Column Width
+    const colWidths = Object.keys(transformedData[0] || {}).map((key) => {
+      const maxLength = Math.max(
+        key.length,
+        ...transformedData.map(row =>
+          row[key] ? row[key].toString().length : 0
+        )
+      );
+    
+      return {
+        wch: Math.max(maxLength + 3, 15) // padding + minimum width
+      };
+    });
+
+    worksheet['!cols'] = colWidths;
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Master');
@@ -414,7 +440,12 @@ const DCanalysis = () => {
   const userName =
     sessionStorage.getItem("selectedUserName") || "User";
 
-  const currentDateTime = new Date().toLocaleString("en-GB");
+  const now = new Date();
+
+const currentDateTime =
+  now.toLocaleDateString("en-GB").replace(/\//g, "-") +
+  ", " +
+  now.toLocaleTimeString("en-GB");
 
   const pageWidth = doc.internal.pageSize.getWidth();
 
