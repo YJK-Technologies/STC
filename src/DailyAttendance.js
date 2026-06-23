@@ -80,6 +80,7 @@ const QOanalysis = () => {
     new Date().toISOString().split("T")[0]
   );
   const companyName = sessionStorage.getItem("selectedCompanyName");
+  const userName = sessionStorage.getItem('selectedUserName');
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = useState(false);
   const [templateList, setTemplateList] = useState([]);
@@ -316,15 +317,15 @@ const QOanalysis = () => {
   const transformRowData = (data) => {
     return data.map((row) => ({
       EMPLOYEE_NUMBER: row.EMPLOYEE_NUMBER,
-      START_DATE: row.START_DATE,
-      END_DATE: row.END_DATE,
+      START_DATE: formatDate(row.START_DATE),
+      END_DATE: formatDate(row.END_DATE),
       START_TIME: row.START_TIME,
       END_TIME: row.END_TIME,
       STATUS: row.STATUS,
       MESSAGE: row.MESSAGE,
       NAME: row.NAME,
-      STARTDATE: row.STARTDATE,
-      ENDDATE: row.ENDDATE,
+      STARTDATE: formatDate(row.STARTDATE),
+      ENDDATE: formatDate(row.ENDDATE),
       CARDID: row.CARDID,
       DAY: row.DAY,
       WORKINGHOURS: row.WORKINGHOURS,
@@ -343,12 +344,16 @@ const QOanalysis = () => {
       return;
     }
 
-    const formatDate = (date) => date.split("-").reverse().join("/");
+    const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
+    };
 
     const headerData = [
-      ["Quotation Analysis"],
+      ["Daily Attendance Report"],
       [`Company Name: ${companyName}`],
       [`Date Range: ${formatDate(startDate)} to ${formatDate(endDate)}`],
+      [`User Name: ${userName}`],
       [],
     ];
 
@@ -365,14 +370,32 @@ const exportData = transformedData.map(row => {
   });
 
   return filteredRow;
-});
+  });
 
-const worksheet = XLSX.utils.aoa_to_sheet(headerData);
+  const worksheet = XLSX.utils.aoa_to_sheet(headerData);
 
-XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A5" });
+  XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A6" });
+
+      // Auto-fit column width
+      const colWidths = visibleColumns.map(col => {
+        const headerLength = col.headerName.length;
+      
+        const maxDataLength = Math.max(
+          ...exportData.map(row =>
+            row[col.headerName]
+              ? row[col.headerName].toString().length
+              : 0
+          ),
+          headerLength
+        );
+      
+        return { wch: maxDataLength + 5 }; // extra padding
+      });
+
+      worksheet['!cols'] = colWidths;
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Report");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Daily Attendance Report");
     XLSX.writeFile(workbook, "Daily_Attendance_Report.xlsx");
   };
 
@@ -431,7 +454,12 @@ const exportPDF = () => {
     sessionStorage.getItem("selectedUserName") ||
     "-";
 
-  const currentDateTime = new Date().toLocaleString();
+  const now = new Date();
+
+const currentDateTime =
+  now.toLocaleDateString("en-GB").replace(/\//g, "-") +
+  ", " +
+  now.toLocaleTimeString("en-GB");
 
   // Export ONLY visible columns
   const visibleColumns = columnDefs.filter((col) => !col.hide);
