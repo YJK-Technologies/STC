@@ -79,10 +79,12 @@ function UserScreenInput({ }) {
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
-  const filteredOptionscreens = screensdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+   const filteredOptionscreens = Array.isArray(screensdrop)
+    ? screensdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
   const handleChangescreens = (selectedscreens) => {
     setselectedscreens(selectedscreens);
@@ -103,10 +105,12 @@ function UserScreenInput({ }) {
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
-  const filteredOptionPermissions = permissionsdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+   const filteredOptionPermissions = Array.isArray(permissionsdrop)
+    ? permissionsdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
   const handleChangePermissions = (selectedpermissions) => {
     setselectedpermissions(selectedpermissions);
@@ -128,10 +132,12 @@ function UserScreenInput({ }) {
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
-  const filteredOptionRole = roleiddrop.map((option) => ({
-    value: option.role_id,
-    label: `${option.role_id} - ${option.role_name}`,
-  }));
+   const filteredOptionRole = Array.isArray(roleiddrop)
+    ? roleiddrop.map((option) => ({
+      value: option.role_id,
+      label: `${option.role_id} - ${option.role_name}`,
+    }))
+    : [];
 
   const handleChangeRole = (selectedRole) => {
     setSelectedRole(selectedRole);

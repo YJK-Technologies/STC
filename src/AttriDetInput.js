@@ -70,10 +70,12 @@ useEffect(() => {
   fetchHdrCode();
 }, []);
 
-  const filteredOptionHeader = statusdrop.map((option) => ({
-    value: option.attributeheader_code,
-    label: option.attributeheader_code,
-  }));
+const filteredOptionHeader = Array.isArray(statusdrop)
+ ? statusdrop.map((option) => ({
+   value: option.attributeheader_code,
+   label: option.attributeheader_code,
+ }))
+ : [];
 
   const handleChangeHeader = (selectedHeader) => {
     setSelectedHeader(selectedHeader);

@@ -108,11 +108,12 @@ function CompanyMappingGrid() {
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
-
-  const filteredOptionStatus = statusdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+   const filteredOptionStatus = Array.isArray(statusdrop)
+    ? statusdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
   const handleChangeStatus = (selectedStatus) => {
     setSelectedStatus(selectedStatus);

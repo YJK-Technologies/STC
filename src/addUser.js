@@ -138,17 +138,15 @@ function UserInput({ }) {
       // };
 
       const toInputDate = (dateStr) => {
-  if (!dateStr) return "";
-
-  // DD-MM-YYYY format
-  if (dateStr.includes("-") && !dateStr.includes("T")) {
-    const [dd, mm, yyyy] = dateStr.split("-");
-    return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
-  }
-
-  // ISO format
-  return dateStr.substring(0, 10);
-};
+        if (!dateStr) return "";
+        // DD-MM-YYYY format
+        if (dateStr.includes("-") && !dateStr.includes("T")) {
+          const [dd, mm, yyyy] = dateStr.split("-");
+          return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+        }
+        // ISO format
+        return dateStr.substring(0, 10);
+      };
 
       setDob(toInputDate(selectedRow.dob));
       setexpiry_date(toInputDate(selectedRow.expiry_date));
@@ -293,25 +291,31 @@ function UserInput({ }) {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-  const filteredOptionStatus = statusdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+     const filteredOptionStatus = Array.isArray(statusdrop)
+    ? statusdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
+     const filteredOptionRole = Array.isArray(roleDrop)
+    ? roleDrop.map((option) => ({
+      value: option.role_id,
+      label: option.role_name,
+    }))
+    : [];
+     const filteredOptionLog = Array.isArray(Loginoroutdrop)
+    ? Loginoroutdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
+     const filteredOptionGender = Array.isArray(Genderdrop)
+    ? Genderdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
-  const filteredOptionRole = roleDrop.map((option) => ({
-    value: option.role_id,
-    label: option.role_name,
-  }));
-
-  const filteredOptionLog = Loginoroutdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
-
-  const filteredOptionGender = Genderdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
 
   const handleChangeStatus = (selectedStatus) => {
     setSelectedStatus(selectedStatus);
@@ -512,7 +516,7 @@ function UserInput({ }) {
         console.log("Data Updated successfully");
         setTimeout(() => {
           toast.success("Data updated successfully!", {
-            onClose: () => clearInputFields(),
+            // onClose: () => clearInputFields(),
           });
         }, 1000);
       } else {

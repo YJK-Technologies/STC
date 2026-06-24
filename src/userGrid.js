@@ -192,21 +192,25 @@ function UserGrid() {
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
-  const filteredOptionStatus = statusdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+   const filteredOptionStatus = Array.isArray(statusdrop)
+    ? statusdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
   const filteredOptionUser = Usertypedrop.map((option) => ({
     value: option.attributedetails_name,
     label: option.attributedetails_name,
   }));
 
-  const filteredOptionGender = Genderdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
-
+  const filteredOptionGender = Array.isArray(Genderdrop)
+    ? Genderdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
+    
   const handleChangeStatus = (selectedStatus) => {
     setSelectedStatus(selectedStatus);
     setuser_status(selectedStatus ? selectedStatus.value : "");
