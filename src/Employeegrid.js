@@ -105,10 +105,12 @@ const DCanalysis = () => {
     setDepartment(selectedDepartment.value);
   };
 
-  const filteredOptionDepartment = departmentDrop.map((option) => ({
-    value: option.TypeDs,
-    label: option.TypeDs,
-  }));
+   const filteredOptionDepartment = Array.isArray(departmentDrop)
+    ? departmentDrop.map((option) => ({
+      value: option.TypeDs,
+      label: option.TypeDs,
+    }))
+    : [];
 
    //code added by Harish purpose of set user permisssion
   const permissions = JSON.parse(sessionStorage.getItem("permissions")) || {};
@@ -143,10 +145,12 @@ const DCanalysis = () => {
     setColumn(selectedColumn.value);
   };
 
-  const filteredOptionColumn = columnDrop.map((option) => ({
-    value: option.descriptions,
-    label: option.attributedetails_name,
-  }));
+     const filteredOptionColumn = Array.isArray(columnDrop)
+    ? columnDrop.map((option) => ({
+      value: option.descriptions,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
   useEffect(() => {
     const company_code = sessionStorage.getItem('selectedCompanyCode');

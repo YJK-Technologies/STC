@@ -338,30 +338,40 @@ function Input({ }) {
       .then((val) => setLocationdrop(val));
   }, []);
 
-  const filteredOptionCity = drop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+   const filteredOptionCity = Array.isArray(drop)
+    ? drop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
+    
+   const filteredOptionState = Array.isArray(statedrop)
+    ? statedrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
-  const filteredOptionState = statedrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+   const filteredOptionCountry = Array.isArray(condrop)
+    ? condrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
-  const filteredOptionCountry = condrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+   const filteredOptionStatus = Array.isArray(statusdrop)
+    ? statusdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
-  const filteredOptionStatus = statusdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
-
-  const filteredOptionLocation = locationnodrop.map((option) => ({
-    value: option.location_no,
-    label: `${option.location_no} - ${option.location_name}`,
-  }));
+  const filteredOptionLocation = Array.isArray(locationnodrop)
+    ? locationnodrop.map((option) => ({
+        value: option.location_no,
+        label: `${option.location_no} - ${option.location_name}`,
+      }))
+    : [];
 
   const handleChangeCity = (selectedCity) => {
     setSelectedCity(selectedCity);

@@ -119,25 +119,33 @@ function UserComMap_input({ }) {
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
-  const filteredOptionStatus = statusdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+   const filteredOptionStatus = Array.isArray(statusdrop)
+    ? statusdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
+    
+   const filteredOptionUser = Array.isArray(usercodedrop)
+    ? usercodedrop.map((option) => ({
+      value: option.user_code,
+      label: `${option.user_code} - ${option.user_name}`,
+    }))
+    : [];
 
-  const filteredOptionUser = usercodedrop.map((option) => ({
-    value: option.user_code,
-    label: `${option.user_code} - ${option.user_name}`,
-  }));
+   const filteredOptionCompany = Array.isArray(companynodrop)
+    ? companynodrop.map((option) => ({
+      value: option.company_no,
+      label: `${option.company_no} - ${option.company_name}`,
+    }))
+    : [];
 
-  const filteredOptionCompany = companynodrop.map((option) => ({
-    value: option.company_no,
-    label: `${option.company_no} - ${option.company_name}`,
-  }));
-
-  const filteredOptionLocation = locationnodrop.map((option) => ({
-    value: option.location_no,
-    label: `${option.location_no} - ${option.location_name}`,
-  }));
+   const filteredOptionLocation = Array.isArray(locationnodrop)
+    ? locationnodrop.map((option) => ({
+      value: option.location_no,
+      label: `${option.location_no} - ${option.location_name}`,
+    }))
+    : [];
 
   const handleChangeStatus = (selectedStatus) => {
     setSelectedStatus(selectedStatus);

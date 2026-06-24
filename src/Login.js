@@ -15,6 +15,7 @@ import "./loginsass.scss";
 import ForgotPopup from "./Forgotpopup";
 import { initWebSocket } from "./hooks/websocket";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
 const config = require("./Apiconfig");
 
 const Login = () => {
@@ -65,6 +66,121 @@ const Login = () => {
       binary += String.fromCharCode(bytes[i]);
     }
     return window.btoa(binary);
+  };
+
+  // const showConfirmationToast = (message, type = "error", onConfirm) => {
+  //   toast(
+  //     ({ closeToast }) => (
+  //       <div className="custom-confirm-toast-container">
+  //         {/* Left column: The custom white circle exclamation icon */}
+  //         <div className="toast-icon-wrapper">
+  //           <div className="toast-exclamation-icon">!</div>
+  //         </div>
+
+  //         {/* Right column: Content and the customized OK button */}
+  //         <div className="toast-content-wrapper">
+  //           <div className="confirm-toast-message">
+  //             {message}
+  //           </div>
+
+  //           <div className="confirm-toast-footer">
+  //             <button
+  //               className="confirm-toast-btn"
+  //               onClick={() => {
+  //                 closeToast();
+  //                 if (onConfirm) {
+  //                   onConfirm();
+  //                 }
+  //               }}
+  //             >
+  //               OK
+  //             </button>
+  //           </div>
+  //         </div>
+  //       </div>
+  //     ),
+  //     {
+  //       type,
+  //       autoClose: false,
+  //       closeOnClick: false,
+  //       draggable: false,
+  //       closeButton: false,
+  //       // Target class to easily override default react-toastify background colors
+  //       className: 'custom-toast-error-bg',
+  //     }
+  //   );
+  // };
+
+  const showConfirmationToast = (message, type, onConfirm) => {
+    toast(
+      ({ closeToast }) => (
+        <div>
+          <p>{message}</p>
+
+          <button
+            onClick={async () => {
+              closeToast();
+
+              if (onConfirm) {
+                await onConfirm();
+              }
+            }}
+          >
+            OK
+          </button>
+        </div>
+      ),
+      {
+        type,
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+        closeButton: false,
+      },
+    );
+  };
+
+  const handleCorruptedLogout = async () => {
+    try {
+      const userCode = sessionStorage.getItem("user_code");
+
+      if (userCode) {
+        await fetch(`${config.apiBaseUrl}/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_code: userCode,
+          }),
+        });
+      }
+
+      localStorage.clear();
+      sessionStorage.clear();
+
+      window.history.pushState(null, "", window.location.href);
+      window.onpopstate = function () {
+        window.history.go(1);
+      };
+
+      navigate("/Login", { replace: true });
+    } catch (error) {
+      console.error("Logout failed:", error);
+
+      localStorage.clear();
+      sessionStorage.clear();
+
+      navigate("/Login", { replace: true });
+    }
+  };
+
+  const disableRefreshKeys = (e) => {
+    if (e.key === "F5" || (e.ctrlKey && e.key.toLowerCase() === "r")) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
   };
 
   const handleLogin = async (e) => {
@@ -128,19 +244,60 @@ const Login = () => {
         await fetchUserData(user_code);
         await UserPermission(role_id);
         if (supportStatus === "CORRUPTED") {
-          toast.error(supportMessage);
+          window.addEventListener("keydown", disableRefreshKeys);
 
-          setTimeout(() => {
-            sessionStorage.clear();
-            navigate("/");
-          }, 15000);
-        }
-        else if (supportStatus === "WARNING") {
-          toast.warning(supportMessage);
-        }
+          await Swal.fire({
+            title: "Application Corrupted",
+            text: supportMessage,
+            icon: "error",
+            confirmButtonText: "OK",
 
-        else if (supportStatus === "EXPIRED") {
-          toast.error(supportMessage);
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: true,
+
+            showCloseButton: false,
+            showCancelButton: false,
+          });
+
+          window.removeEventListener("keydown", disableRefreshKeys);
+
+          await handleCorruptedLogout();
+          return;
+        } else if (supportStatus === "WARNING") {
+          window.addEventListener("keydown", disableRefreshKeys);
+
+          await Swal.fire({
+            title: "Warning",
+            text: supportMessage,
+            icon: "warning",
+            confirmButtonText: "OK",
+
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+
+            showCloseButton: false,
+            showCancelButton: false,
+          });
+
+          window.removeEventListener("keydown", disableRefreshKeys);
+        } else if (supportStatus === "EXPIRED") {
+          window.addEventListener("keydown", disableRefreshKeys);
+
+          await Swal.fire({
+            title: "Expired",
+            text: supportMessage,
+            icon: "error",
+            confirmButtonText: "OK",
+
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+
+            showCloseButton: false,
+            showCancelButton: false,
+          });
+
+          window.removeEventListener("keydown", disableRefreshKeys);
         }
         window.dispatchEvent(new Event("loginSuccess"));
       } else {

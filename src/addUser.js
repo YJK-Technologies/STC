@@ -291,25 +291,31 @@ function UserInput({ }) {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-  const filteredOptionStatus = statusdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
+     const filteredOptionStatus = Array.isArray(statusdrop)
+    ? statusdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
+     const filteredOptionRole = Array.isArray(roleDrop)
+    ? roleDrop.map((option) => ({
+      value: option.role_id,
+      label: option.role_name,
+    }))
+    : [];
+     const filteredOptionLog = Array.isArray(Loginoroutdrop)
+    ? Loginoroutdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
+     const filteredOptionGender = Array.isArray(Genderdrop)
+    ? Genderdrop.map((option) => ({
+      value: option.attributedetails_name,
+      label: option.attributedetails_name,
+    }))
+    : [];
 
-  const filteredOptionRole = roleDrop.map((option) => ({
-    value: option.role_id,
-    label: option.role_name,
-  }));
-
-  const filteredOptionLog = Loginoroutdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
-
-  const filteredOptionGender = Genderdrop.map((option) => ({
-    value: option.attributedetails_name,
-    label: option.attributedetails_name,
-  }));
 
   const handleChangeStatus = (selectedStatus) => {
     setSelectedStatus(selectedStatus);
