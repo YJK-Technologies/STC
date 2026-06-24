@@ -13,6 +13,8 @@ module.exports = {
   port: 1433,
   options: {
     encrypt: false,
+    requestTimeout: 300000, // 5 minutes
+    connectionTimeout: 300000, // 5 minutes
   },   
   // user: "YJK_DB_USER",
   // password: "YJK$ql2022",
