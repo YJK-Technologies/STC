@@ -145,11 +145,12 @@ const DCanalysis = () => {
     setDepartmentName(selectedDepartment.label);
   };
 
-
-  const filteredOptionDepartment = departmentDrop.map((option) => ({
+   const filteredOptionDepartment = Array.isArray(departmentDrop)
+  ? departmentDrop.map((option) => ({
     value: option.TypeCd,
     label: option.TypeDs,
-  }));
+  }))
+  : [];
 
   useEffect(() => {
     fetch(`${config.apiBaseUrl}/getDeptType_Atte_Report`)
@@ -299,42 +300,43 @@ const DCanalysis = () => {
     }
   }, []);
 
-  const handlePrint = () => {
-    const selectedRows = gridApi.getSelectedRows();
-    if (selectedRows.length === 0) {
-      toast.warning("Please select at least one row to generate a report");
-      return;
-    }
+const handlePrint = () => {
+  const selectedRows = gridApi.getSelectedRows();
 
-    const reportData = selectedRows.map((row) => {
-      return {
-      "Employee Number": row.EMPLOYEE_NUMBER,
-      "Start_Date": formatDate(row.START_DATE),
-      "End_Date": formatDate(row.END_DATE),
-      "Start_Time": row.START_TIME,
-      "End_Time": row.END_TIME,
-      "Status": row.STATUS,
-      "Message": row.MESSAGE,
-      "Name": row.NAME,
-      "Start Date": formatDate(row.STARTDATE),
-      "End Date": formatDate(row.ENDDATE),
-      "Cardid": row.CARDID,
-      "Day": row.DAY,
-      "Working Hours": row.WORKINGHOURS,
-      "Delayed By": row.DELAYEDBY,
-      "Left Early": row.LEFTEARLY,
-      "Adjustment In Time": row.ADJUSTMENTINTIME,
-      "Adjustment Out Time": row.ADJUSTMENTOUTTIME,
-      "Location In": row.LOCATION_IN,
-      "Location Out": row.LOCATION_OUT,
-      "Department": row.Department,
-      };
+  if (selectedRows.length === 0) {
+    toast.warning("Please select at least one row to generate a report");
+    return;
+  }
+
+  // Only visible columns
+  const visibleColumns = columnDefs.filter(col => !col.hide);
+
+  // Build report data dynamically based on visible columns
+  const reportData = selectedRows.map((row) => {
+    const rowData = {};
+
+    visibleColumns.forEach((col) => {
+      let value = row[col.field];
+
+      // Format date fields
+      if (
+        ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+      ) {
+        value = value ? formatDate(value) : "";
+      }
+
+      rowData[col.headerName] = value ?? "";
     });
 
-    const reportWindow = window.open("", "_blank");
-    reportWindow.document.write("<html><head><title>Attendance Summary Report</title>");
-    reportWindow.document.write("<style>");
-    reportWindow.document.write(`
+    return rowData;
+  });
+
+  const reportWindow = window.open("", "_blank");
+
+  reportWindow.document.write("<html><head><title>Attendance Summary Report</title>");
+
+  reportWindow.document.write("<style>");
+  reportWindow.document.write(`
       body {
           font-family: Arial, sans-serif;
           margin: 20px;
@@ -393,33 +395,38 @@ const DCanalysis = () => {
               padding: 0;
           }
       }
-    `);
-    reportWindow.document.write("</style></head><body>");
-    reportWindow.document.write("<h1><u>Attendance Summary Report</u></h1>");
+  `);
+  reportWindow.document.write("</style></head><body>");
 
-    reportWindow.document.write("<table><thead><tr>");
-    Object.keys(reportData[0]).forEach((key) => {
-      reportWindow.document.write(`<th>${key}</th>`);
+  reportWindow.document.write("<h1><u>Attendance Summary Report</u></h1>");
+
+  reportWindow.document.write("<table><thead><tr>");
+
+  Object.keys(reportData[0]).forEach((key) => {
+    reportWindow.document.write(`<th>${key}</th>`);
+  });
+
+  reportWindow.document.write("</tr></thead><tbody>");
+
+  reportData.forEach((row) => {
+    reportWindow.document.write("<tr>");
+
+    Object.values(row).forEach((value) => {
+      reportWindow.document.write(`<td>${value ?? ""}</td>`);
     });
-    reportWindow.document.write("</tr></thead><tbody>");
 
-    reportData.forEach((row) => {
-      reportWindow.document.write("<tr>");
-      Object.values(row).forEach((value) => {
-        reportWindow.document.write(`<td>${value}</td>`);
-      });
-      reportWindow.document.write("</tr>");
-    });
+    reportWindow.document.write("</tr>");
+  });
 
-    reportWindow.document.write("</tbody></table>");
+  reportWindow.document.write("</tbody></table>");
 
-    reportWindow.document.write(
-      '<button class="report-button" onclick="window.print()">Print</button>'
-    );
-    reportWindow.document.write("</body></html>");
-    reportWindow.document.close();
-  };
+  reportWindow.document.write(
+    '<button class="report-button" onclick="window.print()">Print</button>'
+  );
 
+  reportWindow.document.write("</body></html>");
+  reportWindow.document.close();
+};
 
   const transformRowData = (data) => {
     return data.map(row => ({
@@ -639,10 +646,54 @@ autoTable(doc, {
   //   minWidth: 130,
   // };
 
-  const reloadGridData = () => {
-    window.location.reload();
-  };
+const reloadGridData = () => {
+  const today = new Date().toISOString().split("T")[0];
 
+  // Reset Department to first/default option
+  if (departmentDrop.length > 0) {
+    const firstOption = {
+      value: departmentDrop[0].TypeCd,
+      label: departmentDrop[0].TypeDs,
+    };
+
+    setSelectedDepartment(firstOption);
+    setDepartment(firstOption.value);
+    setDepartmentName(firstOption.label);
+  }
+
+  // Reset Dates
+  setStartDate(today);
+  setEndDate(today);
+
+  // Clear row selection
+  if (gridApi) {
+    gridApi.deselectAll();
+  }
+
+  // Show all columns
+  setColumnDefs((prev) =>
+    prev.map((col) => ({
+      ...col,
+      hide: false,
+    }))
+  );
+
+  // Reset search fields
+  setSearchColumn("");
+  setSearchTerm("");
+
+  // Close dropdowns
+  setShowDropdown(false);
+  setDropdownOpen(false);
+
+  // Reset header checkbox
+  setHeaderChecked(false);
+
+  // Fetch data with default values
+  setTimeout(() => {
+    fetchAttendanceReportData();
+  }, 100);
+};
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchColumn, setSearchColumn] = useState("");

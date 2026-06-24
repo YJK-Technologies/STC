@@ -199,30 +199,28 @@ const QOanalysis = () => {
       return;
     }
 
-    const reportData = selectedRows.map((row) => {
-      return {
-        EMPLOYEE_NUMBER: row.EMPLOYEE_NUMBER,
-        START_DATE: row.START_DATE,
-        END_DATE: row.END_DATE,
-        START_TIME: row.START_TIME,
-        END_TIME: row.END_TIME,
-        STATUS: row.STATUS,
-        MESSAGE: row.MESSAGE,
-        NAME: row.NAME,
-        STARTDATE: row.STARTDATE,
-        ENDDATE: row.ENDDATE,
-        CARDID: row.CARDID,
-        DAY: row.DAY,
-        WORKINGHOURS: row.WORKINGHOURS,
-        DELAYEDBY: row.DELAYEDBY,
-        LEFTEARLY: row.LEFTEARLY,
-        ADJUSTMENTINTIME: row.ADJUSTMENTINTIME,
-        ADJUSTMENTOUTTIME: row.ADJUSTMENTOUTTIME,
-        LOCATION_IN: row.LOCATION_IN,
-        LOCATION_OUT: row.LOCATION_OUT,
-      };
+  // Only visible columns
+  const visibleColumns = columnDefs.filter(col => !col.hide);
+
+  // Build report data dynamically based on visible columns
+  const reportData = selectedRows.map((row) => {
+    const rowData = {};
+
+    visibleColumns.forEach((col) => {
+      let value = row[col.field];
+
+      // Format date fields
+      if (
+        ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+      ) {
+        value = value ? formatDate(value) : "";
+      }
+
+      rowData[col.headerName] = value ?? "";
     });
 
+    return rowData;
+  });
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write(
       "<html><head><title>Daily Attendance Report</title>"
@@ -429,8 +427,32 @@ const exportData = transformedData.map(row => {
   };
 
   const reloadGridData = () => {
-    window.location.reload();
-  };
+  const today = new Date().toISOString().split("T")[0];
+
+  setDepartmentId("1");
+  setDepartmentName("VIVA");
+  setStartDate(today);
+  setEndDate(today);
+
+  if (gridApi) {
+    gridApi.deselectAll();
+  }
+
+  setColumnDefs(prev =>
+    prev.map(col => ({
+      ...col,
+      hide: false,
+    }))
+  );
+
+  setSearchColumn("");
+  setSearchTerm("");
+  setShowDropdown(false);
+  setDropdownOpen(false);
+  setHeaderChecked(false);
+
+  fetchDailyAttendanceReport();
+};
 
 const exportPDF = () => {
   if (rowData.length === 0) {

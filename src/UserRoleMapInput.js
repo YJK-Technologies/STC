@@ -81,15 +81,19 @@ function UserRoleInput({ }) {
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
-  const filteredOptionUser = usercodedrop.map((option) => ({
-    value: option.user_code,
-    label: `${option.user_code} - ${option.user_name}`,
-  }));
+   const filteredOptionUser = Array.isArray(usercodedrop)
+    ? usercodedrop.map((option) => ({
+      value: option.user_code,
+      label: `${option.user_code} - ${option.user_name}`,
+    }))
+    : [];
 
-  const filteredOptionRole = roleiddrop.map((option) => ({
-    value: option.role_id,
-    label: `${option.role_id} - ${option.role_name}`,
-  }));
+   const filteredOptionRole = Array.isArray(roleiddrop)
+    ? roleiddrop.map((option) => ({
+      value: option.role_id,
+      label: `${option.role_id} - ${option.role_name}`,
+    }))
+    : [];
 
   const handleChangeUser = (selectedUser) => {
     setSelectedUser(selectedUser);

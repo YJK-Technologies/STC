@@ -222,65 +222,132 @@ const Passwords = async (req, res) => {
   }
 };
 
+// const login = async (req, res) => {
+//   const { user_code, user_password } = req.body;
+//   const secretKey = "yjk26012024";
+
+//   try {
+//     // try {
+//     //   validateLicense();
+//     // } catch (licenseErr) {
+//     //   return res
+//     //     .status(403)
+//     //     .json({ success: false, message: licenseErr.message });
+//     // }
+//     let licenseInfo;
+
+//     try {
+//       licenseInfo = validateLicense();
+//     } catch (licenseErr) {
+//       return res
+//         .status(403)
+//         .json({ success: false, message: licenseErr.message });
+//     }
+
+//     const decryptedUserCode = CryptoJS.AES.decrypt(
+//       user_code,
+//       secretKey,
+//     ).toString(CryptoJS.enc.Utf8);
+//     const decryptedPassword = CryptoJS.AES.decrypt(
+//       user_password,
+//       secretKey,
+//     ).toString(CryptoJS.enc.Utf8);
+
+//     const pool = await connection.connectToDatabase();
+//     const result = await pool
+//       .request()
+//       .input("mode", sql.NVarChar, "LUC")
+//       .input("user_code", sql.NVarChar, decryptedUserCode)
+//       .input("user_password", sql.NVarChar, decryptedPassword)
+//       .query(
+//         `EXEC sp_user_info_hdr 'LUC','',@user_code,'','','',@user_password,'','','','','','','','','','','','','','','','','','','',''`,
+//       );
+//     // if (result.recordset.length > 0) {
+//     //   res.status(200).json(result.recordset);
+//     // }
+//     if (result.recordset.length > 0) {
+//       res.status(200).json({
+//         userData: result.recordset,
+//         supportStatus: licenseInfo.supportStatus,
+//         supportMessage: licenseInfo.supportMessage,
+//       });
+//     }
+//      else { 
+//       res.status(404).json("Data not found");
+//     }
+//   } catch (err) {
+//     console.error("Error", err.message);
+//     res.status(500).json({ message: err.message || "Internal Server Error" });
+//   }
+// };
+
 const login = async (req, res) => {
   const { user_code, user_password } = req.body;
   const secretKey = "yjk26012024";
 
   try {
-    // try {
-    //   validateLicense();
-    // } catch (licenseErr) {
-    //   return res
-    //     .status(403)
-    //     .json({ success: false, message: licenseErr.message });
-    // }
     let licenseInfo;
 
     try {
       licenseInfo = validateLicense();
     } catch (licenseErr) {
-      return res
-        .status(403)
-        .json({ success: false, message: licenseErr.message });
+      return res.status(403).json({
+        success: false,
+        message: licenseErr.message,
+      });
     }
 
+    // ONLY ADD THIS STRICT BLOCK
+    if (licenseInfo.supportStatus === "CORRUPTED") {
+      return res.status(403).json({
+        success: false,
+        supportStatus: "CORRUPTED",
+        supportMessage: licenseInfo.supportMessage,
+        message: "Application Corrupted - Login Blocked",
+      });
+    }
+
+    // decrypt credentials (unchanged)
     const decryptedUserCode = CryptoJS.AES.decrypt(
       user_code,
-      secretKey,
+      secretKey
     ).toString(CryptoJS.enc.Utf8);
+
     const decryptedPassword = CryptoJS.AES.decrypt(
       user_password,
-      secretKey,
+      secretKey
     ).toString(CryptoJS.enc.Utf8);
 
     const pool = await connection.connectToDatabase();
+
     const result = await pool
       .request()
       .input("mode", sql.NVarChar, "LUC")
       .input("user_code", sql.NVarChar, decryptedUserCode)
       .input("user_password", sql.NVarChar, decryptedPassword)
       .query(
-        `EXEC sp_user_info_hdr 'LUC','',@user_code,'','','',@user_password,'','','','','','','','','','','','','','','','','','','',''`,
+        `EXEC sp_user_info_hdr 'LUC','',@user_code,'','','',@user_password,'','','','','','','','','','','','','','','','','','','',''`
       );
-    // if (result.recordset.length > 0) {
-    //   res.status(200).json(result.recordset);
-    // }
+
     if (result.recordset.length > 0) {
-      res.status(200).json({
+      return res.status(200).json({
         userData: result.recordset,
         supportStatus: licenseInfo.supportStatus,
         supportMessage: licenseInfo.supportMessage,
       });
-    }
-     else { 
-      res.status(404).json("Data not found");
+    } else {
+      return res.status(404).json({
+        success: false,
+        message: "Data not found",
+      });
     }
   } catch (err) {
     console.error("Error", err.message);
-    res.status(500).json({ message: err.message || "Internal Server Error" });
+    res.status(500).json({
+      message: err.message || "Internal Server Error",
+    });
   }
 };
-
 const getUsercode = async (req, res) => {
   try {
     await connection.connectToDatabase();

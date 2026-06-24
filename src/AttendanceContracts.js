@@ -197,33 +197,30 @@ const PurchaseOrderAnalysis = () => {
       return;
     }
 
-    const reportData = selectedRows.map((row) => {
-      return {
-        "EMPLOYEE_NUMBER": row.EMPLOYEE_NUMBER,
-        "START_DATE": row.START_DATE,
-        "END_DATE": row.END_DATE,
-        "START_TIME": row.START_TIME,
-        "END_TIME": row.END_TIME,
-        "STATUS": row.STATUS,
-        "MESSAGE": row.MESSAGE,
-        "NAME": row.NAME,
-        "STARTDATE": row.STARTDATE,
-        "ENDDATE": row.ENDDATE,
-        "CARDID": row.CARDID,
-        "DAY": row.DAY,
-        "WORKINGHOURS": row.WORKINGHOURS,
-        "DELAYEDBY": row.DELAYEDBY,
-        "LEFTEARLY": row.LEFTEARLY,
-        "ADJUSTMENTINTIME": row.ADJUSTMENTINTIME,
-        "ADJUSTMENTOUTTIME": row.ADJUSTMENTOUTTIME,
-        "LOCATION_IN": row.LOCATION_IN,
-        "LOCATION_OUT": row.LOCATION_OUT,
-        "CONTACTORNAME": row.ContractorName,
-      };
+  const visibleColumns = columnDefs.filter(col => !col.hide);
+
+  // Build report data dynamically based on visible columns
+  const reportData = selectedRows.map((row) => {
+    const rowData = {};
+
+    visibleColumns.forEach((col) => {
+      let value = row[col.field];
+
+      // Format date fields
+      if (
+        ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+      ) {
+        value = value ? formatDate(value) : "";
+      }
+
+      rowData[col.headerName] = value ?? "";
     });
 
+    return rowData;
+  });
+
     const reportWindow = window.open("", "_blank");
-    reportWindow.document.write("<html><head><title>Attendance Summary for Contracts</title>");
+    reportWindow.document.write("<html><head><title>Attendance Summary Contracts</title>");
     reportWindow.document.write("<style>");
     reportWindow.document.write(`
       body {
@@ -286,7 +283,7 @@ const PurchaseOrderAnalysis = () => {
       }
     `);
     reportWindow.document.write("</style></head><body>");
-    reportWindow.document.write("<h1><u>Attendance Summary for Contracts</u></h1>");
+    reportWindow.document.write("<h1><u>Attendance Summary Contracts</u></h1>");
 
     reportWindow.document.write("<table><thead><tr>");
     Object.keys(reportData[0]).forEach((key) => {
@@ -419,8 +416,26 @@ const PurchaseOrderAnalysis = () => {
   };
 
   const reloadGridData = () => {
-    window.location.reload();
-  };
+  setEmployee("");
+  setEmployeeName("");
+  setContractorName("");
+
+  setStartDate(new Date().toISOString().split("T")[0]);
+  setEndDate(new Date().toISOString().split("T")[0]);
+
+  setRowData([]);
+
+  if (gridApi) {
+    gridApi.deselectAll();
+  }
+
+  setColumnDefs(prev =>
+    prev.map(col => ({
+      ...col,
+      hide: false
+    }))
+  );
+};
 
 const exportPDF = () => {
   const doc = new jsPDF({

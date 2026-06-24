@@ -188,16 +188,28 @@ const DCanalysis = () => {
       return;
     }
 
-    const reportData = selectedRows.map((row) => {
-      return {
-        EMPID: row.EmpId,
-        "EMP NAME": row.EmpDs,
-        DEPARTMENT: row.DepartmentDs,
-        DATE: row.EMPDATE,
-        "PUNCH TIME": row.EmpTime,
-        "READER NAME": row.ReaderName,
-      };
+  // Only visible columns
+  const visibleColumns = columnDefs.filter(col => !col.hide);
+
+  // Build report data dynamically based on visible columns
+  const reportData = selectedRows.map((row) => {
+    const rowData = {};
+
+    visibleColumns.forEach((col) => {
+      let value = row[col.field];
+
+      // Format date fields
+      if (
+        ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+      ) {
+        value = value ? formatDate(value) : "";
+      }
+
+      rowData[col.headerName] = value ?? "";
     });
+
+    return rowData;
+  });
 
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write(
@@ -377,10 +389,40 @@ XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A6" });
     minWidth: 130,
   };
 
-  const reloadGridData = () => {
-    window.location.reload();
-  };
+const reloadGridData = () => {
+  // Reset dates to today
+  const today = new Date().toISOString().split("T")[0];
+  setStartDate(today);
+  setEndDate(today);
 
+  // Clear grid data
+  setRowData([]);
+
+  // Clear selected rows
+  if (gridApi) {
+    gridApi.deselectAll();
+  }
+
+  // Show all columns
+  setColumnDefs((prev) =>
+    prev.map((col) => ({
+      ...col,
+      hide: false,
+    }))
+  );
+
+  // Reset column search
+  setSearchTerm("");
+  setSearchColumn("");
+
+  // Close dropdowns
+  setDropdownOpen(false);
+  setShowDropdown(false);
+
+  // Clear saved template settings if needed
+  localStorage.removeItem("AMLFilterSettings");
+  localStorage.removeItem("AMLGridFormat");
+};
 const exportPDF = () => {
   const doc = new jsPDF({
     orientation: "landscape",

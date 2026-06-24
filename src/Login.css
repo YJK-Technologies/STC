@@ -1150,3 +1150,120 @@ input:-webkit-autofill {
 
 }
 
+/* 1. Base Toast Background Override */
+.custom-toast-error-bg {
+  background-color: #e54d38 !important; /* Exact red background from the image */
+  border-radius: 6px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+  padding: 14px 16px !important;
+}
+
+/* 2. Main Flex Layout Container */
+.custom-confirm-toast-container {
+  display: flex;
+  align-items: flex-start; /* Aligns the icon to the top line of text */
+  gap: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #ffffff;
+}
+
+/* 3. The Exclamation Mark Icon styling */
+.toast-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px; /* Tiny offset to align with the first line of text */
+}
+
+.toast-exclamation-icon {
+  background-color: #ffffff;
+  color: #e54d38; /* Red color matching the outer toast background */
+  font-weight: 800;
+  font-size: 16px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%; /* Forms the perfect white circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 4. Content Column */
+.toast-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Updated Text Font & Spacing */
+.confirm-toast-message {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.3px;
+  white-space: pre-line; /* Allows line breaks safely */
+}
+
+.confirm-toast-footer {
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* 5. Custom Button Styling */
+.confirm-toast-btn {
+  background-color: #2a5a78; /* Precise slate-blue tone from the image */
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  padding: 8px 22px;
+  border-radius: 8px; /* Smooth rounded corners */
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subdued button shadow */
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Button Interactive States */
+.confirm-toast-btn:hover {
+  background-color: #1f445c; /* Darker slate-blue for clear hover interaction */
+}
+
+.confirm-toast-btn:active {
+  transform: scale(0.97); /* Slight press feedback click */
+}
+
+/* ... keep your other styles the same ... */
+
+.confirm-toast-footer {
+  display: flex;
+  /* CHANGE: Changed from flex-start to center */
+  justify-content: center; 
+}
+
+/* 5. Custom Button Styling */
+.confirm-toast-btn {
+  /* CHANGE: Replace with your design system's exact primary color hex */
+  background-color: var(--primary-color, #007bff); 
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  border: none;
+  padding: 8px 22px;
+  border-radius: 8px; 
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Button Interactive States */
+.confirm-toast-btn:hover {
+  /* CHANGE: Replace with a slightly darker shade of your primary color */
+  background-color: var(--primary-color-hover, #0056b3); 
+}
+
+.confirm-toast-btn:active {
+  transform: scale(0.97); 
+}
