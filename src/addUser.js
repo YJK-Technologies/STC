@@ -416,7 +416,7 @@ function UserInput({ }) {
       const result = await response.json();
 
       if (!response.ok) {
-        toast.warning(result.message || "Insert failed");
+        toast.warning(result.err || result.message || "Insert failed");
         return;
       }
 
@@ -599,11 +599,7 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label
-                        for="state"
-                        className={`exp-form-labels ${error && !user_code ? "text-danger" : ""
-                          }`}
-                      >
+                      <label for="state" className={`exp-form-labels ${error && !user_code ? "text-danger" : "" }`} >
                         User Code
                       </label>
                     </div>
@@ -631,11 +627,7 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label
-                        for="state"
-                        className={`exp-form-labels ${error && !user_name ? "text-danger" : ""
-                          }`}
-                      >
+                      <label for="state" className={`exp-form-labels ${error && !user_name ? "text-danger" : "" }`} >
                         User Name
                       </label>
                     </div>
@@ -662,11 +654,7 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label
-                        for="state"
-                        className={`exp-form-labels ${error && !first_name ? "text-danger" : ""
-                          }`}
-                      >
+                      <label for="state" className={`exp-form-labels ${error && !first_name ? "text-danger" : "" }`} >
                         First Name
                       </label>
                     </div>
@@ -693,11 +681,7 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label
-                        for="state"
-                        className={`exp-form-labels ${error && !last_name ? "text-danger" : ""
-                          }`}
-                      >
+                      <label for="state" className={`exp-form-labels ${error && !last_name ? "text-danger" : "" }`} >
                         Last Name
                       </label>
                     </div>
@@ -724,11 +708,7 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label
-                        for="state"
-                        className={`exp-form-labels ${error && !user_password ? "text-danger" : ""
-                          }`}
-                      >
+                      <label for="state" className={`exp-form-labels ${error && !user_password ? "text-danger" : "" }`} >
                         Password
                       </label>
                     </div>
@@ -769,12 +749,7 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label
-                        for="state"
-                        className={`exp-form-labels ${error && !user_status ? "text-danger" : ""
-                          }`}
-                      >
-                        {" "}
+                      <label for="state" className={`exp-form-labels ${error && !user_status ? "text-danger" : ""}`} > {" "}
                         Status{" "}
                       </label>
                     </div>
@@ -823,11 +798,7 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label
-                        for="state"
-                        className={`exp-form-labels ${error && !role_id ? "text-danger" : ""
-                          }`}
-                      >
+                      <label for="state" className={`exp-form-labels ${error && !role_id ? "text-danger" : "" }`} >
                         Role ID
                       </label>
                     </div>
@@ -855,11 +826,7 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label
-                        for="state"
-                        className={`exp-form-labels ${error && !email_id ? "text-danger" : ""
-                          }`}
-                      >
+                      <label for="state" className={`exp-form-labels ${error && !email_id ? "text-danger" : "" }`} >
                         Email
                       </label>
                     </div>
@@ -886,10 +853,7 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label
-                        for="state"
-                        className={`exp-form-labels ${error && !dob ? "text-danger" : ""}`}
-                      >
+                      <label for="state" className={`exp-form-labels ${error && !dob ? "text-danger" : ""}`} > 
                         DOB
                       </label>
                     </div>
@@ -1050,7 +1014,7 @@ function UserInput({ }) {
                   />
                 </div>
               </div>
-              
+
               {selectedImage && (
                 <div className="col-md-3 form-group mb-2">
                   <div class="exp-form-floating">
