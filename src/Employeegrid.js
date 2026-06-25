@@ -22,6 +22,7 @@ const DCanalysis = () => {
     {
       headerCheckboxSelection: true,
       checkboxSelection: true,
+      cellClass: "ag-link-cell",
       headerName: "Employee ID",
       field: "employeeId",
       minWidth: 200,

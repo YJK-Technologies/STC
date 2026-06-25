@@ -79,6 +79,7 @@ function AttriDetGrid() {
       checkboxSelection: true,
       headerName: "Code",
       field: "attributeheader_code",
+      cellClass: "ag-link-cell",
       cellStyle: { textAlign: "center" },
       cellEditorParams: {
         maxLength: 18,

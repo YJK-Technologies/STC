@@ -20,6 +20,7 @@ const LeaveMasterGrid = () => {
       checkboxSelection: true,
       headerName: "Holiday Code",
       field: "Leave_Code",
+      cellClass: "ag-link-cell",
       minWidth: 200,
       editable: false,
       cellRenderer: (params) => {
@@ -575,6 +576,7 @@ const LeaveMasterGrid = () => {
                 className="form-control exp-input-field"
                 value={leaveCode}
                 onChange={(e) => setLeaveCode(e.target.value)}
+                title="Please Enter the Holiday Code"
               />
             </div>
             <div className="col-12 col-md-3 mb-2">
@@ -584,6 +586,7 @@ const LeaveMasterGrid = () => {
                 className="form-control exp-input-field"
                 value={leaveName}
                 onChange={(e) => setLeaveName(e.target.value)}
+                title="Please Enter the Holiday Name"
               />
             </div>
             <div className="col-12 col-md-3 mb-2">
@@ -593,6 +596,7 @@ const LeaveMasterGrid = () => {
                 className="form-control exp-input-field"
                 value={effectiveFrom}
                 onChange={(e) => setEffectiveFrom(e.target.value)}
+                title="Please Enter the Effective From"
               />
             </div>
             <div className="col-12 col-md-3 mb-2">
@@ -602,6 +606,7 @@ const LeaveMasterGrid = () => {
                 className="form-control exp-input-field"
                 value={effectiveTo}
                 onChange={(e) => setEffectiveTo(e.target.value)}
+                title="Please Enter the Effective To"
               />
             </div>
             {/* <div className="col-12 col-md-3 mb-2">
@@ -624,6 +629,7 @@ const LeaveMasterGrid = () => {
             </div> */}
             <div className="col-12 col-md-3 mb-2">
               <label className="form-label">Status</label>
+              <div title="Please Select the Status"> 
               <Select
                 id="wcode"
                 className="exp-input-field"
@@ -632,6 +638,7 @@ const LeaveMasterGrid = () => {
                 options={filteredOptionStatus}
                 onChange={handleChangeStatus}
               />
+            </div>
             </div>
             <div className="col-12 col-md-3">
               <label className="form-label">Holiday Description</label>
@@ -642,6 +649,7 @@ const LeaveMasterGrid = () => {
                 autoComplete="off"
                 value={leaveDescription}
                 onChange={(e) => setLeaveDescription(e.target.value)}
+                title="Please Enter the Holiday Description"
               />
             </div>
             <div class="col-12 d-flex justify-content-end align-items-center mt-4">

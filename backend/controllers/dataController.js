@@ -3753,7 +3753,7 @@ const saveEditedData = async (req, res) => {
         updatedRow.foundedDate && updatedRow.foundedDate !== ""
           ? new Date(updatedRow.foundedDate.split("-").reverse().join("-"))
           : null;
-
+       console.log(company_logo);
       await pool
         .request()
         .input("mode", sql.NVarChar, "U")

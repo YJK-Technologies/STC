@@ -110,6 +110,7 @@ function UserRoleGrid() {
       checkboxSelection: true,
       headerName: "User Code",
       field: "user_code",
+      cellClass: "ag-link-cell",
       editable: true,
       cellStyle: { textAlign: "center" },
       cellEditor: "agSelectCellEditor",
