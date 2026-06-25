@@ -28,6 +28,7 @@ function LeaveMasterInput({}) {
 
   const location = useLocation();
   const { mode, selectedRow } = location.state || {};
+  const pageHeading = mode === "update" ? "Update Holiday" : "Holiday Details";
 
  const toInputDate = (value) => {
   if (!value) return "";
@@ -236,7 +237,7 @@ function LeaveMasterInput({}) {
       <div>
         <div className="shadow-lg p-0 bg-body-tertiary rounded">
           <div className="mb-0 d-flex justify-content-between">
-            <h1 className="">Holiday Details</h1>
+            <h1 className="">{pageHeading}</h1>
             <button
               onClick={handleNavigate}
               className="btn btn-danger shadow-none rounded-0 h-70 fs-5"
@@ -265,6 +266,7 @@ function LeaveMasterInput({}) {
                       value={leaveCode}
                       readOnly={mode === "update"}
                       onChange={(e) => setLeaveCode(e.target.value)}
+                      title="Please Enter the Holiday Code"
                     />
                   </div>
                 </div>
@@ -282,6 +284,7 @@ function LeaveMasterInput({}) {
                       className="form-control"
                       value={effectiveFrom}
                       onChange={(e) => setEffectiveFrom(e.target.value)}
+                      title="Please Enter the Effective From"
                     />
                   </div>
                 </div>
@@ -312,6 +315,7 @@ function LeaveMasterInput({}) {
                       className="form-control"
                       value={leaveDescription}
                       onChange={(e) => setLeaveDescription(e.target.value)}
+                      title="Please Enter the Holiday Description"
                     />
                   </div>
                 </div>
@@ -333,6 +337,7 @@ function LeaveMasterInput({}) {
                       className="form-control pe-5"
                       value={leaveName}
                       onChange={(e) => setLeaveName(e.target.value)}
+                      title="Please Enter the Holiday Name"
                     />
                   </div>
                 </div>
@@ -350,6 +355,7 @@ function LeaveMasterInput({}) {
                       className="form-control"
                       value={effectiveTo}
                       onChange={(e) => setEffectiveTo(e.target.value)}
+                      title="Please Enter the Effective To"
                     />
                   </div>
                 </div>
@@ -376,9 +382,9 @@ function LeaveMasterInput({}) {
                       error && !status ? "text-danger" : ""
                     }`}
                   >
-                    Status<span className="text-danger">*</span>
-                  </label>
+                    Status<span className="text-danger">*</span></label>
                   <div className="col-sm-8">
+                  <div title="Please Select the Status"> 
                     <Select
                       id="status"
                       value={selectedStatus}
@@ -390,6 +396,7 @@ function LeaveMasterInput({}) {
                     />
                   </div>
                 </div>
+                </div> 
                 <div class="col-12 d-flex justify-content-end align-items-center">
                   {mode === "create" ? (
                     <button

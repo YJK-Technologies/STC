@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import * as React from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+import * as React from "react";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
 // import "ag-grid-enterprise";
-import 'ag-grid-autocomplete-editor/dist/main.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
-import Select from 'react-select';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-const config = require('./Apiconfig');
+import "ag-grid-autocomplete-editor/dist/main.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import Select from "react-select";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+const config = require("./Apiconfig");
 
 const columnDefs = [
   {
@@ -34,8 +34,11 @@ const defaultColDef = {
   filter: true,
 };
 
-export default function ContractorPopup({ open, handleClose, handleDepartmentData }) {
-
+export default function ContractorPopup({
+  open,
+  handleClose,
+  handleDepartmentData,
+}) {
   const [rowData, setRowData] = useState([]);
   const [selectedValue, setSelectedValue] = useState("DEPARTMENTCD");
   const [fetchTrigger, setFetchTrigger] = useState(false);
@@ -53,15 +56,19 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
       const response = await fetch(`${config.apiBaseUrl}/GetDeptCode`, {
         method: "GET",
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
         const searchData = await response.json();
         setRowData(searchData);
-        const uniqueDEPARTMENTCD = [...new Set(searchData.map((item) => item.DEPARTMENTCD))];
-        const uniqueDEPARTMENTDS = [...new Set(searchData.map((item) => item.DEPARTMENTDS))];
+        const uniqueDEPARTMENTCD = [
+          ...new Set(searchData.map((item) => item.DEPARTMENTCD)),
+        ];
+        const uniqueDEPARTMENTDS = [
+          ...new Set(searchData.map((item) => item.DEPARTMENTDS)),
+        ];
         setUniqueDEPARTMENTCD(uniqueDEPARTMENTCD);
         setUniqueDEPARTMENTDS(uniqueDEPARTMENTDS);
         console.log("Data fetched successfully:", searchData);
@@ -98,11 +105,25 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
     }
   };
 
+  const handleReload = () => {
+    setSelectedDEPARTMENTCD("");
+    setSelectedDEPARTMENTDS("");
+    setFilterValue("");
+
+    if (gridRef.current?.api) {
+      gridRef.current.api.setFilterModel(null);
+      gridRef.current.api.setQuickFilter("");
+    }
+
+    setFetchTrigger((prev) => !prev);
+  };
   const handleConfirm = (params) => {
-    const selectedData = [{
+    const selectedData = [
+      {
         DEPARTMENTCD: params.data.DEPARTMENTCD,
-    }];
-  
+      },
+    ];
+
     handleDepartmentData(selectedData);
     handleClose();
   };
@@ -119,7 +140,7 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
           filter: filterValue,
         },
       });
-      gridRef.current.api.onFilterChanged(); 
+      gridRef.current.api.onFilterChanged();
     }
   };
 
@@ -129,21 +150,32 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
         <fieldset>
           <div>
             <div className="">
-              <div className="modal mt-5 Topnav-screen popup popupadj" tabIndex="-1" role="dialog" style={{ display: 'block', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+              <div
+                className="modal mt-5 Topnav-screen popup popupadj"
+                tabIndex="-1"
+                role="dialog"
+                style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
+              >
                 <div className="modal-dialog modal-xl ps-5 p-1" role="document">
                   <div className="modal-content">
                     <div class="row justify-content-center">
                       <div class="col-md-12 text-center">
                         <div className="p-0 bg-body-tertiary">
-                          <div className=" mb-0 d-flex justify-content-between" >
-                            <h1 align="left" className="">Department Help</h1>
-                            <button onClick={handleClose} className=" btn btn-danger shadow-none rounded-0 h-70 fs-5" required title="Close">
+                          <div className=" mb-0 d-flex justify-content-between">
+                            <h1 align="left" className="">
+                              Department Help
+                            </h1>
+                            <button
+                              onClick={handleClose}
+                              className=" btn btn-danger shadow-none rounded-0 h-70 fs-5"
+                              required
+                              title="Close"
+                            >
                               <i class="fa-solid fa-xmark"></i>
                             </button>
                           </div>
                           <div class="d-flex justify-content-between">
-                            <div className="d-flex justify-content-start">
-                            </div>
+                            <div className="d-flex justify-content-start"></div>
                           </div>
                         </div>
                       </div>
@@ -162,22 +194,33 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
                           </div>
                           <div className="col-md-5 mb-2">
                             <input
-                              type='text'
-                              className='exp-input-field form-control'
-                              placeholder= {selectedValue} 
+                              type="text"
+                              className="exp-input-field form-control"
+                              placeholder={selectedValue}
                               value={filterValue}
                               onChange={onFilterChange}
                               onKeyDown={onEnterPress}
-                              autoComplete='off'
+                              autoComplete="off"
                             />
                           </div>
                         </div>
-                        <div className="row ms-3 me-3">
+                        <div className="row ms-3 me-3 align-items-end">
                           <div className="col-md-3 mb-2">
                             <Select
                               className="exp-input-field"
-                              value={selectedDEPARTMENTCD ? { value: selectedDEPARTMENTCD, label: selectedDEPARTMENTCD } : null}
-                              onChange={(selectedOption) => setSelectedDEPARTMENTCD(selectedOption ? selectedOption.value : "")}
+                              value={
+                                selectedDEPARTMENTCD
+                                  ? {
+                                      value: selectedDEPARTMENTCD,
+                                      label: selectedDEPARTMENTCD,
+                                    }
+                                  : null
+                              }
+                              onChange={(selectedOption) =>
+                                setSelectedDEPARTMENTCD(
+                                  selectedOption ? selectedOption.value : "",
+                                )
+                              }
                               onKeyDown={handleFilterDEPARTMENTCD}
                               options={uniqueDEPARTMENTCD.map((emp) => ({
                                 value: emp,
@@ -188,10 +231,21 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
                           </div>
                           <div className="col-md-3 mb-2">
                             <Select
-                              className='exp-input-field'
-                              placeholder='Select Empds'
-                              value={selectedDEPARTMENTDS ? { value: selectedDEPARTMENTDS, label: selectedDEPARTMENTDS } : null}
-                              onChange={(selectedOption) => setSelectedDEPARTMENTDS(selectedOption ? selectedOption.value : "")}
+                              className="exp-input-field"
+                              placeholder="Select Empds"
+                              value={
+                                selectedDEPARTMENTDS
+                                  ? {
+                                      value: selectedDEPARTMENTDS,
+                                      label: selectedDEPARTMENTDS,
+                                    }
+                                  : null
+                              }
+                              onChange={(selectedOption) =>
+                                setSelectedDEPARTMENTDS(
+                                  selectedOption ? selectedOption.value : "",
+                                )
+                              }
                               onKeyDown={handleFilterDEPARTMENTDS}
                               options={uniqueDEPARTMENTDS.map((emp) => ({
                                 value: emp,
@@ -199,12 +253,29 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
                               }))}
                             />
                           </div>
-                          <icon className="icon popups-btn" onClick={() => setFetchTrigger(prev => !prev)} title="Search">
-                            <FontAwesomeIcon icon={faMagnifyingGlass} />
-                          </icon>
+                          <div className="col-md-auto d-flex">
+                            <icon
+                              className="icon popups-btn"
+                              onClick={() => setFetchTrigger((prev) => !prev)}
+                              title="Search"
+                            >
+                              <FontAwesomeIcon icon={faMagnifyingGlass} />
+                            </icon>
+
+                            <icon
+                              className="icon popups-btn ms-2"
+                              onClick={handleReload}
+                              title="Reload"
+                            >
+                              <i className="fa-solid fa-arrow-rotate-right"></i>
+                            </icon>
+                          </div>
                         </div>
 
-                        <div className="ag-theme-alpine" style={{ height: '400px', width: '100%' }}>
+                        <div
+                          className="ag-theme-alpine"
+                          style={{ height: "400px", width: "100%" }}
+                        >
                           <AgGridReact
                             ref={gridRef}
                             rowData={rowData}

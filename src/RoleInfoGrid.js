@@ -79,6 +79,7 @@ function RoleInfoGrid() {
       checkboxSelection: true,
       headerName: "Role ID",
       field: "role_id",
+      cellClass: "ag-link-cell",
       cellStyle: { textAlign: "left" },
       // minWidth: 250,
       // maxWidth: 250,
