@@ -297,18 +297,21 @@ function UserInput({ }) {
       label: option.attributedetails_name,
     }))
     : [];
-     const filteredOptionRole = Array.isArray(roleDrop)
+
+    const filteredOptionRole = Array.isArray(roleDrop)
     ? roleDrop.map((option) => ({
-      value: option.role_id,
-      label: option.role_name,
-    }))
+        value: option.role_id,
+        label: `${option.role_id} - ${option.role_name}`,
+      }))
     : [];
+
      const filteredOptionLog = Array.isArray(Loginoroutdrop)
     ? Loginoroutdrop.map((option) => ({
       value: option.attributedetails_name,
       label: option.attributedetails_name,
     }))
     : [];
+
      const filteredOptionGender = Array.isArray(Genderdrop)
     ? Genderdrop.map((option) => ({
       value: option.attributedetails_name,
@@ -327,16 +330,24 @@ function UserInput({ }) {
   //   setRole(selectedRole ? selectedRole.value : "");
   // };
 
+  // const handleChangeRole = (selectedRole) => {
+  //   setSelectedRole(selectedRole);
+
+  //   const roleValue = selectedRole?.value || '';
+  //   setRole(roleValue);
+
+  //   if (['user', 'us', 'admin', 'ad'].includes(roleValue.toLowerCase())) {
+  //     setsuper_admin(false);
+  //   }
+  // };
   const handleChangeRole = (selectedRole) => {
-    setSelectedRole(selectedRole);
-
-    const roleValue = selectedRole?.value || '';
-    setRole(roleValue);
-
-    if (['user', 'us', 'admin', 'ad'].includes(roleValue.toLowerCase())) {
-      setsuper_admin(false);
-    }
-  };
+    setSelectedRole(selectedRole);
+    const roleValue = selectedRole?.value || '';
+    setRole(roleValue);
+    if (!["sa", "super admin"].includes(roleValue.toLowerCase())) {
+    setsuper_admin(false);
+    }
+  };
 
   const handleChangeLog = (selectedLog) => {
     setSelectedLog(selectedLog);
@@ -782,6 +793,7 @@ function UserInput({ }) {
                       maxLength={50}
                       ref={Status}
                       onKeyDown={(e) => handleKeyDown(e, loginlogout, Status)}
+                      isClearable
                     />
                   </div>
                 </div>
@@ -802,6 +814,7 @@ function UserInput({ }) {
                       maxLength={3}
                       ref={loginlogout}
                       onKeyDown={(e) => handleKeyDown(e, usertype, loginlogout)}
+                      isClearable
                     />
                   </div>
                 </div>
@@ -833,6 +846,7 @@ function UserInput({ }) {
                       maxLength={50}
                       ref={usertype}
                       onKeyDown={(e) => handleKeyDown(e, email, usertype)}
+                      isClearable
                     />
                   </div>
                 </div>
@@ -913,24 +927,10 @@ function UserInput({ }) {
                       placeholder=""
                       maxLength={50}
                       ref={Gender}
+                      isClearable
                       onKeyDown={(e) => handleKeyDown(e, ImagE, Gender)}
                     />
                   </div>
-                </div>
-              </div>
-              <div className="col-md-3 form-group mb-2 ">
-                <div class="exp-form-floating">
-                  <label for="locno" class="exp-form-labels">
-                    Image
-                  </label>
-                  <input
-                    type="file"
-                    class="exp-input-field form-control"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    ref={ImagE}
-                    onKeyDown={(e) => handleKeyDown(e, expirydate, ImagE)}
-                  />
                 </div>
               </div>
 
@@ -978,18 +978,6 @@ function UserInput({ }) {
                   />
                 </div>
               </div>
-              {selectedImage && (
-                <div className="col-md-3 form-group mb-2">
-                  <div class="exp-form-floating">
-                    <img
-                      src={selectedImage}
-                      alt="Selected Preview"
-                      className="avatar rounded sm mt-4"
-                      style={{ height: "200px", width: "200px" }}
-                    />
-                  </div>
-                </div>
-              )}
 
               <div className="col-md-3 form-group  mb-2">
                 {mode === "create" ? (
@@ -1039,13 +1027,43 @@ function UserInput({ }) {
                     type="checkbox"
                     id="superAdmin"
                     checked={super_admin}
-                    disabled={['user', 'us', 'admin', 'ad'].includes(role_id?.toLowerCase())}
+                    disabled={!["sa", "super admin"].includes(role_id?.toLowerCase())}
                     onChange={(e) => setsuper_admin(e.target.checked)}
                     style={{ width: "1.5em", height: "1.5em", cursor: "pointer", }}
                   />
                   <label htmlFor="superAdmin" className="exp-form-labels m-0" style={{ cursor: "pointer" }} >Super Admin</label>
                 </div>
               </div>
+
+              <div className="col-md-3 form-group mb-2 ">
+                <div class="exp-form-floating">
+                  <label for="locno" class="exp-form-labels">
+                    Image
+                  </label>
+                  <input
+                    type="file"
+                    class="exp-input-field form-control"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    ref={ImagE}
+                    onKeyDown={(e) => handleKeyDown(e, expirydate, ImagE)}
+                  />
+                </div>
+              </div>
+              
+              {selectedImage && (
+                <div className="col-md-3 form-group mb-2">
+                  <div class="exp-form-floating">
+                    <img
+                      src={selectedImage}
+                      alt="Selected Preview"
+                      className="avatar rounded sm mt-4"
+                      style={{ height: "200px", width: "200px" }}
+                    />
+                  </div>
+                </div>
+              )}
+
 
               <div class="col-12 d-flex justify-content-end align-items-center">
                 {mode === "create" ? (

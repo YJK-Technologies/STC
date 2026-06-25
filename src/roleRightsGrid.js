@@ -132,6 +132,7 @@ function UserScreenMapGrid() {
       headerName: "Role Id",
       field: "role_id",
       editable: true,
+      cellClass: "ag-link-cell",
       cellStyle: { textAlign: "left" },
       minWidth: 150,
       cellEditor: "agSelectCellEditor",

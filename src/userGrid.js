@@ -210,7 +210,7 @@ function UserGrid() {
       label: option.attributedetails_name,
     }))
     : [];
-    
+
   const handleChangeStatus = (selectedStatus) => {
     setSelectedStatus(selectedStatus);
     setuser_status(selectedStatus ? selectedStatus.value : "");
@@ -297,6 +297,7 @@ function UserGrid() {
       checkboxSelection: true,
       headerName: "User Code",
       field: "user_code",
+      cellClass: "ag-link-cell",
       cellStyle: { textAlign: "left" },
       minWidth: 150,
       maxWidth: 150,
