@@ -749,110 +749,6 @@ function UserInput({ }) {
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label for="state" className={`exp-form-labels ${error && !user_status ? "text-danger" : ""}`} > {" "}
-                        Status{" "}
-                      </label>
-                    </div>
-                    <div>
-                      <span className="text-danger">*</span>
-                    </div>
-                  </div>
-                  <div title="Please select the status">
-                    <Select
-                      id="status"
-                      value={selectedStatus}
-                      onChange={handleChangeStatus}
-                      options={filteredOptionStatus}
-                      className="exp-input-field"
-                      placeholder=""
-                      maxLength={50}
-                      ref={Status}
-                      onKeyDown={(e) => handleKeyDown(e, loginlogout, Status)}
-                      isClearable
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-3 form-group  mb-2">
-                <div class="exp-form-floating">
-                  <label for="loginout" class="exp-form-labels">
-                    Log IN/OUT
-                  </label>
-                  <div title="Please select the Log IN/OUT status">
-                    <Select
-                      id="loginout"
-                      value={selectedLog}
-                      onChange={handleChangeLog}
-                      options={filteredOptionLog}
-                      className="exp-input-field"
-                      placeholder=""
-                      maxLength={3}
-                      ref={loginlogout}
-                      onKeyDown={(e) => handleKeyDown(e, usertype, loginlogout)}
-                      isClearable
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-3 form-group  mb-2 ">
-                <div class="exp-form-floating">
-                  <div class="d-flex justify-content-start">
-                    <div>
-                      <label for="state" className={`exp-form-labels ${error && !role_id ? "text-danger" : "" }`} >
-                        Role ID
-                      </label>
-                    </div>
-                    <div>
-                      <span className="text-danger">*</span>
-                    </div>
-                  </div>
-                  <div title="Please select the Role ID">
-                    <Select
-                      id="usertype"
-                      value={selectedRole}
-                      onChange={handleChangeRole}
-                      options={filteredOptionRole}
-                      className="exp-input-field"
-                      placeholder=""
-                      maxLength={50}
-                      ref={usertype}
-                      onKeyDown={(e) => handleKeyDown(e, email, usertype)}
-                      isClearable
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="col-md-3 form-group  mb-2">
-                <div class="exp-form-floating">
-                  <div class="d-flex justify-content-start">
-                    <div>
-                      <label for="state" className={`exp-form-labels ${error && !email_id ? "text-danger" : "" }`} >
-                        Email
-                      </label>
-                    </div>
-                    <div>
-                      <span className="text-danger">*</span>
-                    </div>
-                  </div>
-                  <input
-                    id="uemail"
-                    class="exp-input-field form-control"
-                    type="email"
-                    placeholder=""
-                    required
-                    title="Please enter the email ID"
-                    value={email_id}
-                    onChange={(e) => setEmail_id(e.target.value)}
-                    maxLength={150}
-                    ref={email}
-                    onKeyDown={(e) => handleKeyDown(e, Dob, email)}
-                  />
-                </div>
-              </div>
-              <div className="col-md-3 form-group  mb-2">
-                <div class="exp-form-floating">
-                  <div class="d-flex justify-content-start">
-                    <div>
                       <label for="state" className={`exp-form-labels ${error && !dob ? "text-danger" : ""}`} > 
                         DOB
                       </label>
@@ -893,6 +789,82 @@ function UserInput({ }) {
                       ref={Gender}
                       isClearable
                       onKeyDown={(e) => handleKeyDown(e, ImagE, Gender)}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="col-md-3 form-group  mb-2">
+                <div class="exp-form-floating">
+                  <div class="d-flex justify-content-start">
+                    <div>
+                      <label for="state" className={`exp-form-labels ${error && !email_id ? "text-danger" : "" }`} >
+                        Email
+                      </label>
+                    </div>
+                    <div>
+                      <span className="text-danger">*</span>
+                    </div>
+                  </div>
+                  <input
+                    id="uemail"
+                    class="exp-input-field form-control"
+                    type="email"
+                    placeholder=""
+                    required
+                    title="Please enter the email ID"
+                    value={email_id}
+                    onChange={(e) => setEmail_id(e.target.value)}
+                    maxLength={150}
+                    ref={email}
+                    onKeyDown={(e) => handleKeyDown(e, Dob, email)}
+                  />
+                </div>
+              </div>
+              {/* <div className="col-md-3 form-group  mb-2">
+                <div class="exp-form-floating">
+                  <label for="loginout" class="exp-form-labels">
+                    Log IN/OUT
+                  </label>
+                  <div title="Please select the Log IN/OUT status">
+                    <Select
+                      id="loginout"
+                      value={selectedLog}
+                      onChange={handleChangeLog}
+                      options={filteredOptionLog}
+                      className="exp-input-field"
+                      placeholder=""
+                      maxLength={3}
+                      ref={loginlogout}
+                      onKeyDown={(e) => handleKeyDown(e, usertype, loginlogout)}
+                      isClearable
+                    />
+                  </div>
+                </div>
+              </div> */}
+              <div className="col-md-3 form-group  mb-2 ">
+                <div class="exp-form-floating">
+                  <div class="d-flex justify-content-start">
+                    <div>
+                      <label for="state" className={`exp-form-labels ${error && !role_id ? "text-danger" : "" }`} >
+                        Role ID
+                      </label>
+                    </div>
+                    <div>
+                      <span className="text-danger">*</span>
+                    </div>
+                  </div>
+                  <div title="Please select the Role ID">
+                    <Select
+                      id="usertype"
+                      value={selectedRole}
+                      onChange={handleChangeRole}
+                      options={filteredOptionRole}
+                      className="exp-input-field"
+                      placeholder=""
+                      maxLength={50}
+                      ref={usertype}
+                      onKeyDown={(e) => handleKeyDown(e, email, usertype)}
+                      isClearable
                     />
                   </div>
                 </div>
@@ -943,7 +915,7 @@ function UserInput({ }) {
                 </div>
               </div>
 
-              <div className="col-md-3 form-group  mb-2">
+              {/* <div className="col-md-3 form-group  mb-2">
                 {mode === "create" ? (
                   <div class="exp-form-floating">
                     <div class="d-flex justify-content-start">
@@ -983,6 +955,34 @@ function UserInput({ }) {
                     />
                   </div>
                 )}
+              </div> */}
+              <div className="col-md-3 form-group  mb-2">
+                <div class="exp-form-floating">
+                  <div class="d-flex justify-content-start">
+                    <div>
+                      <label for="state" className={`exp-form-labels ${error && !user_status ? "text-danger" : ""}`} > {" "}
+                        Status{" "}
+                      </label>
+                    </div>
+                    <div>
+                      <span className="text-danger">*</span>
+                    </div>
+                  </div>
+                  <div title="Please select the status">
+                    <Select
+                      id="status"
+                      value={selectedStatus}
+                      onChange={handleChangeStatus}
+                      options={filteredOptionStatus}
+                      className="exp-input-field"
+                      placeholder=""
+                      maxLength={50}
+                      ref={Status}
+                      onKeyDown={(e) => handleKeyDown(e, loginlogout, Status)}
+                      isClearable
+                    />
+                  </div>
+                </div>
               </div>
               <div className="col-md-3 form-group mt-3">
                 <div className="exp-form-floating d-flex align-items-center gap-2" style={{ minHeight: "58px" }} >
@@ -998,7 +998,6 @@ function UserInput({ }) {
                   <label htmlFor="superAdmin" className="exp-form-labels m-0" style={{ cursor: "pointer" }} >Super Admin</label>
                 </div>
               </div>
-
               <div className="col-md-3 form-group mb-2 ">
                 <div class="exp-form-floating">
                   <label for="locno" class="exp-form-labels">
