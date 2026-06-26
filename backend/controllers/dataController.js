@@ -642,6 +642,7 @@ const getUsersearchdata = async (req, res) => {
     gender,
     role_id,
     created_by,
+    expiry_date,
   } = req.body;
 
   try {
@@ -663,7 +664,8 @@ const getUsersearchdata = async (req, res) => {
       .input("gender", sql.NVarChar, gender)
       .input("role_id", sql.NVarChar, role_id)
       .input("created_by", sql.NVarChar, created_by)
-      .query(`EXEC sp_user_info_hdr @mode,@company_code,@user_code,@user_name,@first_name,@last_name,'',@user_status,'','',@email_id,@dob,@gender,@role_id,'','','',@created_by,'','','','','','','','',''`);
+      .input("expiry_date", sql.NVarChar, expiry_date)
+      .query(`EXEC sp_user_info_hdr @mode,@company_code,@user_code,@user_name,@first_name,@last_name,'',@user_status,'','',@email_id,@dob,@gender,@role_id,'',@expiry_date,'',@created_by,'','','','','','','','',''`);
 
     // Send response
     if (result.recordset.length > 0) {
