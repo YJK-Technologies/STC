@@ -48,7 +48,8 @@ function UserGrid() {
   const [modifiedDate, setModifiedDate] = useState("");
   const [error, setError] = useState("");
 
-  const [expiry_date, setexpiry_date] = useState("");
+  const [ExpiryFromDate, setExpiryFromDate] = useState("");
+  const [ExpiryToDate, setExpiryToDate] = useState("");
   const [selectedRole, setSelectedRole] = useState("");
   const [role_id, setRole] = useState("");
 
@@ -279,6 +280,15 @@ function UserGrid() {
 
   const handleSearch = async () => {
     try {
+
+       if (
+        ExpiryFromDate &&
+        ExpiryToDate &&
+        new Date(ExpiryFromDate) > new Date(ExpiryToDate)
+      ) {
+        toast.warning("Expiry From Date should not be greater than Expiry To Date");
+        return;
+      }
       setLoading(true);
       const company_code = sessionStorage.getItem("selectedCompanyCode");
       const created_by = sessionStorage.getItem("selectedUserCode");
@@ -299,7 +309,8 @@ function UserGrid() {
           user_type,
           dob,
           gender,
-          expiry_date,
+          ExpiryFromDate,
+          ExpiryToDate,
           role_id
         }),
       });
@@ -1125,25 +1136,33 @@ tr:nth-child(even) td{
             </div>
               <div className="col-md-3 form-group mb-2">
                 <div className="exp-form-floating">
-                  <div className="d-flex justify-content-start">
-                    <div>
-                      <label htmlFor="expirydate" className={`exp-form-labels`}>
-                        Expiry Date
-                      </label>
-                    </div>
-                  </div>
+                  <label className="exp-form-labels">
+                    Expiry From Date
+                  </label>
+
                   <input
-                    id="expirydate"
                     className="exp-input-field form-control"
                     type="date"
-                    required
-                    title="Please enter Expiry Date"
-                    value={expiry_date}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) => setexpiry_date(e.target.value)}
+                    value={ExpiryFromDate}
+                    onChange={(e) => setExpiryFromDate(e.target.value)}
                   />
                 </div>
-              </div>            
+              </div>   
+              <div className="col-md-3 form-group mb-2">
+                <div className="exp-form-floating">
+                  <label className="exp-form-labels">
+                    Expiry To Date
+                  </label>
+
+                  <input
+                    className="exp-input-field form-control"
+                    type="date"
+                    value={ExpiryToDate}
+                    min={ExpiryFromDate || undefined}
+                    onChange={(e) => setExpiryToDate(e.target.value)}
+                  />
+                </div>
+              </div>              
               <div className="col-md-3 form-group">
               <div class="exp-form-floating">
                 <label for="gender" class="exp-form-labels">
