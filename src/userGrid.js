@@ -46,6 +46,11 @@ function UserGrid() {
   const [modifiedBy, setModifiedBy] = useState("");
   const [createdDate, setCreatedDate] = useState("");
   const [modifiedDate, setModifiedDate] = useState("");
+  const [error, setError] = useState("");
+
+  const [expiry_date, setexpiry_date] = useState("");
+  const [selectedRole, setSelectedRole] = useState("");
+  const [role_id, setRole] = useState("");
 
   //code added by Harish purpose of set user permisssion
   const permissions = JSON.parse(sessionStorage.getItem("permissions")) || {};
@@ -131,6 +136,21 @@ function UserGrid() {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
+    useEffect(() => {
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
+
+    fetch(`${config.apiBaseUrl}/UserRole`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ company_code }),
+    })
+      .then((data) => data.json())
+      .then((val) => setRoleDrop(val))
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
+
   useEffect(() => {
     const company_code = sessionStorage.getItem('selectedCompanyCode');
     fetch(`${config.apiBaseUrl}/Loginorout`, {
@@ -211,6 +231,13 @@ function UserGrid() {
     }))
     : [];
 
+    const filteredOptionRole = Array.isArray(roleDrop)
+    ? roleDrop.map((option) => ({
+        value: option.role_id,
+        label: `${option.role_id} - ${option.role_name}`,
+      }))
+    : [];
+
   const handleChangeStatus = (selectedStatus) => {
     setSelectedStatus(selectedStatus);
     setuser_status(selectedStatus ? selectedStatus.value : "");
@@ -228,6 +255,11 @@ function UserGrid() {
     setgender(selectedGender ? selectedGender.value : "");
     setHasValueChanged(true);
   };
+
+   const handleChangeRole = (selectedRole) => {
+     setSelectedRole(selectedRole);
+     setRole(selectedRole ? selectedRole.value : "");
+   };
 
   const handleNavigateToForm = () => {
     navigate("/AddUser", { state: { mode: "create" } });
@@ -267,6 +299,8 @@ function UserGrid() {
           user_type,
           dob,
           gender,
+          expiry_date,
+          role_id
         }),
       });
 
@@ -429,6 +463,43 @@ function UserGrid() {
     //   //   return `${day}/${month}/${year}`;
     //   // },
     // },
+    {
+      headerName: "Expiry Date",
+      field: "expiry_date",
+      editable: false,
+      cellStyle: { textAlign: "left" },
+      minWidth: 150,
+
+      valueSetter: (params) => {
+        if (!params.newValue) return false;
+
+        const selectedDate = new Date(params.newValue);
+        selectedDate.setHours(0, 0, 0, 0);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const maxDob = new Date(
+          today.getFullYear() - 18,
+          today.getMonth(),
+          today.getDate()
+        );
+        maxDob.setHours(0, 0, 0, 0);
+
+        if (selectedDate > today) {
+          toast.warning("Future dates are not allowed for DOB");
+          return false;
+        }
+
+        if (selectedDate > maxDob) {
+          toast.warning("Age must be 18 years or above");
+          return false;
+        }
+
+        params.data.dob = params.newValue;
+        return true;
+      },
+    },
     {
       headerName: "DOB",
       field: "dob",
@@ -1003,9 +1074,9 @@ tr:nth-child(even) td{
             <div className="col-md-3 form-group">
               <div class="exp-form-floating">
                 <label for="usts" class="exp-form-labels">
-                  User Status
+                   Status
                 </label>
-                <div title="Please select the User Status">
+                <div title="Please select the Status">
                   <Select
                     id="status"
                     value={selectedStatus}
@@ -1052,7 +1123,28 @@ tr:nth-child(even) td{
                 />
               </div>
             </div>
-            <div className="col-md-3 form-group">
+              <div className="col-md-3 form-group mb-2">
+                <div className="exp-form-floating">
+                  <div className="d-flex justify-content-start">
+                    <div>
+                      <label htmlFor="expirydate" className={`exp-form-labels`}>
+                        Expiry Date
+                      </label>
+                    </div>
+                  </div>
+                  <input
+                    id="expirydate"
+                    className="exp-input-field form-control"
+                    type="date"
+                    required
+                    title="Please enter Expiry Date"
+                    value={expiry_date}
+                    min={new Date().toISOString().split("T")[0]}
+                    onChange={(e) => setexpiry_date(e.target.value)}
+                  />
+                </div>
+              </div>            
+              <div className="col-md-3 form-group">
               <div class="exp-form-floating">
                 <label for="gender" class="exp-form-labels">
                   Gender
@@ -1070,6 +1162,32 @@ tr:nth-child(even) td{
                 </div>
               </div>
             </div>
+              <div className="col-md-3 form-group  mb-2 ">
+                <div class="exp-form-floating">
+                  <div class="d-flex justify-content-start">
+                    <div>
+                      <label for="state" className={`exp-form-labels ${error && !role_id ? "text-danger" : "" }`} >
+                        Role ID
+                      </label>
+                    </div>
+                    <div>
+                      <span className="text-danger">*</span>
+                    </div>
+                  </div>
+                  <div title="Please select the Role ID">
+                    <Select
+                      id="usertype"
+                      value={selectedRole}
+                      onChange={handleChangeRole}
+                      options={filteredOptionRole}
+                      className="exp-input-field"
+                      placeholder=""
+                      maxLength={50}
+                      isClearable
+                    />
+                  </div>
+                </div>
+              </div>
             <div className="col-12 d-flex justify-content-end align-items-center mt-4">
               <div class="exp-form-floating">
                 <div class=" d-flex  justify-content-center">
