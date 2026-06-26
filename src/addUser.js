@@ -68,8 +68,11 @@ function UserInput({ }) {
     setFirst_name("");
     setLast_name("");
     setUser_password("");
-    setUser_status("");
-    setSelectedStatus("");
+    setUser_status("Active");
+    setSelectedStatus({
+    value: "Active",
+    label: "Active",
+    });
     setRole("");
     setSelectedRole("");
     setLog_in_out("");
@@ -107,11 +110,21 @@ function UserInput({ }) {
         label: selectedRow.user_status,
         value: selectedRow.user_status,
       });
+      // setRole(selectedRow.role_id || "");
+      // setSelectedRole({
+      //   label: selectedRow.role_id,
+      //   value: selectedRow.role_id,
+      // });
       setRole(selectedRow.role_id || "");
-      setSelectedRole({
-        label: selectedRow.role_id,
-        value: selectedRow.role_id,
-      });
+      const selectedRoleOption = roleDrop.find(
+        (role) => role.role_id === selectedRow.role_id
+      );
+      setSelectedRole(
+      selectedRoleOption
+        ? {
+            value: selectedRoleOption.role_id,
+            label: `${selectedRoleOption.role_id} - ${selectedRoleOption.role_name}`,
+          }: null);
       setLog_in_out(selectedRow.log_in_out || "");
       setSelectedLog({
         label: selectedRow.log_in_out,
@@ -166,7 +179,7 @@ function UserInput({ }) {
     } else if (mode === "create") {
       clearInputFields();
     }
-  }, [mode, selectedRow, isUpdated]);
+  }, [mode, selectedRow, isUpdated, roleDrop]);
 
   const base64ToFile = (base64Data, fileName) => {
     if (!base64Data || !base64Data.startsWith("data:")) {
@@ -232,19 +245,47 @@ function UserInput({ }) {
     }
   };
 
+  // useEffect(() => {
+  //   const company_code = sessionStorage.getItem("selectedCompanyCode");
+  //   fetch(`${config.apiBaseUrl}/status`, {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({ company_code }),
+  //   })
+  //     .then((data) => data.json())
+  //     .then((val) => setStatusdrop(val))
+  //     .catch((error) => console.error("Error fetching data:", error));
+  // }, []);
   useEffect(() => {
-    const company_code = sessionStorage.getItem("selectedCompanyCode");
-    fetch(`${config.apiBaseUrl}/status`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ company_code }),
+  const company_code = sessionStorage.getItem("selectedCompanyCode");
+
+  fetch(`${config.apiBaseUrl}/status`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ company_code }),
+  })
+    .then((data) => data.json())
+    .then((val) => {setStatusdrop(val);
+      // Default Status = Active only in Add mode
+      if (mode === "create") {
+        const activeStatus = val.find(
+          (item) => item.attributedetails_name === "Active"
+        );
+        if (activeStatus) {
+          setUser_status(activeStatus.attributedetails_name);
+          setSelectedStatus({
+            value: activeStatus.attributedetails_name,
+            label: activeStatus.attributedetails_name,
+          });
+        }
+      }
     })
-      .then((data) => data.json())
-      .then((val) => setStatusdrop(val))
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
+    .catch((error) => console.error("Error fetching data:", error));
+  }, [mode]);
 
   useEffect(() => {
     const company_code = sessionStorage.getItem("selectedCompanyCode");
@@ -367,6 +408,7 @@ function UserInput({ }) {
       !last_name ||
       !user_password ||
       !user_status ||
+      !gender ||
       !role_id ||
       !email_id ||
       !dob
@@ -478,6 +520,7 @@ function UserInput({ }) {
       !first_name ||
       !last_name ||
       !user_password ||
+      !gender ||
       !user_status ||
       !role_id ||
       !email_id ||
@@ -774,8 +817,8 @@ function UserInput({ }) {
               </div>
               <div className="col-md-3 form-group mb-2 ">
                 <div class="exp-form-floating">
-                  <label for="gender" class="exp-form-labels">
-                    Gender
+                  <label for="gender" className={`exp-form-labels ${error && !gender ? "text-danger" : ""}`} >
+                    Gender<span className="text-danger">*</span>
                   </label>
                   <div title="Please select the Gender">
                     <Select

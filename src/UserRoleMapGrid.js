@@ -206,67 +206,108 @@ function UserRoleGrid() {
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write("<html><head><title>Role Mapping</title>");
     reportWindow.document.write("<style>");
-    reportWindow.document.write(`
-       body {
-           font-family: Arial, sans-serif;
-           margin: 20px;
-       }
-       h1 {
-           color: maroon;
-           text-align: center;
-           font-size: 24px;
-           margin-bottom: 30px;
-           text-decoration: underline;
-       }
-       table {
-           width: 100%;
-           border-collapse: collapse;
-           margin-bottom: 20px;
-       }
-       th, td {
-           padding: 10px;
-           text-align: left;
-           border: 1px solid #ddd;
-           vertical-align: top;
-       }
-       th {
-           background-color: maroon;
-           color: white;
-           font-weight: bold;
-       }
-       td {
-           background-color: #fdd9b5;
-       }
-       tr:nth-child(even) td {
-           background-color: #fff0e1;
-       }
-       .report-button {
-           display: block;
-           width: 150px;
-           margin: 20px auto;
-           padding: 10px;
-           background-color: maroon;
-           color: white;
-           border: none;
-           cursor: pointer;
-           font-size: 16px;
-           text-align: center;
-           border-radius: 5px;
-       }
-       .report-button:hover {
-           background-color: darkred;
-       }
-       @media print {
-           .report-button {
-               display: none;
-           }
-           body {
-               margin: 0;
-               padding: 0;
-           }
-       }
-     `);
-    reportWindow.document.write("</style></head><body>");
+reportWindow.document.write(`
+*{
+    box-sizing:border-box;
+}
+
+html,
+body{
+    margin:20px;
+    padding:0;
+    font-family:Arial,sans-serif;
+    background:#fff;
+    color:#000;
+}
+
+h1{
+    color:maroon;
+    text-align:center;
+    font-size:24px;
+    margin-bottom:30px;
+    text-decoration:underline;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:20px;
+    table-layout:fixed;
+}
+
+th,
+td{
+    padding:10px;
+    text-align:left;
+    border:1px solid #ddd;
+    vertical-align:top;
+    word-wrap:break-word;
+}
+
+th{
+    background-color:maroon;
+    color:#fff;
+    font-weight:bold;
+}
+
+td{
+    background-color:#fdd9b5;
+}
+
+tr:nth-child(even) td{
+    background-color:#fff0e1;
+}
+
+.report-button{
+    display:block;
+    width:150px;
+    margin:20px auto;
+    padding:10px;
+    background-color:maroon;
+    color:white;
+    border:none;
+    cursor:pointer;
+    font-size:16px;
+    border-radius:5px;
+}
+
+.report-button:hover{
+    background-color:darkred;
+}
+
+@page{
+    size:A4 portrait;
+    margin:15mm;
+}
+
+@media print{
+
+    html,
+    body{
+        margin:0;
+        padding:0;
+        background:#fff;
+        -webkit-print-color-adjust:exact !important;
+        print-color-adjust:exact !important;
+    }
+
+    .report-button{
+        display:none !important;
+    }
+
+    table{
+        width:100%;
+        border-collapse:collapse;
+    }
+
+    th,
+    td{
+        border:1px solid #ddd;
+        -webkit-print-color-adjust:exact !important;
+        print-color-adjust:exact !important;
+    }
+}
+`);    reportWindow.document.write("</style></head><body>");
     reportWindow.document.write("<h1><u>Role Mapping</u></h1>");
 
     reportWindow.document.write("<table><thead><tr>");
@@ -290,6 +331,7 @@ function UserRoleGrid() {
     );
     reportWindow.document.write("</body></html>");
     reportWindow.document.close();
+    reportWindow.focus();
   };
 
   const handleNavigateToForm = () => {

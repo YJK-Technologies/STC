@@ -257,7 +257,6 @@ tr:nth-child(even) td{
     }
 }
 `);
-reportWindow.document.write("</style></head><body>");
     reportWindow.document.write("</style></head><body>");
     reportWindow.document.write("<h1><u>Attribute Information</u></h1>");
 
