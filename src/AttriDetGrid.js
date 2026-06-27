@@ -6,14 +6,13 @@ import "ag-grid-community/styles/ag-theme-quartz.css";
 import "./apps.css";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import labels from "./Labels";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { showConfirmationToast } from './ToastConfirmation';
-import LoadingScreen from './LoadingScreen';
-import config from './Apiconfig';
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { showConfirmationToast } from "./ToastConfirmation";
+import LoadingScreen from "./LoadingScreen";
+import config from "./Apiconfig";
 
 function AttriDetGrid() {
   const [rowData, setRowData] = useState([]);
@@ -32,10 +31,10 @@ function AttriDetGrid() {
   const [modifiedDate, setModifiedDate] = useState("");
 
   //code added by Harish purpose of set user permisssion
-  const permissions = JSON.parse(sessionStorage.getItem('permissions')) || {};
+  const permissions = JSON.parse(sessionStorage.getItem("permissions")) || {};
   const attributePermission = permissions
-    .filter(permission => permission.screen_type === 'Attribute')
-    .map(permission => permission.permission_type.toLowerCase());
+    .filter((permission) => permission.screen_type === "Attribute")
+    .map((permission) => permission.permission_type.toLowerCase());
 
   const reloadGridData = () => {
     window.location.reload();
@@ -50,7 +49,13 @@ function AttriDetGrid() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ company_code: sessionStorage.getItem("selectedCompanyCode"), attributeheader_code, attributedetails_code, attributedetails_name, descriptions }), // Send as search criteria
+        body: JSON.stringify({
+          company_code: sessionStorage.getItem("selectedCompanyCode"),
+          attributeheader_code,
+          attributedetails_code,
+          attributedetails_name,
+          descriptions,
+        }), // Send as search criteria
       });
 
       if (response.ok) {
@@ -72,7 +77,6 @@ function AttriDetGrid() {
     }
   };
 
-
   const columnDefs = [
     {
       headerCheckboxSelection: true,
@@ -90,14 +94,11 @@ function AttriDetGrid() {
         };
 
         return (
-          <span
-            style={{ cursor: "pointer" }}
-            onClick={handleClick}
-          >
+          <span style={{ cursor: "pointer" }} onClick={handleClick}>
             {params.value}
           </span>
         );
-      }
+      },
     },
     {
       headerName: "Sub Code",
@@ -130,32 +131,43 @@ function AttriDetGrid() {
   const defaultColDef = {
     resizable: true,
     wrapText: true,
-    flex: true
+    flex: true,
   };
 
   const onGridReady = (params) => {
     setGridApi(params.api);
   };
 
-  const generateReport = () => {
-    const selectedRows = gridApi.getSelectedRows();
-    if (selectedRows.length === 0) {
-      toast.warning("Please select at least one row to generate a report");
-      return
-    };
-    const reportData = selectedRows.map((row) => {
-      return {
-        "Code": row.attributeheader_code,
-        "Sub Code": row.attributedetails_code,
-        "Detail Name": row.attributedetails_name,
-        "Description": row.descriptions,
-      };
+  const handlePrint = () => {
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
+
+    const reportData = [];
+
+    // Selected rows in the same order as AG Grid
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      if (!node.isSelected()) return;
+
+      const row = {};
+
+      displayedColumns.forEach((col) => {
+        row[col.headerName] = node.data?.[col.field] ?? "";
+      });
+
+      reportData.push(row);
     });
+
+    if (reportData.length === 0) {
+      toast.warning("Please select at least one row to generate a report");
+      return;
+    }
 
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write("<html><head><title>Attribute</title>");
- reportWindow.document.write("<style>");
-reportWindow.document.write(`
+    reportWindow.document.write("<style>");
+    reportWindow.document.write(`
 *{
     box-sizing:border-box;
 }
@@ -279,7 +291,7 @@ tr:nth-child(even) td{
     reportWindow.document.write("</tbody></table>");
 
     reportWindow.document.write(
-      '<button class="report-button" onclick="window.print()">Print</button>'
+      '<button class="report-button" onclick="window.print()">Print</button>',
     );
     reportWindow.document.write("</body></html>");
     reportWindow.document.close();
@@ -303,7 +315,9 @@ tr:nth-child(even) td{
   const onCellValueChanged = (params) => {
     const updatedRowData = [...rowData];
     const rowIndex = updatedRowData.findIndex(
-      (row) => row.attributeheader_code === params.data.attributeheader_code && row.attributedetails_code === params.data.attributedetails_code
+      (row) =>
+        row.attributeheader_code === params.data.attributeheader_code &&
+        row.attributedetails_code === params.data.attributedetails_code,
     );
     if (rowIndex !== -1) {
       updatedRowData[rowIndex][params.colDef.field] = params.newValue;
@@ -313,19 +327,22 @@ tr:nth-child(even) td{
     }
   };
 
-
   const saveEditedData = async () => {
-    const modified_by = sessionStorage.getItem('selectedUserCode');
+    const modified_by = sessionStorage.getItem("selectedUserCode");
 
-    const selectedRowsData = editedData.filter(row =>
-      selectedRows.some(selectedRow =>
-        selectedRow.attributeheader_code === row.attributeheader_code && selectedRow.attributedetails_code === row.attributedetails_code
-      )
+    const selectedRowsData = editedData.filter((row) =>
+      selectedRows.some(
+        (selectedRow) =>
+          selectedRow.attributeheader_code === row.attributeheader_code &&
+          selectedRow.attributedetails_code === row.attributedetails_code,
+      ),
     );
 
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
     if (selectedRowsData.length === 0) {
-      toast.warning("Please select and modify at least one row to update its data");
+      toast.warning(
+        "Please select and modify at least one row to update its data",
+      );
       return;
     }
 
@@ -335,27 +352,29 @@ tr:nth-child(even) td{
         setLoading(true);
 
         try {
-
           const response = await fetch(`${config.apiBaseUrl}/updattridetData`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "company_code": company_code,
-              "Modified-By": modified_by
-
+              company_code: company_code,
+              "Modified-By": modified_by,
             },
             body: JSON.stringify({
-              attributeheader_codesToUpdate: selectedRowsData.map(row => row.attributeheader_code),
-              attributedetails_codesToUpdate: selectedRowsData.map(row => row.attributedetails_code),
+              attributeheader_codesToUpdate: selectedRowsData.map(
+                (row) => row.attributeheader_code,
+              ),
+              attributedetails_codesToUpdate: selectedRowsData.map(
+                (row) => row.attributedetails_code,
+              ),
               updatedData: selectedRowsData,
-              "company_code": company_code,
-              "modified_by": modified_by
+              company_code: company_code,
+              modified_by: modified_by,
             }),
           });
 
           if (response.status === 200) {
             setTimeout(() => {
-              toast.success("Data Updated Successfully")
+              toast.success("Data Updated Successfully");
               handleSearch();
             }, 3000);
             return;
@@ -372,21 +391,25 @@ tr:nth-child(even) td{
       },
       () => {
         toast.info("Data updated cancelled.");
-      }
+      },
     );
   };
 
   const deleteSelectedRows = async () => {
     const selectedRows = gridApi.getSelectedRows();
 
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
-    const modified_by = sessionStorage.getItem('selectedUserCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
+    const modified_by = sessionStorage.getItem("selectedUserCode");
 
-    const attributeheader_codesToDelete = selectedRows.map((row) => row.attributeheader_code);
-    const attributedetails_codeToDelete = selectedRows.map((row) => row.attributedetails_code);
+    const attributeheader_codesToDelete = selectedRows.map(
+      (row) => row.attributeheader_code,
+    );
+    const attributedetails_codeToDelete = selectedRows.map(
+      (row) => row.attributedetails_code,
+    );
 
     if (selectedRows.length === 0) {
-      toast.warning("Please select atleast One Row to Delete")
+      toast.warning("Please select atleast One Row to Delete");
       return;
     }
     showConfirmationToast(
@@ -399,49 +422,50 @@ tr:nth-child(even) td{
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "company_code": company_code,
-              "Modified-By": modified_by
+              company_code: company_code,
+              "Modified-By": modified_by,
             },
-            body: JSON.stringify({ attributeheader_codesToDelete, attributedetails_codeToDelete }),
-            "company_code": company_code,
-            "modified_by": modified_by
+            body: JSON.stringify({
+              attributeheader_codesToDelete,
+              attributedetails_codeToDelete,
+            }),
+            company_code: company_code,
+            modified_by: modified_by,
           });
 
           if (response.ok) {
             setTimeout(() => {
-              toast.success("Data Deleted successfully")
+              toast.success("Data Deleted successfully");
               handleSearch();
             }, 1000);
-
           } else {
             const errorResponse = await response.json();
             toast.warning(errorResponse.message || "Failed to Delete");
           }
         } catch (error) {
           console.error("Error deleting rows:", error);
-          toast.error('Error Deleting Data: ' + error.message);
+          toast.error("Error Deleting Data: " + error.message);
         } finally {
           setLoading(false);
         }
       },
       () => {
         toast.info("Data Delete cancelled.");
-      }
+      },
     );
   };
 
+  const formatDate = (date) => {
+    if (!date) return "";
 
-const formatDate = (date) => {
-  if (!date) return "";
+    const d = new Date(date);
 
-  const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
 
-  const day = String(d.getDate()).padStart(2, "0");
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const year = d.getFullYear();
-
-  return `${day}-${month}-${year}`;
-};
+    return `${day}-${month}-${year}`;
+  };
   const handleRowClick = (rowData) => {
     setCreatedBy(rowData.created_by);
     setModifiedBy(rowData.modified_by);
@@ -457,12 +481,15 @@ const formatDate = (date) => {
     }
   };
 
-
   return (
     <div className="container-fluid Topnav-screen">
       <div>
         {loading && <LoadingScreen />}
-        <ToastContainer position="top-right" className="toast-design" theme="colored" />
+        <ToastContainer
+          position="top-right"
+          className="toast-design"
+          theme="colored"
+        />
         <div className="shadow-lg p-1 bg-body-tertiary rounded  mb-2 mt-2">
           <div className=" d-flex justify-content-between  ">
             <div class="d-flex justify-content-start">
@@ -471,23 +498,51 @@ const formatDate = (date) => {
               </h1>
             </div>
             <div className="d-flex justify-content-end purbut me-3">
-              {["add", "all permission"].some((permission) => attributePermission.includes(permission)) && (
-                <addbutton className="purbut" onClick={handleNavigatesToForm} required title="Add Attribute">
+              {["add", "all permission"].some((permission) =>
+                attributePermission.includes(permission),
+              ) && (
+                <addbutton
+                  className="purbut"
+                  onClick={handleNavigatesToForm}
+                  required
+                  title="Add Attribute"
+                >
                   <i class="fa-solid fa-user-plus"></i>
                 </addbutton>
               )}
-              {["delete", "all permission"].some((permission) => attributePermission.includes(permission)) && (
-                <delbutton className="purbut" onClick={deleteSelectedRows} required title="Delete">
+              {["delete", "all permission"].some((permission) =>
+                attributePermission.includes(permission),
+              ) && (
+                <delbutton
+                  className="purbut"
+                  onClick={deleteSelectedRows}
+                  required
+                  title="Delete"
+                >
                   <i class="fa-solid fa-user-minus"></i>
                 </delbutton>
               )}
-              {["update", "all permission"].some((permission) => attributePermission.includes(permission)) && (
-                <savebutton className="purbut" onClick={saveEditedData} required title="Update">
+              {["update", "all permission"].some((permission) =>
+                attributePermission.includes(permission),
+              ) && (
+                <savebutton
+                  className="purbut"
+                  onClick={saveEditedData}
+                  required
+                  title="Update"
+                >
                   <i class="fa-solid fa-floppy-disk"></i>
                 </savebutton>
               )}
-              {["view", "all permission"].some((permission) => attributePermission.includes(permission)) && (
-                <printbutton class="purbut" onClick={generateReport} required title="Generate Report">
+              {["view", "all permission"].some((permission) =>
+                attributePermission.includes(permission),
+              ) && (
+                <printbutton
+                  class="purbut"
+                  onClick={handlePrint}
+                  required
+                  title="Generate Report"
+                >
                   <i class="fa-solid fa-print"></i>
                 </printbutton>
               )}
@@ -499,7 +554,7 @@ const formatDate = (date) => {
                     Attribute
                   </h1>
                 </div>
-                <div class="dropdown mt-1 me-5" >
+                <div class="dropdown mt-1 me-5">
                   <button
                     class="btn btn-primary dropdown-toggle p-1"
                     type="button"
@@ -509,30 +564,38 @@ const formatDate = (date) => {
                     <i class="fa-solid fa-list"></i>
                   </button>
                   <ul class="dropdown-menu menu">
-                    {['add', 'all permission'].some(permission => attributePermission.includes(permission)) && (
+                    {["add", "all permission"].some((permission) =>
+                      attributePermission.includes(permission),
+                    ) && (
                       <li class="iconbutton d-flex justify-content-center text-success">
                         <icon class="icon" onClick={handleNavigatesToForm}>
                           <i class="fa-solid fa-user-plus"></i>
                         </icon>
                       </li>
                     )}
-                    {['delete', 'all permission'].some(permission => attributePermission.includes(permission)) && (
+                    {["delete", "all permission"].some((permission) =>
+                      attributePermission.includes(permission),
+                    ) && (
                       <li class="iconbutton  d-flex justify-content-center text-danger">
                         <icon class="icon" onClick={deleteSelectedRows}>
                           <i class="fa-solid fa-user-minus"></i>
                         </icon>
                       </li>
                     )}
-                    {['update', 'all permission'].some(permission => attributePermission.includes(permission)) && (
+                    {["update", "all permission"].some((permission) =>
+                      attributePermission.includes(permission),
+                    ) && (
                       <li class="iconbutton  d-flex justify-content-center text-primary ">
                         <icon class="icon" onClick={saveEditedData}>
                           <i class="fa-solid fa-floppy-disk"></i>
                         </icon>
                       </li>
                     )}
-                    {['all permission', 'view'].some(permission => attributePermission.includes(permission)) && (
+                    {["all permission", "view"].some((permission) =>
+                      attributePermission.includes(permission),
+                    ) && (
                       <li class="iconbutton  d-flex justify-content-center ">
-                        <icon class="icon" onClick={generateReport}>
+                        <icon class="icon" onClick={handlePrint}>
                           <i class="fa-solid fa-print"></i>
                         </icon>
                       </li>

@@ -74,13 +74,13 @@ const QOanalysis = () => {
   const [departmentId, setDepartmentId] = useState("1");
   const [departmentName, setDepartmentName] = useState("VIVA");
   const [startDate, setStartDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const [endDate, setEndDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const companyName = sessionStorage.getItem("selectedCompanyName");
-  const userName = sessionStorage.getItem('selectedUserName');
+  const userName = sessionStorage.getItem("selectedUserName");
   const [open, setOpen] = React.useState(false);
   const [loading, setLoading] = useState(false);
   const [templateList, setTemplateList] = useState([]);
@@ -93,7 +93,6 @@ const QOanalysis = () => {
   }, [departmentId]);
 
   const fetchDailyAttendanceReport = async () => {
-
     if (!startDate && !endDate) {
       toast.warning("Please select From Date and To Date");
       return;
@@ -193,37 +192,41 @@ const QOanalysis = () => {
   };
 
   const handlePrint = () => {
-    const selectedRows = gridApi.getSelectedRows();
-    if (selectedRows.length === 0) {
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
+
+    const reportData = [];
+
+    // Selected rows in the same order as AG Grid
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      if (!node.isSelected()) return;
+
+      const row = {};
+
+      displayedColumns.forEach((col) => {
+        let value = node.data?.[col.field];
+
+        if (
+          ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+        ) {
+          value = value ? formatDate(value) : "";
+        }
+
+        row[col.headerName] = value ?? "";
+      });
+
+      reportData.push(row);
+    });
+
+    if (reportData.length === 0) {
       toast.warning("Please select at least one row to generate a report");
       return;
     }
-
-  // Only visible columns
-  const visibleColumns = columnDefs.filter(col => !col.hide);
-
-  // Build report data dynamically based on visible columns
-  const reportData = selectedRows.map((row) => {
-    const rowData = {};
-
-    visibleColumns.forEach((col) => {
-      let value = row[col.field];
-
-      // Format date fields
-      if (
-        ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
-      ) {
-        value = value ? formatDate(value) : "";
-      }
-
-      rowData[col.headerName] = value ?? "";
-    });
-
-    return rowData;
-  });
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write(
-      "<html><head><title>Daily Attendance Report</title>"
+      "<html><head><title>Daily Attendance Report</title>",
     );
     reportWindow.document.write("<style>");
     reportWindow.document.write(`
@@ -306,7 +309,7 @@ const QOanalysis = () => {
     reportWindow.document.write("</tbody></table>");
 
     reportWindow.document.write(
-      '<button class="report-button" onclick="window.print()">Print</button>'
+      '<button class="report-button" onclick="window.print()">Print</button>',
     );
     reportWindow.document.write("</body></html>");
     reportWindow.document.close();
@@ -343,8 +346,8 @@ const QOanalysis = () => {
     }
 
     const formatDate = (date) => {
-    if (!date) return "";
-    return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
+      if (!date) return "";
+      return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
     };
 
     const headerData = [
@@ -355,45 +358,59 @@ const QOanalysis = () => {
       [],
     ];
 
-    const transformedData = transformRowData(rowData);
+    // const transformedData = transformRowData(rowData);
 
-// Export only visible columns
-const visibleColumns = columnDefs.filter(col => !col.hide);
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
 
-const exportData = transformedData.map(row => {
-  const filteredRow = {};
+    // Rows exactly as shown in AG Grid
+    const exportData = [];
 
-  visibleColumns.forEach(col => {
-    filteredRow[col.headerName] = row[col.field];
-  });
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      const row = {};
 
-  return filteredRow;
-  });
+      displayedColumns.forEach((col) => {
+        let value = node.data?.[col.field];
 
-  const worksheet = XLSX.utils.aoa_to_sheet(headerData);
+        if (
+          ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+        ) {
+          value = value ? formatDate(value) : "";
+        }
 
-  XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A6" });
-
-      // Auto-fit column width
-      const colWidths = visibleColumns.map(col => {
-        const headerLength = col.headerName.length;
-      
-        const maxDataLength = Math.max(
-          ...exportData.map(row =>
-            row[col.headerName]
-              ? row[col.headerName].toString().length
-              : 0
-          ),
-          headerLength
-        );
-      
-        return { wch: maxDataLength + 5 }; // extra padding
+        row[col.headerName] = value ?? "";
       });
 
-      worksheet['!cols'] = colWidths;
+      exportData.push(row);
+    });
+    const worksheet = XLSX.utils.aoa_to_sheet(headerData);
+
+    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A6" });
+
+    // Auto-fit column width
+    const colWidths = displayedColumns.map((col) => {
+      const headerLength = col.headerName.length;
+
+      const maxDataLength = Math.max(
+        ...exportData.map((row) =>
+          row[col.headerName] ? row[col.headerName].toString().length : 0,
+        ),
+        headerLength,
+      );
+
+      return { wch: maxDataLength + 5 }; // extra padding
+    });
+
+    worksheet["!cols"] = colWidths;
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Daily Attendance Report");
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Daily Attendance Report",
+    );
     XLSX.writeFile(workbook, "Daily_Attendance_Report.xlsx");
   };
 
@@ -427,122 +444,133 @@ const exportData = transformedData.map(row => {
   };
 
   const reloadGridData = () => {
-  const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split("T")[0];
 
-  setDepartmentId("1");
-  setDepartmentName("VIVA");
-  setStartDate(today);
-  setEndDate(today);
+    setDepartmentId("1");
+    setDepartmentName("VIVA");
+    setStartDate(today);
+    setEndDate(today);
 
-  if (gridApi) {
-    gridApi.deselectAll();
-  }
+    if (gridApi) {
+      gridApi.deselectAll();
+    }
 
-  setColumnDefs(prev =>
-    prev.map(col => ({
-      ...col,
-      hide: false,
-    }))
-  );
-
-  setSearchColumn("");
-  setSearchTerm("");
-  setShowDropdown(false);
-  setDropdownOpen(false);
-  setHeaderChecked(false);
-
-  fetchDailyAttendanceReport();
-};
-
-const exportPDF = () => {
-  if (rowData.length === 0) {
-    toast.warning("There is no data to export.");
-    return;
-  }
-
-  const doc = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "a4",
-  });
-
-  const reportName = "Daily Attendance Report";
-  const companyNameValue =
-    sessionStorage.getItem("selectedCompanyName") || companyName || "-";
-
-  const userName =
-    sessionStorage.getItem("selectedUserName") ||
-    sessionStorage.getItem("selectedUserName") ||
-    sessionStorage.getItem("selectedUserName") ||
-    "-";
-
-  const now = new Date();
-
-const currentDateTime =
-  now.toLocaleDateString("en-GB").replace(/\//g, "-") +
-  ", " +
-  now.toLocaleTimeString("en-GB");
-
-  // Export ONLY visible columns
-  const visibleColumns = columnDefs.filter((col) => !col.hide);
-
-  const headers = visibleColumns.map((col) => col.headerName);
-
-  const data = rowData.map((row) =>
-    visibleColumns.map((col) => row[col.field] ?? "-")
-  );
-
-autoTable(doc, {
-  head: [headers],
-  body: data,
-  startY: 15,
-  styles: {
-    fontSize: 4,
-    cellPadding: 1,
-  },
-  headStyles: {
-    fillColor: [100, 100, 255],
-    fontSize: 4,
-  },
-  margin: {
-    top: 15,
-    left: 5,
-    right: 5,
-    bottom: 10,
-  },
-  didDrawPage: function () {
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-
-    doc.setFontSize(8);
-
-    // Header
-    doc.text(`Report Name: ${reportName}`, 10, 8);
-
-    doc.text(
-      `Company Name: ${companyName || ""}`,
-      pageWidth - 10,
-      8,
-      { align: "right" }
+    setColumnDefs((prev) =>
+      prev.map((col) => ({
+        ...col,
+        hide: false,
+      })),
     );
 
-    // Footer
-    doc.text(
-      `User Name: ${userName}`,
-      10,
-      pageHeight - 5
-    );
+    setSearchColumn("");
+    setSearchTerm("");
+    setShowDropdown(false);
+    setDropdownOpen(false);
+    setHeaderChecked(false);
 
-    doc.text(
-      `Date & Time: ${currentDateTime}`,
-      pageWidth - 10,
-      pageHeight - 5,
-      { align: "right" }
-    );
-  },
-});
-  doc.save("Daily_Attendance_Report.pdf");
-};
+    fetchDailyAttendanceReport();
+  };
+
+  const exportPDF = () => {
+    if (rowData.length === 0) {
+      toast.warning("There is no data to export.");
+      return;
+    }
+
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    });
+
+    const reportName = "Daily Attendance Report";
+    const companyNameValue =
+      sessionStorage.getItem("selectedCompanyName") || companyName || "-";
+
+    const userName =
+      sessionStorage.getItem("selectedUserName") ||
+      sessionStorage.getItem("selectedUserName") ||
+      sessionStorage.getItem("selectedUserName") ||
+      "-";
+
+    const now = new Date();
+
+    const currentDateTime =
+      now.toLocaleDateString("en-GB").replace(/\//g, "-") +
+      ", " +
+      now.toLocaleTimeString("en-GB");
+
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
+
+    // Headers exactly as shown in AG Grid
+    const headers = displayedColumns.map((col) => col.headerName);
+
+    // Rows exactly as shown in AG Grid
+    const data = [];
+
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      const row = displayedColumns.map((col) => {
+        let value = node.data?.[col.field];
+
+        if (
+          ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+        ) {
+          value = value ? formatDate(value) : "";
+        }
+
+        return value ?? "";
+      });
+
+      data.push(row);
+    });
+
+    autoTable(doc, {
+      head: [headers],
+      body: data,
+      startY: 15,
+      styles: {
+        fontSize: 4,
+        cellPadding: 1,
+      },
+      headStyles: {
+        fillColor: [100, 100, 255],
+        fontSize: 4,
+      },
+      margin: {
+        top: 15,
+        left: 5,
+        right: 5,
+        bottom: 10,
+      },
+      didDrawPage: function () {
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        doc.setFontSize(8);
+
+        // Header
+        doc.text(`Report Name: ${reportName}`, 10, 8);
+
+        doc.text(`Company Name: ${companyName || ""}`, pageWidth - 10, 8, {
+          align: "right",
+        });
+
+        // Footer
+        doc.text(`User Name: ${userName}`, 10, pageHeight - 5);
+
+        doc.text(
+          `Date & Time: ${currentDateTime}`,
+          pageWidth - 10,
+          pageHeight - 5,
+          { align: "right" },
+        );
+      },
+    });
+    doc.save("Daily_Attendance_Report.pdf");
+  };
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -550,7 +578,7 @@ autoTable(doc, {
 
   // Filtered columns based on search input
   const filteredColumns = columnDefs.filter((col) =>
-    col.headerName.toLowerCase().includes(searchTerm.toLowerCase())
+    col.headerName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   useEffect(() => {
@@ -587,7 +615,7 @@ autoTable(doc, {
   // Toggle column visibility from dropdown
   const handleToggleColumn = (field) => {
     const updatedCols = columnDefs.map((col) =>
-      col.field === field ? { ...col, hide: !col.hide } : col
+      col.field === field ? { ...col, hide: !col.hide } : col,
     );
     setColumnDefs(updatedCols);
   };
@@ -776,7 +804,7 @@ autoTable(doc, {
 
     const updated = columnDefs.map((col) => {
       const matched = Array.from(columns).find(
-        (c) => c.getElementsByTagName("Key")[0]?.textContent === col.field
+        (c) => c.getElementsByTagName("Key")[0]?.textContent === col.field,
       );
 
       if (matched) {
@@ -800,7 +828,7 @@ autoTable(doc, {
     const updated = columnDefs.map((col) =>
       filteredColumns.some((fc) => fc.field === col.field)
         ? { ...col, hide: !newChecked } // if header checked => show all, else hide all
-        : col
+        : col,
     );
 
     setColumnDefs(updated);
@@ -844,17 +872,23 @@ autoTable(doc, {
                         <a onClick={() => setShowModal(true)} title="Save">
                           <i className="fa-solid fa-floppy-disk"></i>
                         </a>
-                        {["view", "all permission"].some((permission) => dailyAttendancePermission.includes(permission)) && (
+                        {["view", "all permission"].some((permission) =>
+                          dailyAttendancePermission.includes(permission),
+                        ) && (
                           <a onClick={handlePrint} title="Print">
                             <i className="fa-solid fa-print"></i>
                           </a>
                         )}
-                        {["excel", "all permission"].some((permission) => dailyAttendancePermission.includes(permission)) && (
+                        {["excel", "all permission"].some((permission) =>
+                          dailyAttendancePermission.includes(permission),
+                        ) && (
                           <a onClick={handleExportToExcel} title="Export Excel">
                             <i className="fa-solid fa-file-excel text-success"></i>
                           </a>
                         )}
-                        {["pdf", "all permission"].some((permission) => dailyAttendancePermission.includes(permission)) && (
+                        {["pdf", "all permission"].some((permission) =>
+                          dailyAttendancePermission.includes(permission),
+                        ) && (
                           <a onClick={exportPDF} title="Export PDF">
                             <i className="fa-solid fa-file-pdf text-danger"></i>
                           </a>
@@ -906,7 +940,9 @@ autoTable(doc, {
                 >
                   <i className="fa-solid fa-floppy-disk"></i>
                 </button>
-                {["view", "all permission"].some((permission) => dailyAttendancePermission.includes(permission)) && (
+                {["view", "all permission"].some((permission) =>
+                  dailyAttendancePermission.includes(permission),
+                ) && (
                   <button
                     className="btn btn-dark mt-3 mb-3 rounded-3"
                     onClick={handlePrint}
@@ -915,7 +951,9 @@ autoTable(doc, {
                     <i className="fa-solid fa-print"></i>
                   </button>
                 )}
-                {["excel", "all permission"].some((permission) => dailyAttendancePermission.includes(permission)) && (
+                {["excel", "all permission"].some((permission) =>
+                  dailyAttendancePermission.includes(permission),
+                ) && (
                   <button
                     className="btn btn-dark mt-3 mb-3 rounded-3"
                     onClick={handleExportToExcel}
@@ -924,7 +962,9 @@ autoTable(doc, {
                     <i class="fa-solid fa-file-excel"></i>
                   </button>
                 )}
-                {["pdf", "all permission"].some((permission) => dailyAttendancePermission.includes(permission)) && (
+                {["pdf", "all permission"].some((permission) =>
+                  dailyAttendancePermission.includes(permission),
+                ) && (
                   <button
                     className="btn btn-dark mt-3 mb-3 rounded-3"
                     onClick={exportPDF}
@@ -987,8 +1027,8 @@ autoTable(doc, {
                           {templateList
                             .filter((template) =>
                               template.ControlName.toLowerCase().includes(
-                                searchColumn.toLowerCase()
-                              )
+                                searchColumn.toLowerCase(),
+                              ),
                             )
                             .map((template, index) => (
                               <li
@@ -1006,13 +1046,13 @@ autoTable(doc, {
                             ))}
                           {templateList.filter((template) =>
                             template.ControlName.toLowerCase().includes(
-                              searchColumn.toLowerCase()
-                            )
+                              searchColumn.toLowerCase(),
+                            ),
                           ).length === 0 && (
-                              <li className="text-muted px-2 py-1">
-                                No results found
-                              </li>
-                            )}
+                            <li className="text-muted px-2 py-1">
+                              No results found
+                            </li>
+                          )}
                         </ul>
                       </div>
                     </div>
@@ -1311,7 +1351,7 @@ autoTable(doc, {
                   const alreadyExists = templateList.some(
                     (template) =>
                       template.ControlName.toLowerCase().trim() ===
-                      formatName.toLowerCase().trim()
+                      formatName.toLowerCase().trim(),
                   );
 
                   if (alreadyExists) {
