@@ -1185,12 +1185,9 @@ tr:nth-child(even) td{
                 <div class="exp-form-floating">
                   <div class="d-flex justify-content-start">
                     <div>
-                      <label for="state" className={`exp-form-labels ${error && !role_id ? "text-danger" : "" }`} >
+                      <label for="state" class="exp-form-labels" >
                         Role ID
                       </label>
-                    </div>
-                    <div>
-                      <span className="text-danger">*</span>
                     </div>
                   </div>
                   <div title="Please select the Role ID">
