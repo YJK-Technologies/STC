@@ -6,12 +6,12 @@ import "./apps.css";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
-import { showConfirmationToast } from './ToastConfirmation';
+import { showConfirmationToast } from "./ToastConfirmation";
 import labels from "./Labels";
-import LoadingScreen from './LoadingScreen';
+import LoadingScreen from "./LoadingScreen";
 
 function UserGrid() {
   const [rowData, setRowData] = useState([]);
@@ -59,18 +59,16 @@ function UserGrid() {
     .filter((permission) => permission.screen_type === "User")
     .map((permission) => permission.permission_type.toLowerCase());
 
-
   useEffect(() => {
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
 
     fetch(`${config.apiBaseUrl}/status`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ company_code })
+      body: JSON.stringify({ company_code }),
     })
-
       .then((response) => response.json())
       .then((data) => {
         const statusOption = data.map((option) => option.attributedetails_name);
@@ -79,16 +77,15 @@ function UserGrid() {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-
   useEffect(() => {
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
 
     fetch(`${config.apiBaseUrl}/Usertype`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ company_code })
+      body: JSON.stringify({ company_code }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -99,13 +96,13 @@ function UserGrid() {
   }, []);
 
   useEffect(() => {
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
     fetch(`${config.apiBaseUrl}/gender`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ company_code })
+      body: JSON.stringify({ company_code }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -137,7 +134,7 @@ function UserGrid() {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     const company_code = sessionStorage.getItem("selectedCompanyCode");
 
     fetch(`${config.apiBaseUrl}/UserRole`, {
@@ -153,13 +150,13 @@ function UserGrid() {
   }, []);
 
   useEffect(() => {
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
     fetch(`${config.apiBaseUrl}/Loginorout`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ company_code })
+      body: JSON.stringify({ company_code }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -169,55 +166,53 @@ function UserGrid() {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-
   useEffect(() => {
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
     fetch(`${config.apiBaseUrl}/status`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ company_code })
+      body: JSON.stringify({ company_code }),
     })
       .then((data) => data.json())
       .then((val) => setStatusdrop(val))
-      .catch((error) => console.error('Error fetching data:', error));
+      .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
   useEffect(() => {
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
     fetch(`${config.apiBaseUrl}/Usertype`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ company_code })
+      body: JSON.stringify({ company_code }),
     })
       .then((data) => data.json())
       .then((val) => setUsertypedrop(val))
-      .catch((error) => console.error('Error fetching data:', error));
+      .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-
   useEffect(() => {
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
     fetch(`${config.apiBaseUrl}/gender`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ company_code })
+      body: JSON.stringify({ company_code }),
     })
       .then((data) => data.json())
       .then((val) => setGenderdrop(val))
-      .catch((error) => console.error('Error fetching data:', error));
+      .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-   const filteredOptionStatus = Array.isArray(statusdrop)
+  const filteredOptionStatus = Array.isArray(statusdrop)
     ? statusdrop.map((option) => ({
-      value: option.attributedetails_name,
-      label: option.attributedetails_name,
-    }))
+        value: option.attributedetails_name,
+        label: option.attributedetails_name,
+      }))
     : [];
 
   const filteredOptionUser = Usertypedrop.map((option) => ({
@@ -227,12 +222,12 @@ function UserGrid() {
 
   const filteredOptionGender = Array.isArray(Genderdrop)
     ? Genderdrop.map((option) => ({
-      value: option.attributedetails_name,
-      label: option.attributedetails_name,
-    }))
+        value: option.attributedetails_name,
+        label: option.attributedetails_name,
+      }))
     : [];
 
-    const filteredOptionRole = Array.isArray(roleDrop)
+  const filteredOptionRole = Array.isArray(roleDrop)
     ? roleDrop.map((option) => ({
         value: option.role_id,
         label: `${option.role_id} - ${option.role_name}`,
@@ -257,10 +252,10 @@ function UserGrid() {
     setHasValueChanged(true);
   };
 
-   const handleChangeRole = (selectedRole) => {
-     setSelectedRole(selectedRole);
-     setRole(selectedRole ? selectedRole.value : "");
-   };
+  const handleChangeRole = (selectedRole) => {
+    setSelectedRole(selectedRole);
+    setRole(selectedRole ? selectedRole.value : "");
+  };
 
   const handleNavigateToForm = () => {
     navigate("/AddUser", { state: { mode: "create" } });
@@ -280,13 +275,14 @@ function UserGrid() {
 
   const handleSearch = async () => {
     try {
-
-       if (
+      if (
         ExpiryFromDate &&
         ExpiryToDate &&
         new Date(ExpiryFromDate) > new Date(ExpiryToDate)
       ) {
-        toast.warning("Expiry From Date should not be greater than Expiry To Date");
+        toast.warning(
+          "Expiry From Date should not be greater than Expiry To Date",
+        );
         return;
       }
       setLoading(true);
@@ -311,7 +307,7 @@ function UserGrid() {
           gender,
           ExpiryFromDate,
           ExpiryToDate,
-          role_id
+          role_id,
         }),
       });
 
@@ -322,7 +318,7 @@ function UserGrid() {
         console.log("Data fetched successfully");
       } else if (response.status === 404) {
         console.log("Data not found");
-        toast.warning("Data not found")
+        toast.warning("Data not found");
         setRowData([]);
       } else {
         const errorResponse = await response.json();
@@ -355,10 +351,7 @@ function UserGrid() {
         };
 
         return (
-          <span
-            style={{ cursor: "pointer" }}
-            onClick={handleClick}
-          >
+          <span style={{ cursor: "pointer" }} onClick={handleClick}>
             {params.value}
           </span>
         );
@@ -455,14 +448,14 @@ function UserGrid() {
 
     //     const selectedDate = new Date(params.newValue);
     //     const today = new Date();
-    //     today.setHours(0, 0, 0, 0); 
+    //     today.setHours(0, 0, 0, 0);
 
     //     if (selectedDate > today) {
     //       toast.warning("Future dates are not allowed for DOB");
-    //       return false; 
+    //       return false;
     //     }
 
-    //     params.data.dob = params.newValue; 
+    //     params.data.dob = params.newValue;
     //     return true;
     //   },
     //   // valueFormatter: (params) => {
@@ -493,7 +486,7 @@ function UserGrid() {
         const maxDob = new Date(
           today.getFullYear() - 18,
           today.getMonth(),
-          today.getDate()
+          today.getDate(),
         );
         maxDob.setHours(0, 0, 0, 0);
 
@@ -530,7 +523,7 @@ function UserGrid() {
         const maxDob = new Date(
           today.getFullYear() - 18,
           today.getMonth(),
-          today.getDate()
+          today.getDate(),
         );
         maxDob.setHours(0, 0, 0, 0);
 
@@ -593,7 +586,7 @@ function UserGrid() {
       },
       cellStyle: { textAlign: "left" },
       minWidth: 150,
-    }
+    },
   ];
 
   const defaultColDef = {
@@ -607,31 +600,45 @@ function UserGrid() {
     setGridColumnApi(params.columnApi);
   };
 
-  const generateReport = () => {
-    const selectedRows = gridApi.getSelectedRows();
-    if (selectedRows.length === 0) {
-      toast.warning("Please select at least one row to generate a report");
-      return
-    };
-    const reportData = selectedRows.map((row) => {
-      return {
-        "User Code": row.user_code,
-        "User Name": row.user_name,
-        "First Name": row.first_name,
-        "Last Name": row.last_name,
-        "User Status": row.user_status,
-        "Log In/Out": row.log_in_out,
-        "Email Id": row.email_id,
-        "DOB": row.dob,
-        "Gender": row.gender,
-        "Role ID": row.role_id,
-      };
+  const handlePrint = () => {
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
+
+    const reportData = [];
+
+    // Selected rows in the same order as AG Grid
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      if (!node.isSelected()) return;
+
+      const row = {};
+
+      displayedColumns.forEach((col) => {
+        let value = node.data?.[col.field];
+
+        // Format date fields if required
+        if (["dob", "DOB"].includes(col.field)) {
+          value = value
+            ? new Date(value).toLocaleDateString("en-GB").replace(/\//g, "-")
+            : "";
+        }
+
+        row[col.headerName] = value ?? "";
+      });
+
+      reportData.push(row);
     });
+
+    if (reportData.length === 0) {
+      toast.warning("Please select at least one row to generate a report");
+      return;
+    }
 
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write("<html><head><title>User</title>");
     reportWindow.document.write("<style>");
-reportWindow.document.write(`
+    reportWindow.document.write(`
 *{
     box-sizing:border-box;
 }
@@ -732,7 +739,8 @@ tr:nth-child(even) td{
         print-color-adjust:exact !important;
     }
 }
-`);    reportWindow.document.write("</style></head><body>");
+`);
+    reportWindow.document.write("</style></head><body>");
     reportWindow.document.write("<h1><u>User Report</u></h1>");
 
     reportWindow.document.write("<table><thead><tr>");
@@ -752,7 +760,7 @@ tr:nth-child(even) td{
     reportWindow.document.write("</tbody></table>");
 
     reportWindow.document.write(
-      '<button class="report-button" onclick="window.print()">Print</button>'
+      '<button class="report-button" onclick="window.print()">Print</button>',
     );
     reportWindow.document.write("</body></html>");
     reportWindow.document.close();
@@ -768,7 +776,7 @@ tr:nth-child(even) td{
   const onCellValueChanged = (params) => {
     const updatedRowData = [...rowData];
     const rowIndex = updatedRowData.findIndex(
-      (row) => row.user_code === params.data.user_code
+      (row) => row.user_code === params.data.user_code,
     );
     if (rowIndex !== -1) {
       updatedRowData[rowIndex][params.colDef.field] = params.newValue;
@@ -779,11 +787,10 @@ tr:nth-child(even) td{
   };
 
   const saveEditedData = async () => {
-
     const selectedRowsData = editedData.filter((row) =>
       selectedRows.some(
-        (selectedRow) => selectedRow.user_code === row.user_code
-      )
+        (selectedRow) => selectedRow.user_code === row.user_code,
+      ),
     );
 
     if (selectedRowsData.length === 0) {
@@ -794,7 +801,6 @@ tr:nth-child(even) td{
     showConfirmationToast(
       "Are you sure you want to update the data in the selected rows?",
       async () => {
-
         try {
           setLoading(true);
 
@@ -805,7 +811,7 @@ tr:nth-child(even) td{
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "company_code": company_code,
+              company_code: company_code,
               "Modified-By": modified_by,
             },
             body: JSON.stringify({ editedData: selectedRowsData }),
@@ -816,13 +822,15 @@ tr:nth-child(even) td{
           if (response.ok) {
             console.log("Data saved successfully!");
             setTimeout(() => {
-              toast.success("Data Updated Successfully")
+              toast.success("Data Updated Successfully");
               handleSearch();
             }, 1000);
             return;
           } else {
             const errorResponse = await response.json();
-            toast.warning(errorResponse.message || "Failed to update user data");
+            toast.warning(
+              errorResponse.message || "Failed to update user data",
+            );
           }
         } catch (error) {
           console.error("Error saving data:", error);
@@ -833,7 +841,7 @@ tr:nth-child(even) td{
       },
       () => {
         toast.info("Data updated cancelled.");
-      }
+      },
     );
   };
 
@@ -853,7 +861,6 @@ tr:nth-child(even) td{
     showConfirmationToast(
       "Are you sure you want to Delete the data in the selected rows?",
       async () => {
-
         try {
           setLoading(true);
 
@@ -861,7 +868,7 @@ tr:nth-child(even) td{
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "company_code": company_code,
+              company_code: company_code,
               "Modified-By": modified_by,
             },
             body: JSON.stringify({ user_codes: user_codesToDelete }),
@@ -872,23 +879,25 @@ tr:nth-child(even) td{
           if (response.ok) {
             console.log("Rows deleted successfully:", user_codesToDelete);
             setTimeout(() => {
-              toast.success("Data Deleted successfully")
+              toast.success("Data Deleted successfully");
               handleSearch();
             }, 1000);
           } else {
             const errorResponse = await response.json();
-            toast.warning(errorResponse.message || "Failed to delete user data");
+            toast.warning(
+              errorResponse.message || "Failed to delete user data",
+            );
           }
         } catch (error) {
           console.error("Error deleting rows:", error);
-          toast.error('Error Deleting Data: ' + error.message);
+          toast.error("Error Deleting Data: " + error.message);
         } finally {
           setLoading(false);
         }
       },
       () => {
         toast.info("Data Delete cancelled.");
-      }
+      },
     );
   };
 
@@ -925,12 +934,15 @@ tr:nth-child(even) td{
     }
   };
 
-
   return (
     <div className="container-fluid Topnav-screen">
       <div>
         {loading && <LoadingScreen />}
-        <ToastContainer position="top-right" className="toast-design" theme="colored" />
+        <ToastContainer
+          position="top-right"
+          className="toast-design"
+          theme="colored"
+        />
         <div className="shadow-lg p-0 bg-body-tertiary rounded  mb-2 mt-2">
           <div className=" d-flex justify-content-between  ">
             <div class="d-flex justify-content-start">
@@ -939,23 +951,52 @@ tr:nth-child(even) td{
               </h1>
             </div>
             <div className="d-flex justify-content-end purbut me-3">
-              {["add", "all permission"].some((permission) => userPermission.includes(permission)) && (
-                <addbutton className="purbut" onClick={handleNavigateToForm} required title="Add User" class="purbut">
+              {["add", "all permission"].some((permission) =>
+                userPermission.includes(permission),
+              ) && (
+                <addbutton
+                  className="purbut"
+                  onClick={handleNavigateToForm}
+                  required
+                  title="Add User"
+                  class="purbut"
+                >
                   <i class="fa-solid fa-user-plus"></i>{" "}
                 </addbutton>
               )}
-              {["delete", "all permission"].some((permission) => userPermission.includes(permission)) && (
-                <delbutton onClick={deleteSelectedRows} class="purbut" required title="Delete">
+              {["delete", "all permission"].some((permission) =>
+                userPermission.includes(permission),
+              ) && (
+                <delbutton
+                  onClick={deleteSelectedRows}
+                  class="purbut"
+                  required
+                  title="Delete"
+                >
                   <i class="fa-solid fa-user-minus"></i>
                 </delbutton>
               )}
-              {["update", "all permission"].some((permission) => userPermission.includes(permission)) && (
-                <savebutton class="purbut" onClick={saveEditedData} required title="Update">
+              {["update", "all permission"].some((permission) =>
+                userPermission.includes(permission),
+              ) && (
+                <savebutton
+                  class="purbut"
+                  onClick={saveEditedData}
+                  required
+                  title="Update"
+                >
                   <i class="fa-solid fa-floppy-disk"></i>
                 </savebutton>
               )}
-              {["view", "all permission"].some((permission) => userPermission.includes(permission)) && (
-                <printbutton class="purbut" onClick={generateReport} required title="Generate Report">
+              {["view", "all permission"].some((permission) =>
+                userPermission.includes(permission),
+              ) && (
+                <printbutton
+                  class="purbut"
+                  onClick={handlePrint}
+                  required
+                  title="Generate Report"
+                >
                   <i class="fa-solid fa-print"></i>
                 </printbutton>
               )}
@@ -963,37 +1004,52 @@ tr:nth-child(even) td{
             <div class="mobileview">
               <div class="d-flex justify-content-between">
                 <div className="d-flex justify-content-start">
-                  <h1 align="left" className="h1 me-5 ms-0" >User  </h1>
+                  <h1 align="left" className="h1 me-5 ms-0">
+                    User{" "}
+                  </h1>
                 </div>
                 <div class="dropdown mt-1 me-5 ms-5">
-                  <button class="btn btn-primary dropdown-toggle p-1 " type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <button
+                    class="btn btn-primary dropdown-toggle p-1 "
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
                     <i class="fa-solid fa-list"></i>
                   </button>
                   <ul class="dropdown-menu menu">
-                    {["add", "all permission"].some((permission) => userPermission.includes(permission)) && (
+                    {["add", "all permission"].some((permission) =>
+                      userPermission.includes(permission),
+                    ) && (
                       <li class="iconbutton d-flex justify-content-center text-success">
                         <icon class="icon" onClick={handleNavigateToForm}>
                           <i class="fa-solid fa-user-plus"></i>
                         </icon>
                       </li>
                     )}
-                    {["delete", "all permission"].some((permission) => userPermission.includes(permission)) && (
+                    {["delete", "all permission"].some((permission) =>
+                      userPermission.includes(permission),
+                    ) && (
                       <li class="iconbutton  d-flex justify-content-center text-danger">
                         <icon class="icon" onClick={deleteSelectedRows}>
                           <i class="fa-solid fa-user-minus"></i>
                         </icon>
                       </li>
                     )}
-                    {["update", "all permission"].some((permission) => userPermission.includes(permission)) && (
+                    {["update", "all permission"].some((permission) =>
+                      userPermission.includes(permission),
+                    ) && (
                       <li class="iconbutton  d-flex justify-content-center text-primary ">
                         <icon class="icon" onClick={saveEditedData}>
                           <i class="fa-solid fa-floppy-disk"></i>
                         </icon>
                       </li>
                     )}
-                    {["view", "all permission"].some((permission) => userPermission.includes(permission)) && (
+                    {["view", "all permission"].some((permission) =>
+                      userPermission.includes(permission),
+                    ) && (
                       <li class="iconbutton  d-flex justify-content-center ">
-                        <icon class="icon" onClick={generateReport}>
+                        <icon class="icon" onClick={handlePrint}>
                           <i class="fa-solid fa-print"></i>
                         </icon>
                       </li>
@@ -1085,7 +1141,7 @@ tr:nth-child(even) td{
             <div className="col-md-3 form-group">
               <div class="exp-form-floating">
                 <label for="usts" class="exp-form-labels">
-                   Status
+                  Status
                 </label>
                 <div title="Please select the Status">
                   <Select
@@ -1134,36 +1190,32 @@ tr:nth-child(even) td{
                 />
               </div>
             </div>
-              <div className="col-md-3 form-group mb-2">
-                <div className="exp-form-floating">
-                  <label className="exp-form-labels">
-                    Expiry From Date
-                  </label>
+            <div className="col-md-3 form-group mb-2">
+              <div className="exp-form-floating">
+                <label className="exp-form-labels">Expiry From Date</label>
 
-                  <input
-                    className="exp-input-field form-control"
-                    type="date"
-                    value={ExpiryFromDate}
-                    onChange={(e) => setExpiryFromDate(e.target.value)}
-                  />
-                </div>
-              </div>   
-              <div className="col-md-3 form-group mb-2">
-                <div className="exp-form-floating">
-                  <label className="exp-form-labels">
-                    Expiry To Date
-                  </label>
+                <input
+                  className="exp-input-field form-control"
+                  type="date"
+                  value={ExpiryFromDate}
+                  onChange={(e) => setExpiryFromDate(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="col-md-3 form-group mb-2">
+              <div className="exp-form-floating">
+                <label className="exp-form-labels">Expiry To Date</label>
 
-                  <input
-                    className="exp-input-field form-control"
-                    type="date"
-                    value={ExpiryToDate}
-                    min={ExpiryFromDate || undefined}
-                    onChange={(e) => setExpiryToDate(e.target.value)}
-                  />
-                </div>
-              </div>              
-              <div className="col-md-3 form-group">
+                <input
+                  className="exp-input-field form-control"
+                  type="date"
+                  value={ExpiryToDate}
+                  min={ExpiryFromDate || undefined}
+                  onChange={(e) => setExpiryToDate(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="col-md-3 form-group">
               <div class="exp-form-floating">
                 <label for="gender" class="exp-form-labels">
                   Gender
@@ -1181,42 +1233,49 @@ tr:nth-child(even) td{
                 </div>
               </div>
             </div>
-              <div className="col-md-3 form-group  mb-2 ">
-                <div class="exp-form-floating">
-                  <div class="d-flex justify-content-start">
-                    <div>
-                      <label for="state" className={`exp-form-labels ${error && !role_id ? "text-danger" : "" }`} >
-                        Role ID
-                      </label>
-                    </div>
-                    <div>
-                      <span className="text-danger">*</span>
-                    </div>
-                  </div>
-                  <div title="Please select the Role ID">
-                    <Select
-                      id="usertype"
-                      value={selectedRole}
-                      onChange={handleChangeRole}
-                      options={filteredOptionRole}
-                      className="exp-input-field"
-                      placeholder=""
-                      maxLength={50}
-                      isClearable
-                    />
+            <div className="col-md-3 form-group  mb-2 ">
+              <div class="exp-form-floating">
+                <div class="d-flex justify-content-start">
+                  <div>
+                    <label for="state" class="exp-form-labels">
+                      Role ID
+                    </label>
                   </div>
                 </div>
+                <div title="Please select the Role ID">
+                  <Select
+                    id="usertype"
+                    value={selectedRole}
+                    onChange={handleChangeRole}
+                    options={filteredOptionRole}
+                    className="exp-input-field"
+                    placeholder=""
+                    maxLength={50}
+                    isClearable
+                  />
+                </div>
               </div>
+            </div>
             <div className="col-12 d-flex justify-content-end align-items-center mt-4">
               <div class="exp-form-floating">
                 <div class=" d-flex  justify-content-center">
-                  <div class=''>
-                    <icon className="popups-btn fs-6 p-3" onClick={handleSearch} required title="Search">
+                  <div class="">
+                    <icon
+                      className="popups-btn fs-6 p-3"
+                      onClick={handleSearch}
+                      required
+                      title="Search"
+                    >
                       <i className="fas fa-search"></i>
                     </icon>
                   </div>
                   <div>
-                    <icon className="popups-btn fs-6 p-3" onClick={reloadGridData} required title="Refresh">
+                    <icon
+                      className="popups-btn fs-6 p-3"
+                      onClick={reloadGridData}
+                      required
+                      title="Refresh"
+                    >
                       <FontAwesomeIcon icon="fa-solid fa-arrow-rotate-right" />
                     </icon>
                   </div>
@@ -1242,9 +1301,11 @@ tr:nth-child(even) td{
       <div className="shadow-lg p-2 bg-body-tertiary rounded mt-2 mb-2">
         <div className="row ms-2">
           <div className="d-flex justify-content-start">
-            <p className="col-md-6">{labels.createdBy}: {createdBy}</p>
+            <p className="col-md-6">
+              {labels.createdBy}: {createdBy}
+            </p>
             <p className="col-md-">
-              {labels.createdDate}:  {createdDate}
+              {labels.createdDate}: {createdDate}
             </p>
           </div>
           <div className="d-flex justify-content-start">

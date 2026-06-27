@@ -1,23 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { AgGridReact } from 'ag-grid-react';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
-import './ItemDash.css';
-import './mobile.css';
-import './apps.css';
-import * as XLSX from 'xlsx';
+import React, { useState, useEffect, useRef } from "react";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import "./ItemDash.css";
+import "./mobile.css";
+import "./apps.css";
+import * as XLSX from "xlsx";
 import "bootstrap/dist/css/bootstrap.min.css";
-import config from './Apiconfig';
-import Select from 'react-select';
-import { ToastContainer, toast } from 'react-toastify';
+import config from "./Apiconfig";
+import Select from "react-select";
+import { ToastContainer, toast } from "react-toastify";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import LoadingScreen from './LoadingScreen';
+import LoadingScreen from "./LoadingScreen";
 import { useNavigate } from "react-router-dom";
-import { showConfirmationToast } from './ToastConfirmation';
+import { showConfirmationToast } from "./ToastConfirmation";
 
 const DCanalysis = () => {
-
   const [columnDefs] = useState([
     {
       headerCheckboxSelection: true,
@@ -87,17 +86,21 @@ const DCanalysis = () => {
   const [rowData, setRowData] = useState([]);
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
-  const [selectedDepartment, setSelectedDepartment] = useState('');
-  const [selectedColumn, setSelectedColumn] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedColumn, setSelectedColumn] = useState("");
   const [department, setDepartment] = useState("");
   const [column, setColumn] = useState("");
   const [departmentName, setDepartmentName] = useState("");
   const [departmentDrop, setDepartmentDrop] = useState([]);
   const [columnDrop, setColumnDrop] = useState([]);
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
-  const companyName = sessionStorage.getItem('selectedCompanyName');
-  const userName = sessionStorage.getItem('selectedUserName');
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [endDate, setEndDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const companyName = sessionStorage.getItem("selectedCompanyName");
+  const userName = sessionStorage.getItem("selectedUserName");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -106,21 +109,23 @@ const DCanalysis = () => {
     setDepartment(selectedDepartment.value);
   };
 
-   const filteredOptionDepartment = Array.isArray(departmentDrop)
+  const filteredOptionDepartment = Array.isArray(departmentDrop)
     ? departmentDrop.map((option) => ({
-      value: option.TypeDs,
-      label: option.TypeDs,
-    }))
+        value: option.TypeDs,
+        label: option.TypeDs,
+      }))
     : [];
 
-   //code added by Harish purpose of set user permisssion
+  //code added by Harish purpose of set user permisssion
   const permissions = JSON.parse(sessionStorage.getItem("permissions")) || {};
   const employeeInfoPermission = permissions
     .filter((permission) => permission.screen_type === "EmployeeInfo")
     .map((permission) => permission.permission_type.toLowerCase());
 
   const formatDate = (dateString) => {
-    const [month, day, year] = dateString.includes("/") ? dateString.split("/") : dateString.split("-");
+    const [month, day, year] = dateString.includes("/")
+      ? dateString.split("/")
+      : dateString.split("-");
     return `${day}-${month}-${year}`;
   };
 
@@ -146,22 +151,22 @@ const DCanalysis = () => {
     setColumn(selectedColumn.value);
   };
 
-     const filteredOptionColumn = Array.isArray(columnDrop)
+  const filteredOptionColumn = Array.isArray(columnDrop)
     ? columnDrop.map((option) => ({
-      value: option.descriptions,
-      label: option.attributedetails_name,
-    }))
+        value: option.descriptions,
+        label: option.attributedetails_name,
+      }))
     : [];
 
   useEffect(() => {
-    const company_code = sessionStorage.getItem('selectedCompanyCode');
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
 
     fetch(`${config.apiBaseUrl}/getColumn`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ company_code })
+      body: JSON.stringify({ company_code }),
     })
       .then((data) => data.json())
       .then((val) => {
@@ -191,13 +196,16 @@ const DCanalysis = () => {
         dept_type: department,
       };
 
-      const response = await fetch(`${config.apiBaseUrl}/getEmployeeBasicDetails`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${config.apiBaseUrl}/getEmployeeBasicDetails`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
         },
-        body: JSON.stringify(body),
-      });
+      );
 
       if (response.ok) {
         const fetchedData = await response.json();
@@ -219,7 +227,7 @@ const DCanalysis = () => {
       } else if (response.status === 404) {
         console.log("Data Not found");
         toast.warning("Data Not found");
-        setRowData([])
+        setRowData([]);
       } else {
         const errorResponse = await response.json();
         toast.warning(errorResponse.message || "Failed to get data");
@@ -262,26 +270,30 @@ const DCanalysis = () => {
   }, []);
 
   const handlePrint = () => {
-    const selectedRows = gridApi.getSelectedRows();
-    if (selectedRows.length === 0) {
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
+
+    const reportData = [];
+
+    // Selected rows in the same order as AG Grid
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      if (!node.isSelected()) return;
+
+      const row = {};
+
+      displayedColumns.forEach((col) => {
+        row[col.headerName] = node.data?.[col.field] ?? "";
+      });
+
+      reportData.push(row);
+    });
+
+    if (reportData.length === 0) {
       toast.warning("Please select at least one row to generate a report");
       return;
     }
-
-    const reportData = selectedRows.map((row) => {
-      return {
-        "Employee ID": row.employeeId,
-        "Employee Name": row.employeeName,
-        "Join Date": row.joinDate,
-        "Department": row.department,
-        "Designation": row.designation,
-        "Grade": row.Grade,
-        "CPRNo": row.CPRNo,
-        "Location": row.location,
-        "Natioality": row.nationality,
-        "PassportNo": row.passportNo,
-      };
-    });
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write("<html><head><title>Employee Master</title>");
     reportWindow.document.write("<style>");
@@ -365,185 +377,200 @@ const DCanalysis = () => {
     reportWindow.document.write("</tbody></table>");
 
     reportWindow.document.write(
-      '<button class="report-button" onclick="window.print()">Print</button>'
+      '<button class="report-button" onclick="window.print()">Print</button>',
     );
     reportWindow.document.write("</body></html>");
     reportWindow.document.close();
   };
 
-
   const transformRowData = (data) => {
-    return data.map(row => ({
+    return data.map((row) => ({
       "Employee ID": row.employeeId,
       "Employee Name": row.employeeName,
       "Join Date": formatDate(row.joinDate),
-      "Department": row.department,
-      "Designation": row.designation,
-      "Grade": row.Grade,
-      "CPRNo": row.CPRNo,
-      "Location": row.location,
-      "Natioality": row.nationality,
-      "PassportNo": row.passportNo,
+      Department: row.department,
+      Designation: row.designation,
+      Grade: row.Grade,
+      CPRNo: row.CPRNo,
+      Location: row.location,
+      Natioality: row.nationality,
+      PassportNo: row.passportNo,
     }));
   };
 
   const handleExportToExcel = () => {
     if (rowData.length === 0) {
-      toast.warning('There is no data to export.');
+      toast.warning("There is no data to export.");
       return;
     }
 
     const formatDate = (date) => {
-    if (!date) return "";
-    return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
+      if (!date) return "";
+      return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
     };
 
     const headerData = [
-      ['Employee Master'],
+      ["Employee Master"],
       [`Company Name: ${companyName}`],
       [`Date Range: ${formatDate(startDate)} to ${formatDate(endDate)}`],
       [`User Name: ${userName}`],
-      []
+      [],
     ];
 
-    const transformedData = transformRowData(rowData);
+    // const transformedData = transformRowData(rowData);
+
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
+
+    // Rows exactly as shown in AG Grid
+    const exportData = [];
+
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      const row = {};
+
+      displayedColumns.forEach((col) => {
+        row[col.headerName] = node.data?.[col.field] ?? "";
+      });
+
+      exportData.push(row);
+    });
 
     const worksheet = XLSX.utils.aoa_to_sheet(headerData);
 
-    XLSX.utils.sheet_add_json(worksheet, transformedData, { origin: 'A6' });
+    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A6" });
 
     // Auto Adjust Column Width
-    const colWidths = Object.keys(transformedData[0] || {}).map((key) => {
-      const maxLength = Math.max(
-        key.length,
-        ...transformedData.map(row =>
-          row[key] ? row[key].toString().length : 0
-        )
+    const colWidths = displayedColumns.map((col) => {
+      const headerLength = col.headerName.length;
+
+      const maxDataLength = Math.max(
+        ...exportData.map((row) =>
+          row[col.headerName] ? row[col.headerName].toString().length : 0,
+        ),
+        headerLength,
       );
-    
+
       return {
-        wch: Math.max(maxLength + 3, 15) // padding + minimum width
+        wch: Math.max(maxDataLength + 3, 15),
       };
     });
 
-    worksheet['!cols'] = colWidths;
+    worksheet["!cols"] = colWidths;
 
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Employee Master');
-    XLSX.writeFile(workbook, 'Employee_Master.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Employee Master");
+    XLSX.writeFile(workbook, "Employee_Master.xlsx");
   };
 
- const exportPDF = () => {
-  const doc = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "a4",
-  });
+  const exportPDF = () => {
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    });
 
-  const reportName = "Employee Master";
+    const reportName = "Employee Master";
 
-  const userName =
-    sessionStorage.getItem("selectedUserName") || "User";
+    const userName = sessionStorage.getItem("selectedUserName") || "User";
 
-  const now = new Date();
+    const now = new Date();
 
-const currentDateTime =
-  now.toLocaleDateString("en-GB").replace(/\//g, "-") +
-  ", " +
-  now.toLocaleTimeString("en-GB");
+    const currentDateTime =
+      now.toLocaleDateString("en-GB").replace(/\//g, "-") +
+      ", " +
+      now.toLocaleTimeString("en-GB");
 
-  const pageWidth = doc.internal.pageSize.getWidth();
-
-  // Top Left - Report Name
-  doc.setFontSize(8);
-  doc.text(`Report Name: ${reportName}`, 10, 8);
-
-  // Top Right - Company Name
-  doc.text(
-    `Company Name: ${companyName || ""}`,
-    pageWidth - 10,
-    8,
-    { align: "right" }
-  );
-
-  // Headers
-  const headers = columnDefs.map((col) => col.headerName);
-
-  // Data
-  const data = rowData.map((row) =>
-    columnDefs.map((col) => row[col.field] ?? "-")
-  );
-
-autoTable(doc, {
-  head: [headers],
-  body: data,
-  startY: 15,
-  styles: {
-    fontSize: 4,
-    cellPadding: 1,
-  },
-  headStyles: {
-    fillColor: [100, 100, 255],
-    fontSize: 4,
-  },
-  margin: {
-    top: 15,
-    left: 5,
-    right: 5,
-    bottom: 10,
-  },
-  didDrawPage: function () {
     const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
 
+    // Top Left - Report Name
     doc.setFontSize(8);
-
-    // Header
     doc.text(`Report Name: ${reportName}`, 10, 8);
 
-    doc.text(
-      `Company Name: ${companyName || ""}`,
-      pageWidth - 10,
-      8,
-      { align: "right" }
-    );
+    // Top Right - Company Name
+    doc.text(`Company Name: ${companyName || ""}`, pageWidth - 10, 8, {
+      align: "right",
+    });
 
-    // Footer
-    doc.text(
-      `User Name: ${userName}`,
-      10,
-      pageHeight - 5
-    );
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
 
+    // Headers exactly as shown in AG Grid
+    const headers = displayedColumns.map((col) => col.headerName);
+
+    // Rows exactly as shown in AG Grid
+    const data = [];
+
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      const row = displayedColumns.map((col) => {
+        return node.data?.[col.field] ?? "";
+      });
+
+      data.push(row);
+    });
+
+    autoTable(doc, {
+      head: [headers],
+      body: data,
+      startY: 15,
+      styles: {
+        fontSize: 4,
+        cellPadding: 1,
+      },
+      headStyles: {
+        fillColor: [100, 100, 255],
+        fontSize: 4,
+      },
+      margin: {
+        top: 15,
+        left: 5,
+        right: 5,
+        bottom: 10,
+      },
+      didDrawPage: function () {
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        doc.setFontSize(8);
+
+        // Header
+        doc.text(`Report Name: ${reportName}`, 10, 8);
+
+        doc.text(`Company Name: ${companyName || ""}`, pageWidth - 10, 8, {
+          align: "right",
+        });
+
+        // Footer
+        doc.text(`User Name: ${userName}`, 10, pageHeight - 5);
+
+        doc.text(
+          `Date & Time: ${currentDateTime}`,
+          pageWidth - 10,
+          pageHeight - 5,
+          { align: "right" },
+        );
+      },
+    });
+
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // Bottom Left - User Name
+    doc.setFontSize(8);
+    doc.text(`User Name: ${userName}`, 10, pageHeight - 5);
+
+    // Bottom Right - Date & Time
     doc.text(
       `Date & Time: ${currentDateTime}`,
       pageWidth - 10,
       pageHeight - 5,
-      { align: "right" }
+      { align: "right" },
     );
-  },
-});
 
-  const pageHeight = doc.internal.pageSize.getHeight();
-
-  // Bottom Left - User Name
-  doc.setFontSize(8);
-  doc.text(
-    `User Name: ${userName}`,
-    10,
-    pageHeight - 5
-  );
-
-  // Bottom Right - Date & Time
-  doc.text(
-    `Date & Time: ${currentDateTime}`,
-    pageWidth - 10,
-    pageHeight - 5,
-    { align: "right" }
-  );
-
-  doc.save("Employee_Master.pdf");
-};
+    doc.save("Employee_Master.pdf");
+  };
 
   const defaultColDef = {
     flex: 1,
@@ -556,16 +583,19 @@ autoTable(doc, {
 
       const body = {
         column: column,
-        value: departmentName
+        value: departmentName,
       };
 
-      const response = await fetch(`${config.apiBaseUrl}/getEmployeesearchcriteria`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${config.apiBaseUrl}/getEmployeesearchcriteria`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
         },
-        body: JSON.stringify(body),
-      });
+      );
 
       if (response.ok) {
         const fetchedData = await response.json();
@@ -586,7 +616,7 @@ autoTable(doc, {
       } else if (response.status === 404) {
         console.log("Data Not found");
         toast.warning("Data Not found");
-        setRowData([])
+        setRowData([]);
       } else {
         const errorResponse = await response.json();
         toast.warning(errorResponse.message || "Failed to get data");
@@ -608,18 +638,21 @@ autoTable(doc, {
     const employeeId = event.data?.employeeId;
 
     const body = {
-      value: employeeId
+      value: employeeId,
     };
-  
+
     try {
-      const response = await fetch(`${config.apiBaseUrl}/GetemployeeFullDetails`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${config.apiBaseUrl}/GetemployeeFullDetails`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
         },
-        body: JSON.stringify(body),
-      });
-  
+      );
+
       if (response.ok) {
         const fetchedData = await response.json();
         navigate("/EmployeeInputInfo", {
@@ -628,7 +661,7 @@ autoTable(doc, {
       } else if (response.status === 404) {
         console.log("Data Not found");
         toast.warning("Data Not found");
-        setRowData([])
+        setRowData([]);
       } else {
         const errorResponse = await response.json();
         toast.warning(errorResponse.message || "Failed to insert sales data");
@@ -645,7 +678,7 @@ autoTable(doc, {
     const selectedRows = gridApi.getSelectedRows();
 
     if (selectedRows.length === 0) {
-      toast.warning("Please select atleast One Row to Delete")
+      toast.warning("Please select atleast One Row to Delete");
       return;
     }
 
@@ -655,19 +688,22 @@ autoTable(doc, {
       async () => {
         setLoading(true);
         try {
-          const response = await fetch(`${config.apiBaseUrl}/getEmployeeDelete`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
+          const response = await fetch(
+            `${config.apiBaseUrl}/getEmployeeDelete`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                valueToDelete: EmployeeIdToDelete,
+              }),
             },
-            body: JSON.stringify({
-              valueToDelete: EmployeeIdToDelete,
-            }),
-          });
+          );
 
           if (response.ok) {
             setTimeout(() => {
-              toast.success("Data Deleted successfully")
+              toast.success("Data Deleted successfully");
               fetchDepartmentData();
             }, 1000);
           } else {
@@ -676,67 +712,94 @@ autoTable(doc, {
           }
         } catch (error) {
           console.error("Error deleting rows:", error);
-          toast.error('Error Deleting Data: ' + error.message);
+          toast.error("Error Deleting Data: " + error.message);
         } finally {
           setLoading(false);
         }
-
       },
       () => {
         toast.info("Data Delete cancelled.");
-      }
+      },
     );
   };
-
 
   return (
     <div className="container-fluid Topnav-screen">
       {loading && <LoadingScreen />}
-      <ToastContainer position="top-right" className="toast-design" theme="colored" />
+      <ToastContainer
+        position="top-right"
+        className="toast-design"
+        theme="colored"
+      />
       <div className="shadow-lg p-1 bg-body-tertiary rounded mb-2">
         <div>
           <div className="d-flex justify-content-between ">
             <div className="d-flex justify-content-start ">
-              <h1 className='purbut mt-3'>Employee Master</h1>
+              <h1 className="purbut mt-3">Employee Master</h1>
             </div>
             <div className="mobileview">
               <div className="d-flex justify-content-between">
                 <div className="d-flex justify-content-start">
-                  <h1 className='h1'>Employee Master</h1>
+                  <h1 className="h1">Employee Master</h1>
                 </div>
                 <div className="d-flex justify-content-end mt-1 me-5">
                   <div className="dropdown">
-                    <button className="btn btn-primary dropdown-toggle p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <button
+                      className="btn btn-primary dropdown-toggle p-1"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
                       <i className="fa-solid fa-list"></i>
                     </button>
                     <ul className="dropdown-menu p-2">
-                      {["delete", "all permission"].some((permission) => employeeInfoPermission.includes(permission)) && (
-                      <li className='mb-2'>
-                        <icon class="iconbutton d-flex justify-content-center" onClick={deleteSelectedRows} >
-                          <i class="fa-solid fa-user-minus"></i>
-                        </icon>
-                      </li>
+                      {["delete", "all permission"].some((permission) =>
+                        employeeInfoPermission.includes(permission),
+                      ) && (
+                        <li className="mb-2">
+                          <icon
+                            class="iconbutton d-flex justify-content-center"
+                            onClick={deleteSelectedRows}
+                          >
+                            <i class="fa-solid fa-user-minus"></i>
+                          </icon>
+                        </li>
                       )}
-                      {["view", "all permission"].some((permission) => employeeInfoPermission.includes(permission)) && (
-                      <li className='mb-2'>
-                        <icon class="iconbutton d-flex justify-content-center" onClick={handlePrint} >
-                          <i className="fa-solid fa-print" ></i>
-                        </icon>
-                      </li>
+                      {["view", "all permission"].some((permission) =>
+                        employeeInfoPermission.includes(permission),
+                      ) && (
+                        <li className="mb-2">
+                          <icon
+                            class="iconbutton d-flex justify-content-center"
+                            onClick={handlePrint}
+                          >
+                            <i className="fa-solid fa-print"></i>
+                          </icon>
+                        </li>
                       )}
-                      {["excel", "all permission"].some((permission) => employeeInfoPermission.includes(permission)) && (
-                      <li className='mb-2'>
-                        <icon class="iconbutton d-flex justify-content-center" onClick={handleExportToExcel}>
-                          <i class="fa-solid fa-file-excel"></i>
-                        </icon>
-                      </li>
+                      {["excel", "all permission"].some((permission) =>
+                        employeeInfoPermission.includes(permission),
+                      ) && (
+                        <li className="mb-2">
+                          <icon
+                            class="iconbutton d-flex justify-content-center"
+                            onClick={handleExportToExcel}
+                          >
+                            <i class="fa-solid fa-file-excel"></i>
+                          </icon>
+                        </li>
                       )}
-                      {["pdf", "all permission"].some((permission) => employeeInfoPermission.includes(permission)) && (
-                      <li className='mb-2'>
-                        <icon class="iconbutton d-flex justify-content-center" onClick={exportPDF}>
-                          <i class="fa-solid fa-file-pdf"></i>
-                        </icon>
-                      </li>
+                      {["pdf", "all permission"].some((permission) =>
+                        employeeInfoPermission.includes(permission),
+                      ) && (
+                        <li className="mb-2">
+                          <icon
+                            class="iconbutton d-flex justify-content-center"
+                            onClick={exportPDF}
+                          >
+                            <i class="fa-solid fa-file-pdf"></i>
+                          </icon>
+                        </li>
                       )}
                     </ul>
                   </div>
@@ -745,26 +808,50 @@ autoTable(doc, {
             </div>
             <div className="purbut">
               <div className="d-flex justify-content-end me-5">
-                 {["delete", "all permission"].some((permission) => employeeInfoPermission.includes(permission)) && (
-                <button className="btn btn-dark mt-3 mb-3 rounded-3" onClick={deleteSelectedRows} title='Employee Delete'>
-                  <i class="fa-solid fa-user-minus"></i>
-                </button>
-                 )}
-                 {["view", "all permission"].some((permission) => employeeInfoPermission.includes(permission)) && (
-                <button className="btn btn-dark mt-3 mb-3 rounded-3" onClick={handlePrint} title='Generate Report'>
-                  <i className="fa-solid fa-print"></i>
-                </button>
-                 )}
-                 {["excel", "all permission"].some((permission) => employeeInfoPermission.includes(permission)) && (
-                <button className="btn btn-dark mt-3 mb-3 rounded-3" onClick={handleExportToExcel} title='Excel'>
-                  <i class="fa-solid fa-file-excel"></i>
-                </button>
-                 )}
-                 {["pdf", "all permission"].some((permission) => employeeInfoPermission.includes(permission)) && (
-                <button className="btn btn-dark mt-3 mb-3 rounded-3" onClick={exportPDF} title='Pdf'>
-                  <i class="fa-solid fa-file-pdf"></i>
-                </button>
-                 )}
+                {["delete", "all permission"].some((permission) =>
+                  employeeInfoPermission.includes(permission),
+                ) && (
+                  <button
+                    className="btn btn-dark mt-3 mb-3 rounded-3"
+                    onClick={deleteSelectedRows}
+                    title="Employee Delete"
+                  >
+                    <i class="fa-solid fa-user-minus"></i>
+                  </button>
+                )}
+                {["view", "all permission"].some((permission) =>
+                  employeeInfoPermission.includes(permission),
+                ) && (
+                  <button
+                    className="btn btn-dark mt-3 mb-3 rounded-3"
+                    onClick={handlePrint}
+                    title="Generate Report"
+                  >
+                    <i className="fa-solid fa-print"></i>
+                  </button>
+                )}
+                {["excel", "all permission"].some((permission) =>
+                  employeeInfoPermission.includes(permission),
+                ) && (
+                  <button
+                    className="btn btn-dark mt-3 mb-3 rounded-3"
+                    onClick={handleExportToExcel}
+                    title="Excel"
+                  >
+                    <i class="fa-solid fa-file-excel"></i>
+                  </button>
+                )}
+                {["pdf", "all permission"].some((permission) =>
+                  employeeInfoPermission.includes(permission),
+                ) && (
+                  <button
+                    className="btn btn-dark mt-3 mb-3 rounded-3"
+                    onClick={exportPDF}
+                    title="Pdf"
+                  >
+                    <i class="fa-solid fa-file-pdf"></i>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -802,7 +889,7 @@ autoTable(doc, {
                 id="wcode"
                 className="form-control exp-input-field"
                 placeholder=""
-                autoComplete='off'
+                autoComplete="off"
                 value={departmentName}
                 onChange={(e) => setDepartmentName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && fetchDepartmentData()}
@@ -811,20 +898,34 @@ autoTable(doc, {
             <div className="col-md-3 form-group mt-4">
               <div class="exp-form-floating">
                 <div class=" d-flex  justify-content-center">
-                  <div class=''>
-                    <icon className=" text-dark popups-btn fs-6" onClick={fetchDepartmentData} required title="Search">
+                  <div class="">
+                    <icon
+                      className=" text-dark popups-btn fs-6"
+                      onClick={fetchDepartmentData}
+                      required
+                      title="Search"
+                    >
                       <i class="fa-solid fa-magnifying-glass"></i>
                     </icon>
                   </div>
                   <div>
-                    <icon className=" popups-btn text-dark fs-6" onClick={reloadGridData} required title="Refresh">
-                      <i class="fa-solid fa-arrow-rotate-right" ></i></icon>
+                    <icon
+                      className=" popups-btn text-dark fs-6"
+                      onClick={reloadGridData}
+                      required
+                      title="Refresh"
+                    >
+                      <i class="fa-solid fa-arrow-rotate-right"></i>
+                    </icon>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className="ag-theme-alpine mb-4" style={{ height: 455, width: '100%' }}>
+          <div
+            className="ag-theme-alpine mb-4"
+            style={{ height: 455, width: "100%" }}
+          >
             <AgGridReact
               rowData={rowData}
               columnDefs={columnDefs}

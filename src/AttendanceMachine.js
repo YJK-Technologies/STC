@@ -71,13 +71,13 @@ const DCanalysis = () => {
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
   const [startDate, setStartDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const [endDate, setEndDate] = useState(
-    new Date().toISOString().split("T")[0]
+    new Date().toISOString().split("T")[0],
   );
   const companyName = sessionStorage.getItem("selectedCompanyName");
-  const userName = sessionStorage.getItem('selectedUserName');
+  const userName = sessionStorage.getItem("selectedUserName");
   const [loading, setLoading] = useState(false);
   const [templateList, setTemplateList] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -122,7 +122,7 @@ const DCanalysis = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
-        }
+        },
       );
 
       if (response.ok) {
@@ -182,38 +182,42 @@ const DCanalysis = () => {
   }, []);
 
   const handlePrint = () => {
-    const selectedRows = gridApi.getSelectedRows();
-    if (selectedRows.length === 0) {
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
+
+    const reportData = [];
+
+    // Selected rows in the same order as AG Grid
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      if (!node.isSelected()) return;
+
+      const row = {};
+
+      displayedColumns.forEach((col) => {
+        let value = node.data?.[col.field];
+
+        if (
+          ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+        ) {
+          value = value ? formatDate(value) : "";
+        }
+
+        row[col.headerName] = value ?? "";
+      });
+
+      reportData.push(row);
+    });
+
+    if (reportData.length === 0) {
       toast.warning("Please select at least one row to generate a report");
       return;
     }
 
-  // Only visible columns
-  const visibleColumns = columnDefs.filter(col => !col.hide);
-
-  // Build report data dynamically based on visible columns
-  const reportData = selectedRows.map((row) => {
-    const rowData = {};
-
-    visibleColumns.forEach((col) => {
-      let value = row[col.field];
-
-      // Format date fields
-      if (
-        ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
-      ) {
-        value = value ? formatDate(value) : "";
-      }
-
-      rowData[col.headerName] = value ?? "";
-    });
-
-    return rowData;
-  });
-
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write(
-      "<html><head><title>Attendance Machine Log</title>"
+      "<html><head><title>Attendance Machine Log</title>",
     );
     reportWindow.document.write("<style>");
     reportWindow.document.write(`
@@ -296,7 +300,7 @@ const DCanalysis = () => {
     reportWindow.document.write("</tbody></table>");
 
     reportWindow.document.write(
-      '<button class="report-button" onclick="window.print()">Print</button>'
+      '<button class="report-button" onclick="window.print()">Print</button>',
     );
     reportWindow.document.write("</body></html>");
     reportWindow.document.close();
@@ -320,8 +324,8 @@ const DCanalysis = () => {
     }
 
     const formatDate = (date) => {
-    if (!date) return "";
-    return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
+      if (!date) return "";
+      return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
     };
 
     const headerData = [
@@ -334,40 +338,51 @@ const DCanalysis = () => {
 
     const transformedData = transformRowData(rowData);
 
-// Only export visible columns
-const visibleColumns = columnDefs.filter(col => !col.hide);
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
 
-const exportData = transformedData.map(row => {
-  const filteredRow = {};
+    // Rows exactly as shown in AG Grid
+    const exportData = [];
 
-  visibleColumns.forEach(col => {
-    filteredRow[col.headerName] = row[col.headerName];
-  });
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      const row = {};
 
-  return filteredRow;
-});
+      displayedColumns.forEach((col) => {
+        let value = node.data?.[col.field];
 
-const worksheet = XLSX.utils.aoa_to_sheet(headerData);
+        if (
+          ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+        ) {
+          value = value ? formatDate(value) : "";
+        }
 
-XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A6" });
+        row[col.headerName] = value ?? "";
+      });
+
+      exportData.push(row);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(headerData);
+
+    XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A6" });
 
     // Auto-fit column width
-    const colWidths = visibleColumns.map(col => {
+    const colWidths = displayedColumns.map((col) => {
       const headerLength = col.headerName.length;
-    
+
       const maxDataLength = Math.max(
-        ...exportData.map(row =>
-          row[col.headerName]
-            ? row[col.headerName].toString().length
-            : 0
+        ...exportData.map((row) =>
+          row[col.headerName] ? row[col.headerName].toString().length : 0,
         ),
-        headerLength
+        headerLength,
       );
-    
+
       return { wch: maxDataLength + 5 }; // extra padding
     });
 
-    worksheet['!cols'] = colWidths;
+    worksheet["!cols"] = colWidths;
 
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance Machine Log");
@@ -389,156 +404,157 @@ XLSX.utils.sheet_add_json(worksheet, exportData, { origin: "A6" });
     minWidth: 130,
   };
 
-const reloadGridData = () => {
-  // Reset dates to today
-  const today = new Date().toISOString().split("T")[0];
-  setStartDate(today);
-  setEndDate(today);
+  const reloadGridData = () => {
+    // Reset dates to today
+    const today = new Date().toISOString().split("T")[0];
+    setStartDate(today);
+    setEndDate(today);
 
-  // Clear grid data
-  setRowData([]);
+    // Clear grid data
+    setRowData([]);
 
-  // Clear selected rows
-  if (gridApi) {
-    gridApi.deselectAll();
-  }
+    // Clear selected rows
+    if (gridApi) {
+      gridApi.deselectAll();
+    }
 
-  // Show all columns
-  setColumnDefs((prev) =>
-    prev.map((col) => ({
-      ...col,
-      hide: false,
-    }))
-  );
+    // Show all columns
+    setColumnDefs((prev) =>
+      prev.map((col) => ({
+        ...col,
+        hide: false,
+      })),
+    );
 
-  // Reset column search
-  setSearchTerm("");
-  setSearchColumn("");
+    // Reset column search
+    setSearchTerm("");
+    setSearchColumn("");
 
-  // Close dropdowns
-  setDropdownOpen(false);
-  setShowDropdown(false);
+    // Close dropdowns
+    setDropdownOpen(false);
+    setShowDropdown(false);
 
-  // Clear saved template settings if needed
-  localStorage.removeItem("AMLFilterSettings");
-  localStorage.removeItem("AMLGridFormat");
-};
-const exportPDF = () => {
-  const doc = new jsPDF({
-    orientation: "landscape",
-    unit: "mm",
-    format: "a4",
-  });
+    // Clear saved template settings if needed
+    localStorage.removeItem("AMLFilterSettings");
+    localStorage.removeItem("AMLGridFormat");
+  };
+  const exportPDF = () => {
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "mm",
+      format: "a4",
+    });
 
-  doc.setFontSize(6);
+    doc.setFontSize(6);
 
-  const reportName = "Attendance Machine Log";
+    const reportName = "Attendance Machine Log";
 
-  const userName =
-    sessionStorage.getItem("selectedUserName") || "User";
+    const userName = sessionStorage.getItem("selectedUserName") || "User";
 
-  const now = new Date();
+    const now = new Date();
 
-const currentDateTime =
-  now.toLocaleDateString("en-GB").replace(/\//g, "-") +
-  ", " +
-  now.toLocaleTimeString("en-GB");
+    const currentDateTime =
+      now.toLocaleDateString("en-GB").replace(/\//g, "-") +
+      ", " +
+      now.toLocaleTimeString("en-GB");
 
-  const pageWidth = doc.internal.pageSize.getWidth();
-
-  // Top Left - Report Name
-  doc.setFontSize(8);
-  doc.text(`Report Name: ${reportName}`, 10, 8);
-
-  // Top Right - Company Name
-  doc.text(
-    `Company Name: ${companyName || ""}`,
-    pageWidth - 10,
-    8,
-    { align: "right" }
-  );
-
-  // Only visible columns
-  const visibleColumns = columnDefs.filter((col) => !col.hide);
-
-  // Headers from visible columns
-  const headers = visibleColumns.map((col) => col.headerName);
-
-  // Data from visible columns
-  const data = rowData.map((row) =>
-    visibleColumns.map((col) => row[col.field] || "-")
-  );
-
-autoTable(doc, {
-  head: [headers],
-  body: data,
-  startY: 15,
-  styles: {
-    fontSize: 4,
-    cellPadding: 1,
-  },
-  headStyles: {
-    fillColor: [100, 100, 255],
-    fontSize: 4,
-  },
-  margin: {
-    top: 15,
-    left: 5,
-    right: 5,
-    bottom: 10,
-  },
-  didDrawPage: function () {
     const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
 
+    // Top Left - Report Name
     doc.setFontSize(8);
-
-    // Header
     doc.text(`Report Name: ${reportName}`, 10, 8);
 
-    doc.text(
-      `Company Name: ${companyName || ""}`,
-      pageWidth - 10,
-      8,
-      { align: "right" }
-    );
+    // Top Right - Company Name
+    doc.text(`Company Name: ${companyName || ""}`, pageWidth - 10, 8, {
+      align: "right",
+    });
 
-    // Footer
-    doc.text(
-      `User Name: ${userName}`,
-      10,
-      pageHeight - 5
-    );
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
 
+    // Headers exactly as shown in AG Grid
+    const headers = displayedColumns.map((col) => col.headerName);
+
+    // Rows exactly as shown in AG Grid
+    const data = [];
+
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      const row = displayedColumns.map((col) => {
+        let value = node.data?.[col.field];
+
+        if (
+          ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
+        ) {
+          value = value ? formatDate(value) : "";
+        }
+
+        return value ?? "";
+      });
+
+      data.push(row);
+    });
+
+    autoTable(doc, {
+      head: [headers],
+      body: data,
+      startY: 15,
+      styles: {
+        fontSize: 4,
+        cellPadding: 1,
+      },
+      headStyles: {
+        fillColor: [100, 100, 255],
+        fontSize: 4,
+      },
+      margin: {
+        top: 15,
+        left: 5,
+        right: 5,
+        bottom: 10,
+      },
+      didDrawPage: function () {
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+
+        doc.setFontSize(8);
+
+        // Header
+        doc.text(`Report Name: ${reportName}`, 10, 8);
+
+        doc.text(`Company Name: ${companyName || ""}`, pageWidth - 10, 8, {
+          align: "right",
+        });
+
+        // Footer
+        doc.text(`User Name: ${userName}`, 10, pageHeight - 5);
+
+        doc.text(
+          `Date & Time: ${currentDateTime}`,
+          pageWidth - 10,
+          pageHeight - 5,
+          { align: "right" },
+        );
+      },
+    });
+
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // Bottom Left - User Name
+    doc.setFontSize(8);
+    doc.text(`User Name: ${userName}`, 10, pageHeight - 5);
+
+    // Bottom Right - Date & Time
     doc.text(
       `Date & Time: ${currentDateTime}`,
       pageWidth - 10,
       pageHeight - 5,
-      { align: "right" }
+      { align: "right" },
     );
-  },
-});
 
-  const pageHeight = doc.internal.pageSize.getHeight();
-
-  // Bottom Left - User Name
-  doc.setFontSize(8);
-  doc.text(
-    `User Name: ${userName}`,
-    10,
-    pageHeight - 5
-  );
-
-  // Bottom Right - Date & Time
-  doc.text(
-    `Date & Time: ${currentDateTime}`,
-    pageWidth - 10,
-    pageHeight - 5,
-    { align: "right" }
-  );
-
-  doc.save("Attendance_Machine_Log.pdf");
- };
+    doc.save("Attendance_Machine_Log.pdf");
+  };
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -546,7 +562,7 @@ autoTable(doc, {
 
   // Filtered columns based on search input
   const filteredColumns = columnDefs.filter((col) =>
-    col.headerName.toLowerCase().includes(searchTerm.toLowerCase())
+    col.headerName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   useEffect(() => {
@@ -583,7 +599,7 @@ autoTable(doc, {
   // Toggle column visibility from dropdown
   const handleToggleColumn = (field) => {
     const updatedCols = columnDefs.map((col) =>
-      col.field === field ? { ...col, hide: !col.hide } : col
+      col.field === field ? { ...col, hide: !col.hide } : col,
     );
     setColumnDefs(updatedCols);
   };
@@ -596,7 +612,7 @@ autoTable(doc, {
     const updated = columnDefs.map((col) =>
       filteredColumns.some((fc) => fc.field === col.field)
         ? { ...col, hide: !newChecked } // if header checked => show all, else hide all
-        : col
+        : col,
     );
 
     setColumnDefs(updated);
@@ -744,7 +760,7 @@ autoTable(doc, {
 
     const updated = columnDefs.map((col) => {
       const matched = Array.from(columns).find(
-        (c) => c.getElementsByTagName("Key")[0]?.textContent === col.field
+        (c) => c.getElementsByTagName("Key")[0]?.textContent === col.field,
       );
 
       if (matched) {
@@ -798,17 +814,23 @@ autoTable(doc, {
                         <a onClick={() => setShowModal(true)} title="Save">
                           <i className="fa-solid fa-floppy-disk"></i>
                         </a>
-                        {["view", "all permission"].some((permission) => attenMachinePermission.includes(permission)) && (
+                        {["view", "all permission"].some((permission) =>
+                          attenMachinePermission.includes(permission),
+                        ) && (
                           <a onClick={handlePrint} title="Print">
                             <i className="fa-solid fa-print"></i>
                           </a>
                         )}
-                        {["excel", "all permission"].some((permission) => attenMachinePermission.includes(permission)) && (
+                        {["excel", "all permission"].some((permission) =>
+                          attenMachinePermission.includes(permission),
+                        ) && (
                           <a onClick={handleExportToExcel} title="Export Excel">
                             <i className="fa-solid fa-file-excel text-success"></i>
                           </a>
                         )}
-                        {["pdf", "all permission"].some((permission) => attenMachinePermission.includes(permission)) && (
+                        {["pdf", "all permission"].some((permission) =>
+                          attenMachinePermission.includes(permission),
+                        ) && (
                           <a onClick={exportPDF} title="Export PDF">
                             <i className="fa-solid fa-file-pdf text-danger"></i>
                           </a>
@@ -860,7 +882,9 @@ autoTable(doc, {
                 >
                   <i className="fa-solid fa-floppy-disk"></i>
                 </button>
-                {["view", "all permission"].some((permission) => attenMachinePermission.includes(permission)) && (
+                {["view", "all permission"].some((permission) =>
+                  attenMachinePermission.includes(permission),
+                ) && (
                   <button
                     className="btn btn-dark mt-3 mb-3 rounded-3"
                     onClick={handlePrint}
@@ -869,7 +893,9 @@ autoTable(doc, {
                     <i className="fa-solid fa-print"></i>
                   </button>
                 )}
-                {["excel", "all permission"].some((permission) => attenMachinePermission.includes(permission)) && (
+                {["excel", "all permission"].some((permission) =>
+                  attenMachinePermission.includes(permission),
+                ) && (
                   <button
                     className="btn btn-dark mt-3 mb-3 rounded-3"
                     onClick={handleExportToExcel}
@@ -878,7 +904,9 @@ autoTable(doc, {
                     <i class="fa-solid fa-file-excel"></i>
                   </button>
                 )}
-                {["pdf", "all permission"].some((permission) => attenMachinePermission.includes(permission)) && (
+                {["pdf", "all permission"].some((permission) =>
+                  attenMachinePermission.includes(permission),
+                ) && (
                   <button
                     className="btn btn-dark mt-3 mb-3 rounded-3"
                     onClick={exportPDF}
@@ -941,8 +969,8 @@ autoTable(doc, {
                           {templateList
                             .filter((template) =>
                               template.ControlName.toLowerCase().includes(
-                                searchColumn.toLowerCase()
-                              )
+                                searchColumn.toLowerCase(),
+                              ),
                             )
                             .map((template, index) => (
                               <li
@@ -960,13 +988,13 @@ autoTable(doc, {
                             ))}
                           {templateList.filter((template) =>
                             template.ControlName.toLowerCase().includes(
-                              searchColumn.toLowerCase()
-                            )
+                              searchColumn.toLowerCase(),
+                            ),
                           ).length === 0 && (
-                              <li className="text-muted px-2 py-1">
-                                No results found
-                              </li>
-                            )}
+                            <li className="text-muted px-2 py-1">
+                              No results found
+                            </li>
+                          )}
                         </ul>
                       </div>
                     </div>
@@ -1225,7 +1253,7 @@ autoTable(doc, {
                   const alreadyExists = templateList.some(
                     (template) =>
                       template.ControlName.toLowerCase().trim() ===
-                      formatName.toLowerCase().trim()
+                      formatName.toLowerCase().trim(),
                   );
 
                   if (alreadyExists) {

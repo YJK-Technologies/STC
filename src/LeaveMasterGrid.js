@@ -117,11 +117,11 @@ const LeaveMasterGrid = () => {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
-   const filteredOptionStatus = Array.isArray(statusdrop)
+  const filteredOptionStatus = Array.isArray(statusdrop)
     ? statusdrop.map((option) => ({
-      value: option.attributedetails_name,
-      label: option.attributedetails_name,
-    }))
+        value: option.attributedetails_name,
+        label: option.attributedetails_name,
+      }))
     : [];
 
   const handleChangeStatus = (selectedStatus) => {
@@ -159,28 +159,36 @@ const LeaveMasterGrid = () => {
   }, []);
 
   const handlePrint = () => {
-    const selectedRows = gridApi.getSelectedRows();
-    if (selectedRows.length === 0) {
+    // Columns exactly as shown in AG Grid
+    const displayedColumns = gridApi
+      .getAllDisplayedColumns()
+      .map((col) => col.getColDef());
+
+    const reportData = [];
+
+    // Selected rows in the same order as AG Grid
+    gridApi.forEachNodeAfterFilterAndSort((node) => {
+      if (!node.isSelected()) return;
+
+      const row = {};
+
+      displayedColumns.forEach((col) => {
+        let value = node.data?.[col.field];
+
+        row[col.headerName] = value ?? "";
+      });
+
+      reportData.push(row);
+    });
+
+    if (reportData.length === 0) {
       toast.warning("Please select at least one row to generate a report");
       return;
     }
-
-    const reportData = selectedRows.map((row) => {
-      return {
-        "Holiday Code": row.Leave_Code,
-        "Holiday Name": row.Leave_Name,
-        "Holiday Description": row.Leave_Description,
-        "Effective From": row.Effective_From,
-        "Effective To": row.Effective_To,
-        // "Min Leave Apply Days": row.Min_Leave_Apply_Days,
-        // "Max Leave Apply Days": row.Max_Leave_Apply_Days,
-        Status: row.Is_Active,
-      };
-    });
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write("<html><head><title>Holiday Master</title>");
     reportWindow.document.write("<style>");
-reportWindow.document.write(`
+    reportWindow.document.write(`
 *{
     box-sizing:border-box;
 }
@@ -281,7 +289,7 @@ tr:nth-child(even) td{
     }
 }
 `);
-reportWindow.document.write("</style></head><body>");
+    reportWindow.document.write("</style></head><body>");
     reportWindow.document.write("</style></head><body>");
     reportWindow.document.write("<h1><u>Holiday Master</u></h1>");
 
@@ -302,7 +310,7 @@ reportWindow.document.write("</style></head><body>");
     reportWindow.document.write("</tbody></table>");
 
     reportWindow.document.write(
-      '<button class="report-button" onclick="window.print()">Print</button>'
+      '<button class="report-button" onclick="window.print()">Print</button>',
     );
     reportWindow.document.write("</body></html>");
     reportWindow.document.close();
@@ -380,7 +388,7 @@ reportWindow.document.write("</style></head><body>");
   const onCellValueChanged = (params) => {
     const updatedRowData = [...rowData];
     const rowIndex = updatedRowData.findIndex(
-      (row) => row.Keyfield === params.data.Keyfield
+      (row) => row.Keyfield === params.data.Keyfield,
     );
 
     if (rowIndex !== -1) {
@@ -389,7 +397,7 @@ reportWindow.document.write("</style></head><body>");
 
       setEditedData((prevData) => {
         const existingIndex = prevData.findIndex(
-          (row) => row.Keyfield === updatedRowData[rowIndex].Keyfield
+          (row) => row.Keyfield === updatedRowData[rowIndex].Keyfield,
         );
 
         if (existingIndex !== -1) {
@@ -430,7 +438,7 @@ reportWindow.document.write("</style></head><body>");
               },
               body: JSON.stringify({ deletedData }),
               Company_Code: company_code,
-            }
+            },
           );
 
           if (response.ok) {
@@ -451,7 +459,7 @@ reportWindow.document.write("</style></head><body>");
       },
       () => {
         toast.info("Data Delete cancelled.");
-      }
+      },
     );
   };
 
@@ -461,14 +469,14 @@ reportWindow.document.write("</style></head><body>");
     const selectedRowsData = editedData.filter((row) =>
       selectedRows.some(
         (selectedRow) =>
-          selectedRow.attributeheader_code === row.attributeheader_code
-      )
+          selectedRow.attributeheader_code === row.attributeheader_code,
+      ),
     );
 
     const company_code = sessionStorage.getItem("selectedCompanyCode");
     if (selectedRowsData.length === 0) {
       toast.warning(
-        "Please select and modify at least one row to update its data"
+        "Please select and modify at least one row to update its data",
       );
       return;
     }
@@ -493,7 +501,7 @@ reportWindow.document.write("</style></head><body>");
                 Company_Code: company_code,
                 Modified_By: modified_by,
               }),
-            }
+            },
           );
 
           if (response.status === 200) {
@@ -515,7 +523,7 @@ reportWindow.document.write("</style></head><body>");
       },
       () => {
         toast.info("Data updated cancelled.");
-      }
+      },
     );
   };
 
@@ -549,33 +557,53 @@ reportWindow.document.write("</style></head><body>");
                       <i className="fa-solid fa-list"></i>
                     </button>
                     <ul className="dropdown-menu p-2">
-                      {["add", "all permission"].some((permission) => leavePermission.includes(permission)) && (
-                      <li className="mb-2">
-                        <icon class="iconbutton text-success d-flex justify-content-center" onClick={handleNavigatesToForm}>
-                          <i className="fa-solid fa-plus"></i>
-                        </icon>
-                      </li>
+                      {["add", "all permission"].some((permission) =>
+                        leavePermission.includes(permission),
+                      ) && (
+                        <li className="mb-2">
+                          <icon
+                            class="iconbutton text-success d-flex justify-content-center"
+                            onClick={handleNavigatesToForm}
+                          >
+                            <i className="fa-solid fa-plus"></i>
+                          </icon>
+                        </li>
                       )}
-                      {["delete", "all permission"].some((permission) => leavePermission.includes(permission)) && (
-                      <li className="mb-2">
-                        <icon class="iconbutton text-danger d-flex justify-content-center" onClick={deleteSelectedRows}>
-                          <i className="fa-solid fa-minus"></i>
-                        </icon>
-                      </li>
+                      {["delete", "all permission"].some((permission) =>
+                        leavePermission.includes(permission),
+                      ) && (
+                        <li className="mb-2">
+                          <icon
+                            class="iconbutton text-danger d-flex justify-content-center"
+                            onClick={deleteSelectedRows}
+                          >
+                            <i className="fa-solid fa-minus"></i>
+                          </icon>
+                        </li>
                       )}
-                      {["update", "all permission"].some((permission) => leavePermission.includes(permission)) && (
-                      <li className="mb-2">
-                        <icon class="iconbutton d-flex justify-content-center" onClick={saveEditedData}>
-                          <i className="fa-solid fa-floppy-disk"></i>
-                        </icon>
-                      </li>
+                      {["update", "all permission"].some((permission) =>
+                        leavePermission.includes(permission),
+                      ) && (
+                        <li className="mb-2">
+                          <icon
+                            class="iconbutton d-flex justify-content-center"
+                            onClick={saveEditedData}
+                          >
+                            <i className="fa-solid fa-floppy-disk"></i>
+                          </icon>
+                        </li>
                       )}
-                      {["view", "all permission"].some((permission) => leavePermission.includes(permission)) && (
-                      <li className="mb-2">
-                        <icon class="iconbutton d-flex justify-content-center" onClick={handlePrint}>
-                          <i className="fa-solid fa-print"></i>
-                        </icon>
-                      </li>
+                      {["view", "all permission"].some((permission) =>
+                        leavePermission.includes(permission),
+                      ) && (
+                        <li className="mb-2">
+                          <icon
+                            class="iconbutton d-flex justify-content-center"
+                            onClick={handlePrint}
+                          >
+                            <i className="fa-solid fa-print"></i>
+                          </icon>
+                        </li>
                       )}
                     </ul>
                   </div>
@@ -584,26 +612,50 @@ reportWindow.document.write("</style></head><body>");
             </div>
             <div className="purbut">
               <div className="d-flex justify-content-end me-5">
-                 {["add", "all permission"].some((permission) => leavePermission.includes(permission)) && (
-                <addbutton className="purbut" onClick={handleNavigatesToForm} title="Add Holiday Details">
-                 <i class="fa-solid fa-user-plus"></i>
-                </addbutton>
-              )}
-              {["delete", "all permission"].some((permission) => leavePermission.includes(permission)) && (
-                <delbutton className="purbut" onClick={deleteSelectedRows} title="Delete Holiday Details">
-                  <i class="fa-solid fa-user-minus"></i>
-                </delbutton>
-              )}
-              {["update", "all permission"].some((permission) => leavePermission.includes(permission)) && (
-                <savebutton className="purbut" onClick={saveEditedData} title="Update Holiday Details">
-                  <i className="fa-solid fa-floppy-disk"></i>
-                </savebutton>
-              )}
-              {["view", "all permission"].some((permission) => leavePermission.includes(permission)) && (
-                <printbutton className="purbut" onClick={handlePrint} title="Generate Report">
-                  <i className="fa-solid fa-print"></i>
-                </printbutton>
-              )}
+                {["add", "all permission"].some((permission) =>
+                  leavePermission.includes(permission),
+                ) && (
+                  <addbutton
+                    className="purbut"
+                    onClick={handleNavigatesToForm}
+                    title="Add Holiday Details"
+                  >
+                    <i class="fa-solid fa-user-plus"></i>
+                  </addbutton>
+                )}
+                {["delete", "all permission"].some((permission) =>
+                  leavePermission.includes(permission),
+                ) && (
+                  <delbutton
+                    className="purbut"
+                    onClick={deleteSelectedRows}
+                    title="Delete Holiday Details"
+                  >
+                    <i class="fa-solid fa-user-minus"></i>
+                  </delbutton>
+                )}
+                {["update", "all permission"].some((permission) =>
+                  leavePermission.includes(permission),
+                ) && (
+                  <savebutton
+                    className="purbut"
+                    onClick={saveEditedData}
+                    title="Update Holiday Details"
+                  >
+                    <i className="fa-solid fa-floppy-disk"></i>
+                  </savebutton>
+                )}
+                {["view", "all permission"].some((permission) =>
+                  leavePermission.includes(permission),
+                ) && (
+                  <printbutton
+                    className="purbut"
+                    onClick={handlePrint}
+                    title="Generate Report"
+                  >
+                    <i className="fa-solid fa-print"></i>
+                  </printbutton>
+                )}
               </div>
             </div>
           </div>
@@ -672,16 +724,16 @@ reportWindow.document.write("</style></head><body>");
             </div> */}
             <div className="col-12 col-md-3 mb-2">
               <label className="form-label">Status</label>
-              <div title="Please Select the Status"> 
-              <Select
-                id="wcode"
-                className="exp-input-field"
-                placeholder=""
-                value={selectedStatus}
-                options={filteredOptionStatus}
-                onChange={handleChangeStatus}
-              />
-            </div>
+              <div title="Please Select the Status">
+                <Select
+                  id="wcode"
+                  className="exp-input-field"
+                  placeholder=""
+                  value={selectedStatus}
+                  options={filteredOptionStatus}
+                  onChange={handleChangeStatus}
+                />
+              </div>
             </div>
             <div className="col-12 col-md-3">
               <label className="form-label">Holiday Description</label>
