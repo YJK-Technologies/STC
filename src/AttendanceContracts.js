@@ -28,8 +28,52 @@ const PurchaseOrderAnalysis = () => {
     .filter((permission) => permission.screen_type === "AttenContracts")
     .map((permission) => permission.permission_type.toLowerCase());
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-GB"); // Converts to DD/MM/YYYY
+  // const formatDate = (dateString) => {
+  //   return new Date(dateString).toLocaleDateString("en-GB"); // Converts to DD/MM/YYYY
+  // };
+
+  // const formatDate = (dateValue) => {
+  //   if (!dateValue || dateValue === "NULL") return "";
+
+  //   if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateValue)) {
+  //     return dateValue;
+  //   }
+
+  //   let date;
+
+  //   if (typeof dateValue === "string" && dateValue.includes("-")) {
+  //     date = new Date(dateValue);
+  //   } else {
+  //     date = new Date(dateValue);
+  //   }
+
+  //   if (isNaN(date.getTime())) return "";
+
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   const month = String(date.getMonth() + 1).padStart(2, "0");
+  //   const year = date.getFullYear();
+
+  //   return `${day}/${month}/${year}`;
+  // };
+
+  const formatDate = (dateValue) => {
+    if (!dateValue || dateValue === "NULL") return "";
+
+    // If already in DD/MM/YYYY, convert it to MM-DD-YYYY
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateValue)) {
+      const [day, month, year] = dateValue.split("/");
+      return `${month}-${day}-${year}`;
+    }
+
+    const date = new Date(dateValue);
+
+    if (isNaN(date.getTime())) return "";
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${month}-${day}-${year}`;
   };
 
   const [headerChecked, setHeaderChecked] = useState(false);
@@ -213,7 +257,7 @@ const PurchaseOrderAnalysis = () => {
         if (
           ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
         ) {
-          value = value ? formatDate(value) : "";
+          value = value ? value : "";
         }
 
         row[col.headerName] = value ?? "";
@@ -321,15 +365,15 @@ const PurchaseOrderAnalysis = () => {
   const transformRowData = (data) => {
     return data.map((row) => ({
       EMPLOYEE_NUMBER: row.EMPLOYEE_NUMBER,
-      START_DATE: formatDate(row.START_DATE),
-      END_DATE: formatDate(row.END_DATE),
+      START_DATE: row.START_DATE,
+      END_DATE: row.END_DATE,
       START_TIME: row.START_TIME,
       END_TIME: row.END_TIME,
       STATUS: row.STATUS,
       MESSAGE: row.MESSAGE,
       NAME: row.NAME,
-      STARTDATE: formatDate(row.STARTDATE),
-      ENDDATE: formatDate(row.ENDDATE),
+      STARTDATE: row.STARTDATE,
+      ENDDATE: row.ENDDATE,
       CARDID: row.CARDID,
       DAY: row.DAY,
       WORKINGHOURS: row.WORKINGHOURS,
@@ -349,7 +393,7 @@ const PurchaseOrderAnalysis = () => {
       return;
     }
 
-    const formatDate = (date) => {
+    const formatDateExcel = (date) => {
       if (!date) return "";
       return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
     };
@@ -357,7 +401,7 @@ const PurchaseOrderAnalysis = () => {
     const headerData = [
       ["Attendance Summary Contracts"],
       [`Company Name: ${companyName}`],
-      [`Date Range: ${formatDate(startDate)} to ${formatDate(endDate)}`],
+      [`Date Range: ${formatDateExcel(startDate)} to ${formatDateExcel(endDate)}`],
       [`User Name: ${userName}`],
       [],
     ];
@@ -381,7 +425,7 @@ const PurchaseOrderAnalysis = () => {
         if (
           ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
         ) {
-          value = value ? formatDate(value) : "";
+          value = value ? value : "";
         }
 
         row[col.headerName] = value ?? "";
@@ -513,7 +557,7 @@ const PurchaseOrderAnalysis = () => {
         if (
           ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
         ) {
-          return value ? formatDate(value) : "";
+          return value ? value : "";
         }
 
         return value ?? "";
@@ -848,24 +892,24 @@ const PurchaseOrderAnalysis = () => {
                       {["view", "all permission"].some((permission) =>
                         attenContractsPermission.includes(permission),
                       ) && (
-                        <a onClick={handlePrint} title="Print">
-                          <i className="fa-solid fa-print"></i>
-                        </a>
-                      )}
+                          <a onClick={handlePrint} title="Print">
+                            <i className="fa-solid fa-print"></i>
+                          </a>
+                        )}
                       {["excel", "all permission"].some((permission) =>
                         attenContractsPermission.includes(permission),
                       ) && (
-                        <a onClick={handleExportToExcel} title="Export Excel">
-                          <i className="fa-solid fa-file-excel text-success"></i>
-                        </a>
-                      )}
+                          <a onClick={handleExportToExcel} title="Export Excel">
+                            <i className="fa-solid fa-file-excel text-success"></i>
+                          </a>
+                        )}
                       {["pdf", "all permission"].some((permission) =>
                         attenContractsPermission.includes(permission),
                       ) && (
-                        <a onClick={exportPDF} title="Export PDF">
-                          <i className="fa-solid fa-file-pdf text-danger"></i>
-                        </a>
-                      )}
+                          <a onClick={exportPDF} title="Export PDF">
+                            <i className="fa-solid fa-file-pdf text-danger"></i>
+                          </a>
+                        )}
                     </li>
 
                     <li>
@@ -916,36 +960,36 @@ const PurchaseOrderAnalysis = () => {
               {["view", "all permission"].some((permission) =>
                 attenContractsPermission.includes(permission),
               ) && (
-                <button
-                  className="btn btn-dark mt-3 mb-3 rounded-3"
-                  onClick={handlePrint}
-                  title="Generate Report"
-                >
-                  <i className="fa-solid fa-print"></i>
-                </button>
-              )}
+                  <button
+                    className="btn btn-dark mt-3 mb-3 rounded-3"
+                    onClick={handlePrint}
+                    title="Generate Report"
+                  >
+                    <i className="fa-solid fa-print"></i>
+                  </button>
+                )}
               {["excel", "all permission"].some((permission) =>
                 attenContractsPermission.includes(permission),
               ) && (
-                <button
-                  class="btn btn-dark  mt-3 mb-3  rounded-3"
-                  onClick={handleExportToExcel}
-                  title="Excel"
-                >
-                  <i class="fa-solid fa-file-excel"></i>
-                </button>
-              )}
+                  <button
+                    class="btn btn-dark  mt-3 mb-3  rounded-3"
+                    onClick={handleExportToExcel}
+                    title="Excel"
+                  >
+                    <i class="fa-solid fa-file-excel"></i>
+                  </button>
+                )}
               {["pdf", "all permission"].some((permission) =>
                 attenContractsPermission.includes(permission),
               ) && (
-                <button
-                  className="btn btn-dark mt-3 mb-3 rounded-3"
-                  onClick={exportPDF}
-                  title="Pdf"
-                >
-                  <i class="fa-solid fa-file-pdf"></i>
-                </button>
-              )}
+                  <button
+                    className="btn btn-dark mt-3 mb-3 rounded-3"
+                    onClick={exportPDF}
+                    title="Pdf"
+                  >
+                    <i class="fa-solid fa-file-pdf"></i>
+                  </button>
+                )}
               <div className="position-relative">
                 <button
                   className="btn btn-dark mt-3 mb-3 rounded-3"
@@ -1022,10 +1066,10 @@ const PurchaseOrderAnalysis = () => {
                             searchColumn.toLowerCase(),
                           ),
                         ).length === 0 && (
-                          <li className="text-muted px-2 py-1">
-                            No results found
-                          </li>
-                        )}
+                            <li className="text-muted px-2 py-1">
+                              No results found
+                            </li>
+                          )}
                       </ul>
                     </div>
                   </div>

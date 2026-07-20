@@ -34,8 +34,36 @@ const DCanalysis = () => {
   const [headerChecked, setHeaderChecked] = useState(false);
   const [searchColumn, setSearchColumn] = useState("");
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-GB"); // Converts to DD/MM/YYYY
+  // const formatDate = (dateString) => {
+  //   return new Date(dateString).toLocaleDateString("en-GB"); // Converts to DD/MM/YYYY
+  // };
+
+  const formatDate = (dateValue) => {
+    if (!dateValue || dateValue === "NULL") return "";
+
+    // DD/MM/YYYY or MM/DD/YYYY
+    if (dateValue.includes("/")) {
+      const [first, second, year] = dateValue.split("/");
+
+      // If first value > 12, it's definitely DD/MM/YYYY
+      if (parseInt(first, 10) > 12) {
+        return `${second}-${first}-${year}`;
+      }
+
+      // Otherwise assume MM/DD/YYYY
+      return `${first}-${second}-${year}`;
+    }
+
+    // YYYY-MM-DD or ISO format
+    const date = new Date(dateValue);
+
+    if (isNaN(date.getTime())) return "";
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${month}-${day}-${year}`;
   };
 
   const [columnDefs, setColumnDefs] = useState([
@@ -114,8 +142,7 @@ const DCanalysis = () => {
         DT2: endDate,
       };
 
-      const response = await fetch(
-        `${config.apiBaseUrl}/Fame_atten_machine_log_report`,
+      const response = await fetch(`${config.apiBaseUrl}/Fame_atten_machine_log_report`,
         {
           method: "POST",
           headers: {
@@ -201,7 +228,7 @@ const DCanalysis = () => {
         if (
           ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
         ) {
-          value = value ? formatDate(value) : "";
+          value = value ? value : "";
         }
 
         row[col.headerName] = value ?? "";
@@ -311,7 +338,7 @@ const DCanalysis = () => {
       EMPID: row.EmpId,
       "EMP NAME": row.EmpDs,
       DEPARTMENT: row.DepartmentDs,
-      DATE: formatDate(row.EMPDATE),
+      DATE: row.EMPDATE,
       "PUNCH TIME": row.EmpTime,
       "READER NAME": row.ReaderName,
     }));
@@ -323,7 +350,7 @@ const DCanalysis = () => {
       return;
     }
 
-    const formatDate = (date) => {
+    const formatDateExcel = (date) => {
       if (!date) return "";
       return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
     };
@@ -331,7 +358,7 @@ const DCanalysis = () => {
     const headerData = [
       ["Attendance Machine Log"],
       [`Company Name: ${companyName}`],
-      [`Date Range: ${formatDate(startDate)} to ${formatDate(endDate)}`],
+      [`Date Range: ${formatDateExcel(startDate)} to ${formatDateExcel(endDate)}`],
       [`User Name: ${userName}`],
       [],
     ];
@@ -355,7 +382,7 @@ const DCanalysis = () => {
         if (
           ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
         ) {
-          value = value ? formatDate(value) : "";
+          value = value ? value : "";
         }
 
         row[col.headerName] = value ?? "";
@@ -487,7 +514,7 @@ const DCanalysis = () => {
         if (
           ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
         ) {
-          value = value ? formatDate(value) : "";
+          value = value ? value : "";
         }
 
         return value ?? "";
@@ -817,24 +844,24 @@ const DCanalysis = () => {
                         {["view", "all permission"].some((permission) =>
                           attenMachinePermission.includes(permission),
                         ) && (
-                          <a onClick={handlePrint} title="Print">
-                            <i className="fa-solid fa-print"></i>
-                          </a>
-                        )}
+                            <a onClick={handlePrint} title="Print">
+                              <i className="fa-solid fa-print"></i>
+                            </a>
+                          )}
                         {["excel", "all permission"].some((permission) =>
                           attenMachinePermission.includes(permission),
                         ) && (
-                          <a onClick={handleExportToExcel} title="Export Excel">
-                            <i className="fa-solid fa-file-excel text-success"></i>
-                          </a>
-                        )}
+                            <a onClick={handleExportToExcel} title="Export Excel">
+                              <i className="fa-solid fa-file-excel text-success"></i>
+                            </a>
+                          )}
                         {["pdf", "all permission"].some((permission) =>
                           attenMachinePermission.includes(permission),
                         ) && (
-                          <a onClick={exportPDF} title="Export PDF">
-                            <i className="fa-solid fa-file-pdf text-danger"></i>
-                          </a>
-                        )}
+                            <a onClick={exportPDF} title="Export PDF">
+                              <i className="fa-solid fa-file-pdf text-danger"></i>
+                            </a>
+                          )}
                       </li>
 
                       <li>
@@ -885,36 +912,36 @@ const DCanalysis = () => {
                 {["view", "all permission"].some((permission) =>
                   attenMachinePermission.includes(permission),
                 ) && (
-                  <button
-                    className="btn btn-dark mt-3 mb-3 rounded-3"
-                    onClick={handlePrint}
-                    title="Generate Report"
-                  >
-                    <i className="fa-solid fa-print"></i>
-                  </button>
-                )}
+                    <button
+                      className="btn btn-dark mt-3 mb-3 rounded-3"
+                      onClick={handlePrint}
+                      title="Generate Report"
+                    >
+                      <i className="fa-solid fa-print"></i>
+                    </button>
+                  )}
                 {["excel", "all permission"].some((permission) =>
                   attenMachinePermission.includes(permission),
                 ) && (
-                  <button
-                    className="btn btn-dark mt-3 mb-3 rounded-3"
-                    onClick={handleExportToExcel}
-                    title="Excel"
-                  >
-                    <i class="fa-solid fa-file-excel"></i>
-                  </button>
-                )}
+                    <button
+                      className="btn btn-dark mt-3 mb-3 rounded-3"
+                      onClick={handleExportToExcel}
+                      title="Excel"
+                    >
+                      <i class="fa-solid fa-file-excel"></i>
+                    </button>
+                  )}
                 {["pdf", "all permission"].some((permission) =>
                   attenMachinePermission.includes(permission),
                 ) && (
-                  <button
-                    className="btn btn-dark mt-3 mb-3 rounded-3"
-                    onClick={exportPDF}
-                    title="Pdf"
-                  >
-                    <i class="fa-solid fa-file-pdf"></i>
-                  </button>
-                )}
+                    <button
+                      className="btn btn-dark mt-3 mb-3 rounded-3"
+                      onClick={exportPDF}
+                      title="Pdf"
+                    >
+                      <i class="fa-solid fa-file-pdf"></i>
+                    </button>
+                  )}
                 <div className="position-relative">
                   <button
                     className="btn btn-dark mt-3 mb-3 rounded-3"
@@ -991,10 +1018,10 @@ const DCanalysis = () => {
                               searchColumn.toLowerCase(),
                             ),
                           ).length === 0 && (
-                            <li className="text-muted px-2 py-1">
-                              No results found
-                            </li>
-                          )}
+                              <li className="text-muted px-2 py-1">
+                                No results found
+                              </li>
+                            )}
                         </ul>
                       </div>
                     </div>

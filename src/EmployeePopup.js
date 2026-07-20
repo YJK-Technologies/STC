@@ -189,8 +189,14 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData })
                               autoComplete='off'
                             />
                           </div>
+                          <div className="col-md-3 mb-2">
+                          <icon className="icon popups-btn" onClick={() => setFetchTrigger(prev => !prev)} title="Search">
+                            <FontAwesomeIcon icon={faMagnifyingGlass} />
+                          </icon>
+                          </div>
                         </div>
-                        <div className="row ms-3 me-3">
+
+                        {/* <div className="row ms-3 me-3">
                           <div className="col-md-3 mb-2">
                             <Select
                               className="exp-input-field"
@@ -238,7 +244,7 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData })
                             <FontAwesomeIcon icon={faMagnifyingGlass} />
                           </icon>
                           </div>
-                        </div>
+                        </div> */}
 
                         <div className="ag-theme-alpine" style={{ height: '400px', width: '100%' }}>
                           <AgGridReact
