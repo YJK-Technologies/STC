@@ -2755,7 +2755,7 @@ const Fame_atten_contract = async (req, res) => {
       .input("contractor_name", sql.VarChar, contractor_name)
       .input("groupmode", sql.VarChar, groupmode)
       .query(
-        `EXEC sp_attendance_summary_report_for_contractors_test @mode,@from_date,@to_date,@emp_id,@contractor_name,@groupmode`,
+        `EXEC sp_attendance_summary_report_for_contractors_test @mode,@from_date,@to_date,@emp_id,@contractor_name,@groupmode`
       );
     // Send response
     if (result.recordset.length > 0) {
