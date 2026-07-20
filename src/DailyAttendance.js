@@ -34,6 +34,10 @@ const QOanalysis = () => {
   //   return `${day}-${month}-${year}`;
   // };
 
+  const formatDateDay = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-GB");
+  };
+
   const formatDate = (dateValue) => {
     if (!dateValue || dateValue === "NULL") return "";
 
@@ -166,8 +170,8 @@ const QOanalysis = () => {
         const newRows = fetchedData.map((matchedItem) => ({
           START_DATE: formatDate(matchedItem.START_DATE),
           END_DATE: formatDate(matchedItem.END_DATE),
-          STARTDATE: formatDate(matchedItem.STARTDATE),
-          ENDDATE: formatDate(matchedItem.ENDDATE),
+          STARTDATE: formatDateDay(matchedItem.STARTDATE),
+          ENDDATE: formatDateDay(matchedItem.ENDDATE),
           EMPLOYEE_NUMBER: matchedItem.EMPLOYEE_NUMBER,
           START_TIME: matchedItem.START_TIME,
           END_TIME: matchedItem.END_TIME,

@@ -13,6 +13,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import LoadingScreen from "./LoadingScreen";
 import Swal from "sweetalert2";
+import Select from "react-select";
 
 const PurchaseOrderAnalysis = () => {
   // const formatDate = (isoDateString) => {
@@ -28,9 +29,9 @@ const PurchaseOrderAnalysis = () => {
     .filter((permission) => permission.screen_type === "AttenContracts")
     .map((permission) => permission.permission_type.toLowerCase());
 
-  // const formatDate = (dateString) => {
-  //   return new Date(dateString).toLocaleDateString("en-GB"); // Converts to DD/MM/YYYY
-  // };
+  const formatDateDay = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-GB");
+  };
 
   // const formatDate = (dateValue) => {
   //   if (!dateValue || dateValue === "NULL") return "";
@@ -53,7 +54,7 @@ const PurchaseOrderAnalysis = () => {
   //   const month = String(date.getMonth() + 1).padStart(2, "0");
   //   const year = date.getFullYear();
 
-  //   return `${day}/${month}/${year}`;
+  //   return `${day}-${month}-${year}`;
   // };
 
   const formatDate = (dateValue) => {
@@ -78,6 +79,30 @@ const PurchaseOrderAnalysis = () => {
 
   const [headerChecked, setHeaderChecked] = useState(false);
   const [searchColumn, setSearchColumn] = useState("");
+  const [selectedGrouping, setSelectedGrouping] = useState("");
+  const [grouping, setGrouping] = useState("");
+  const [groupingDrop, setGroupingDrop] = useState([]);
+
+  useEffect(() => {
+    const company_code = sessionStorage.getItem("selectedCompanyCode");
+
+    fetch(`${config.apiBaseUrl}/getGrouping`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ company_code }),
+    })
+      .then((data) => data.json())
+      .then((val) => {
+        setGroupingDrop(val);
+
+        // Default selection
+        setSelectedGrouping({ value: "All", label: "All" });
+        setGrouping("All");
+      })
+      .catch((error) => console.error("Error fetching data:", error));
+  }, []);
 
   const [columnDefs, setColumnDefs] = useState([
     {
@@ -182,6 +207,7 @@ const PurchaseOrderAnalysis = () => {
         to_date: endDate,
         emp_id: employee,
         contractor_name: contractorName,
+        groupmode: grouping
       };
 
       const response = await fetch(`${config.apiBaseUrl}/Fame_atten_contract`, {
@@ -197,8 +223,8 @@ const PurchaseOrderAnalysis = () => {
         const newRows = fetchedData.map((matchedItem) => ({
           START_DATE: formatDate(matchedItem.START_DATE),
           END_DATE: formatDate(matchedItem.END_DATE),
-          STARTDATE: formatDate(matchedItem.STARTDATE),
-          ENDDATE: formatDate(matchedItem.ENDDATE),
+          STARTDATE: formatDateDay(matchedItem.STARTDATE),
+          ENDDATE: formatDateDay(matchedItem.ENDDATE),
           EMPLOYEE_NUMBER: matchedItem.EMPLOYEE_NUMBER,
           START_TIME: matchedItem.START_TIME,
           END_TIME: matchedItem.END_TIME,
@@ -854,6 +880,21 @@ const PurchaseOrderAnalysis = () => {
     setColumnDefs(updated);
   };
 
+  const handleChangeGrouping = (selectedGrouping) => {
+    setSelectedGrouping(selectedGrouping);
+    setGrouping(selectedGrouping.value);
+  };
+
+  const filteredOptionGrouping = [
+    { value: "All", label: "All" },
+    ...(Array.isArray(groupingDrop)
+      ? groupingDrop.map((option) => ({
+        value: option.attributedetails_name,
+        label: option.attributedetails_name,
+      }))
+      : []),
+  ];
+
   return (
     <div className="container-fluid Topnav-screen">
       {loading && <LoadingScreen />}
@@ -1173,6 +1214,20 @@ const PurchaseOrderAnalysis = () => {
                 </span>
               </div>
             </div>
+          </div>
+          <div className="col-12 col-md-3">
+            <label className="form-label">Grouping</label>
+            <Select
+              id="wcode"
+              className="exp-input-field"
+              placeholder=""
+              value={selectedGrouping}
+              options={filteredOptionGrouping}
+              onKeyDown={(e) =>
+                e.key === "Enter" && fetchAttendanceSummaryData()
+              }
+              onChange={handleChangeGrouping}
+            />
           </div>
           <div className="col-md-3 form-group mt-4">
             <div class="exp-form-floating">
