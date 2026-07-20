@@ -2741,31 +2741,32 @@ const Fame_atten_report = async (req, res) => {
 };
 
 const Fame_atten_contract = async (req, res) => {
-  const { from_date, to_date, emp_id, contractor_name } = req.body;
-  try {
-    // Connect to the database
-    const pool = await connection.connectToDatabase();
-    // Execute the query
-    const result = await pool
-      .request()
-      .input("mode", sql.VarChar, "ASRC")
-      .input("from_date", sql.DateTime, from_date)
-      .input("to_date", sql.DateTime, to_date)
-      .input("emp_id", sql.VarChar, emp_id)
-      .input("contractor_name", sql.VarChar, contractor_name)
-      .query(
-        `EXEC sp_attendance_summary_report_for_contractors @mode,@from_date,@to_date,@emp_id,@contractor_name`,
-      );
-    // Send response
-    if (result.recordset.length > 0) {
-      res.status(200).json(result.recordset);
-    } else {
-      res.status(404).json("Data not found"); // 404 Not Found if no data is found
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message || "Internal Server Error" });
-  }
+  const { from_date, to_date, emp_id, contractor_name, groupmode } = req.body;
+  try {
+    // Connect to the database
+    const pool = await connection.connectToDatabase();
+    // Execute the query
+    const result = await pool
+      .request()
+      .input("mode", sql.VarChar, "ASRC")
+      .input("from_date", sql.DateTime, from_date)
+      .input("to_date", sql.DateTime, to_date)
+      .input("emp_id", sql.VarChar, emp_id)
+      .input("contractor_name", sql.VarChar, contractor_name)
+      .input("groupmode", sql.VarChar, groupmode)
+      .query(
+        `EXEC sp_attendance_summary_report_for_contractors_test @mode,@from_date,@to_date,@emp_id,@contractor_name,@groupmode`
+      );
+    // Send response
+    if (result.recordset.length > 0) {
+      res.status(200).json(result.recordset);
+    } else {
+      res.status(404).json("Data not found"); // 404 Not Found if no data is found
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
 };
 
 const getDeptType_Atte_Report = async (req, res) => {
