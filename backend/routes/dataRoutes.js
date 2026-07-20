@@ -167,6 +167,7 @@ const upload = multer({
     { name: 'company_logo', maxCount: 1 },
     { name: 'authorisedSignatur', maxCount: 1 }
   ]), dataController.CompanyUpdate);
+  router.post("/getGrouping", dataController.getGrouping);
 
 module.exports = router;
      

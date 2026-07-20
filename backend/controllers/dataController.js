@@ -2754,9 +2754,7 @@ const Fame_atten_contract = async (req, res) => {
       .input("emp_id", sql.VarChar, emp_id)
       .input("contractor_name", sql.VarChar, contractor_name)
       .input("groupmode", sql.VarChar, groupmode)
-      .query(
-        `EXEC sp_attendance_summary_report_for_contractors_test @mode,@from_date,@to_date,@emp_id,@contractor_name,@groupmode`
-      );
+      .query(`EXEC sp_attendance_summary_report_for_contractors_test @mode,@from_date,@to_date,@emp_id,@contractor_name,@groupmode`);
     // Send response
     if (result.recordset.length > 0) {
       res.status(200).json(result.recordset);
@@ -4577,6 +4575,26 @@ const getAllUserRoleMappingData = async (req, res) => {
 
 //Code ended by pavun on 04-02-26
 
+//Code Added by Pavun on 20-07-2026
+const getGrouping = async (req, res) => {
+  const { company_code } = req.body;
+  try {
+    const pool = await connection.connectToDatabase();
+    const result = await pool
+      .request()
+      .input("company_code", sql.NVarChar, company_code)
+      .query(
+        "EXEC sp_attribute_Info 'F',@company_code,'Grouping','','', '','','', NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL",
+      );
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("Error during update:", err);
+    res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
+};
+
+//Code Ended by Pavun on 20-07-2026
+
 module.exports = {
   getLocationno,
   getlocationsearchdata,
@@ -4728,4 +4746,5 @@ module.exports = {
   saveEditedData,
   deleteData,
   CompanyUpdate,
+  getGrouping
 };
