@@ -27,11 +27,39 @@ const QOanalysis = () => {
     .filter((permission) => permission.screen_type === "DailyAttendance")
     .map((permission) => permission.permission_type.toLowerCase());
 
-  const formatDate = (dateString) => {
-    const [month, day, year] = dateString.includes("/")
-      ? dateString.split("/")
-      : dateString.split("-");
-    return `${day}-${month}-${year}`;
+  // const formatDate = (dateString) => {
+  //   const [month, day, year] = dateString.includes("/")
+  //     ? dateString.split("/")
+  //     : dateString.split("-");
+  //   return `${day}-${month}-${year}`;
+  // };
+
+  const formatDate = (dateValue) => {
+    if (!dateValue || dateValue === "NULL") return "";
+
+    // DD/MM/YYYY or MM/DD/YYYY
+    if (dateValue.includes("/")) {
+      const [first, second, year] = dateValue.split("/");
+
+      // If first value > 12, it's definitely DD/MM/YYYY
+      if (parseInt(first, 10) > 12) {
+        return `${second}-${first}-${year}`;
+      }
+
+      // Otherwise assume MM/DD/YYYY
+      return `${first}-${second}-${year}`;
+    }
+
+    // YYYY-MM-DD or ISO format
+    const date = new Date(dateValue);
+
+    if (isNaN(date.getTime())) return "";
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${month}-${day}-${year}`;
   };
 
   // const formatDate = (dateString) => {
@@ -211,7 +239,7 @@ const QOanalysis = () => {
         if (
           ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
         ) {
-          value = value ? formatDate(value) : "";
+          value = value ? value : "";
         }
 
         row[col.headerName] = value ?? "";
@@ -318,15 +346,15 @@ const QOanalysis = () => {
   const transformRowData = (data) => {
     return data.map((row) => ({
       EMPLOYEE_NUMBER: row.EMPLOYEE_NUMBER,
-      START_DATE: formatDate(row.START_DATE),
-      END_DATE: formatDate(row.END_DATE),
+      START_DATE: row.START_DATE,
+      END_DATE: row.END_DATE,
       START_TIME: row.START_TIME,
       END_TIME: row.END_TIME,
       STATUS: row.STATUS,
       MESSAGE: row.MESSAGE,
       NAME: row.NAME,
-      STARTDATE: formatDate(row.STARTDATE),
-      ENDDATE: formatDate(row.ENDDATE),
+      STARTDATE: row.STARTDATE,
+      ENDDATE: row.ENDDATE,
       CARDID: row.CARDID,
       DAY: row.DAY,
       WORKINGHOURS: row.WORKINGHOURS,
@@ -345,7 +373,7 @@ const QOanalysis = () => {
       return;
     }
 
-    const formatDate = (date) => {
+    const formatDateExcel = (date) => {
       if (!date) return "";
       return new Date(date).toLocaleDateString("en-GB").replace(/\//g, "-");
     };
@@ -353,7 +381,7 @@ const QOanalysis = () => {
     const headerData = [
       ["Daily Attendance Report"],
       [`Company Name: ${companyName}`],
-      [`Date Range: ${formatDate(startDate)} to ${formatDate(endDate)}`],
+      [`Date Range: ${formatDateExcel(startDate)} to ${formatDateExcel(endDate)}`],
       [`User Name: ${userName}`],
       [],
     ];
@@ -377,7 +405,7 @@ const QOanalysis = () => {
         if (
           ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
         ) {
-          value = value ? formatDate(value) : "";
+          value = value ? value : "";
         }
 
         row[col.headerName] = value ?? "";
@@ -518,7 +546,7 @@ const QOanalysis = () => {
         if (
           ["START_DATE", "END_DATE", "STARTDATE", "ENDDATE"].includes(col.field)
         ) {
-          value = value ? formatDate(value) : "";
+          value = value ? value : "";
         }
 
         return value ?? "";
@@ -875,24 +903,24 @@ const QOanalysis = () => {
                         {["view", "all permission"].some((permission) =>
                           dailyAttendancePermission.includes(permission),
                         ) && (
-                          <a onClick={handlePrint} title="Print">
-                            <i className="fa-solid fa-print"></i>
-                          </a>
-                        )}
+                            <a onClick={handlePrint} title="Print">
+                              <i className="fa-solid fa-print"></i>
+                            </a>
+                          )}
                         {["excel", "all permission"].some((permission) =>
                           dailyAttendancePermission.includes(permission),
                         ) && (
-                          <a onClick={handleExportToExcel} title="Export Excel">
-                            <i className="fa-solid fa-file-excel text-success"></i>
-                          </a>
-                        )}
+                            <a onClick={handleExportToExcel} title="Export Excel">
+                              <i className="fa-solid fa-file-excel text-success"></i>
+                            </a>
+                          )}
                         {["pdf", "all permission"].some((permission) =>
                           dailyAttendancePermission.includes(permission),
                         ) && (
-                          <a onClick={exportPDF} title="Export PDF">
-                            <i className="fa-solid fa-file-pdf text-danger"></i>
-                          </a>
-                        )}
+                            <a onClick={exportPDF} title="Export PDF">
+                              <i className="fa-solid fa-file-pdf text-danger"></i>
+                            </a>
+                          )}
                       </li>
 
                       <li>
@@ -943,36 +971,36 @@ const QOanalysis = () => {
                 {["view", "all permission"].some((permission) =>
                   dailyAttendancePermission.includes(permission),
                 ) && (
-                  <button
-                    className="btn btn-dark mt-3 mb-3 rounded-3"
-                    onClick={handlePrint}
-                    title="Generate Report"
-                  >
-                    <i className="fa-solid fa-print"></i>
-                  </button>
-                )}
+                    <button
+                      className="btn btn-dark mt-3 mb-3 rounded-3"
+                      onClick={handlePrint}
+                      title="Generate Report"
+                    >
+                      <i className="fa-solid fa-print"></i>
+                    </button>
+                  )}
                 {["excel", "all permission"].some((permission) =>
                   dailyAttendancePermission.includes(permission),
                 ) && (
-                  <button
-                    className="btn btn-dark mt-3 mb-3 rounded-3"
-                    onClick={handleExportToExcel}
-                    title="Excel"
-                  >
-                    <i class="fa-solid fa-file-excel"></i>
-                  </button>
-                )}
+                    <button
+                      className="btn btn-dark mt-3 mb-3 rounded-3"
+                      onClick={handleExportToExcel}
+                      title="Excel"
+                    >
+                      <i class="fa-solid fa-file-excel"></i>
+                    </button>
+                  )}
                 {["pdf", "all permission"].some((permission) =>
                   dailyAttendancePermission.includes(permission),
                 ) && (
-                  <button
-                    className="btn btn-dark mt-3 mb-3 rounded-3"
-                    onClick={exportPDF}
-                    title="Pdf"
-                  >
-                    <i class="fa-solid fa-file-pdf"></i>
-                  </button>
-                )}
+                    <button
+                      className="btn btn-dark mt-3 mb-3 rounded-3"
+                      onClick={exportPDF}
+                      title="Pdf"
+                    >
+                      <i class="fa-solid fa-file-pdf"></i>
+                    </button>
+                  )}
                 <div className="position-relative">
                   <button
                     className="btn btn-dark mt-3 mb-3 rounded-3"
@@ -1049,10 +1077,10 @@ const QOanalysis = () => {
                               searchColumn.toLowerCase(),
                             ),
                           ).length === 0 && (
-                            <li className="text-muted px-2 py-1">
-                              No results found
-                            </li>
-                          )}
+                              <li className="text-muted px-2 py-1">
+                                No results found
+                              </li>
+                            )}
                         </ul>
                       </div>
                     </div>
