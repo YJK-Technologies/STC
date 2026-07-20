@@ -34,37 +34,37 @@ const DCanalysis = () => {
   const [headerChecked, setHeaderChecked] = useState(false);
   const [searchColumn, setSearchColumn] = useState("");
 
-  // const formatDate = (dateString) => {
-  //   return new Date(dateString).toLocaleDateString("en-GB"); // Converts to DD/MM/YYYY
-  // };
-
-  const formatDate = (dateValue) => {
-    if (!dateValue || dateValue === "NULL") return "";
-
-    // DD/MM/YYYY or MM/DD/YYYY
-    if (dateValue.includes("/")) {
-      const [first, second, year] = dateValue.split("/");
-
-      // If first value > 12, it's definitely DD/MM/YYYY
-      if (parseInt(first, 10) > 12) {
-        return `${second}-${first}-${year}`;
-      }
-
-      // Otherwise assume MM/DD/YYYY
-      return `${first}-${second}-${year}`;
-    }
-
-    // YYYY-MM-DD or ISO format
-    const date = new Date(dateValue);
-
-    if (isNaN(date.getTime())) return "";
-
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${month}-${day}-${year}`;
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString("en-GB"); // Converts to DD/MM/YYYY
   };
+
+  // const formatDate = (dateValue) => {
+  //   if (!dateValue || dateValue === "NULL") return "";
+
+  //   // DD/MM/YYYY or MM/DD/YYYY
+  //   if (dateValue.includes("/")) {
+  //     const [first, second, year] = dateValue.split("/");
+
+  //     // If first value > 12, it's definitely DD/MM/YYYY
+  //     if (parseInt(first, 10) > 12) {
+  //       return `${second}-${first}-${year}`;
+  //     }
+
+  //     // Otherwise assume MM/DD/YYYY
+  //     return `${first}-${second}-${year}`;
+  //   }
+
+  //   // YYYY-MM-DD or ISO format
+  //   const date = new Date(dateValue);
+
+  //   if (isNaN(date.getTime())) return "";
+
+  //   const month = String(date.getMonth() + 1).padStart(2, "0");
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   const year = date.getFullYear();
+
+  //   return `${month}-${day}-${year}`;
+  // };
 
   const [columnDefs, setColumnDefs] = useState([
     {
