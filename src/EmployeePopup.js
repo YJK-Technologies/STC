@@ -119,7 +119,7 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData })
       Empcd: params.data.Empcd,
       Empds: params.data.Empds,
     }];
-  
+
     handleEmployeeData(selectedData);
     handleClose();
   };
@@ -128,15 +128,22 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData })
     setFilterValue(e.target.value);
   };
 
+  const applyFilter = () => {
+    if (!gridRef.current) return;
+
+    gridRef.current.api.setFilterModel({
+      [selectedValue]: {
+        type: "contains",
+        filter: filterValue,
+      },
+    });
+
+    gridRef.current.api.onFilterChanged();
+  };
+
   const onEnterPress = (e) => {
-    if (e.key === "Enter" && gridRef.current) {
-      gridRef.current.api.setFilterModel({
-        [selectedValue]: {
-          type: "contains",
-          filter: filterValue,
-        },
-      });
-      gridRef.current.api.onFilterChanged(); 
+    if (e.key === "Enter") {
+      applyFilter();
     }
   };
 
@@ -182,7 +189,7 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData })
                             <input
                               type='text'
                               className='exp-input-field form-control'
-                              placeholder= {selectedValue}
+                              placeholder={selectedValue}
                               value={filterValue}
                               onChange={onFilterChange}
                               onKeyDown={onEnterPress}
@@ -190,9 +197,9 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData })
                             />
                           </div>
                           <div className="col-md-3 mb-2">
-                          <icon className="icon popups-btn" onClick={() => setFetchTrigger(prev => !prev)} title="Search">
-                            <FontAwesomeIcon icon={faMagnifyingGlass} />
-                          </icon>
+                            <icon className="icon popups-btn" onClick={applyFilter} title="Search">
+                              <FontAwesomeIcon icon={faMagnifyingGlass} />
+                            </icon>
                           </div>
                         </div>
 

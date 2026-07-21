@@ -60,10 +60,10 @@ export default function ContractorPopup({ open, handleClose, handleContractorDat
       if (response.ok) {
         const searchData = await response.json();
         const formattedData = searchData.map(item => ({
-            contractorname: item.contractorname[0] || "", 
-            contractorname1: item.contractorname[1] || ""
-          }));
-  
+          contractorname: item.contractorname[0] || "",
+          contractorname1: item.contractorname[1] || ""
+        }));
+
         setRowData(formattedData);
 
         const uniquecontractorname = [...new Set(searchData.map((item) => item.contractorname[0]))];
@@ -108,7 +108,7 @@ export default function ContractorPopup({ open, handleClose, handleContractorDat
     const selectedData = [{
       contractorname: params.data.contractorname,
     }];
-  
+
     handleContractorData(selectedData);
     handleClose();
   };
@@ -117,15 +117,22 @@ export default function ContractorPopup({ open, handleClose, handleContractorDat
     setFilterValue(e.target.value);
   };
 
+  const applyFilter = () => {
+    if (!gridRef.current) return;
+
+    gridRef.current.api.setFilterModel({
+      [selectedValue]: {
+        type: "contains",
+        filter: filterValue,
+      },
+    });
+
+    gridRef.current.api.onFilterChanged();
+  };
+
   const onEnterPress = (e) => {
-    if (e.key === "Enter" && gridRef.current) {
-      gridRef.current.api.setFilterModel({
-        [selectedValue]: {
-          type: "contains",
-          filter: filterValue,
-        },
-      });
-      gridRef.current.api.onFilterChanged(); 
+    if (e.key === "Enter") {
+      applyFilter();
     }
   };
 
@@ -170,7 +177,7 @@ export default function ContractorPopup({ open, handleClose, handleContractorDat
                             <input
                               type='text'
                               className='exp-input-field form-control'
-                              placeholder= {selectedValue} // ✅ Dynamic placeholder
+                              placeholder={selectedValue} // ✅ Dynamic placeholder
                               value={filterValue}
                               onChange={onFilterChange}
                               onKeyDown={onEnterPress}
@@ -178,9 +185,9 @@ export default function ContractorPopup({ open, handleClose, handleContractorDat
                             />
                           </div>
                           <div className="col-md-3 mb-2">
-                          <icon className="icon popups-btn" onClick={() => setFetchTrigger(prev => !prev)} title="Search">
-                            <FontAwesomeIcon icon={faMagnifyingGlass} />
-                          </icon>
+                            <icon className="icon popups-btn" onClick={applyFilter} title="Search">
+                              <FontAwesomeIcon icon={faMagnifyingGlass} />
+                            </icon>
                           </div>
                         </div>
 

@@ -101,10 +101,10 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
 
   const handleConfirm = (params) => {
     const selectedData = [{
-        TypeCd: params.data.TypeCd,
-        TypeDs: params.data.TypeDs,
+      TypeCd: params.data.TypeCd,
+      TypeDs: params.data.TypeDs,
     }];
-  
+
     handleDepartmentData(selectedData);
     handleClose();
   };
@@ -113,15 +113,21 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
     setFilterValue(e.target.value);
   };
 
-  const onEnterPress = (e) => {
-    if (e.key === "Enter" && gridRef.current) {
+  const applyFilter = () => {
+    if (gridRef.current) {
       gridRef.current.api.setFilterModel({
         [selectedValue]: {
           type: "contains",
           filter: filterValue,
         },
       });
-      gridRef.current.api.onFilterChanged(); 
+      gridRef.current.api.onFilterChanged();
+    }
+  };
+
+  const onEnterPress = (e) => {
+    if (e.key === "Enter") {
+      applyFilter();
     }
   };
 
@@ -165,15 +171,20 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
                             <input
                               type='text'
                               className='exp-input-field form-control'
-                              placeholder= {selectedValue} // ✅ Dynamic placeholder
+                              placeholder={selectedValue} // ✅ Dynamic placeholder
                               value={filterValue}
                               onChange={onFilterChange}
                               onKeyDown={onEnterPress}
                               autoComplete='off'
                             />
                           </div>
+                          <div className="col-md-3 mb-2">
+                            <icon className="icon popups-btn" onClick={applyFilter} title="Search">
+                              <FontAwesomeIcon icon={faMagnifyingGlass} />
+                            </icon>
+                          </div>
                         </div>
-                        <div className="row ms-3 me-3">
+                        {/* <div className="row ms-3 me-3">
                           <div className="col-md-3 mb-2">
                             <Select
                               className="exp-input-field"
@@ -207,7 +218,7 @@ export default function ContractorPopup({ open, handleClose, handleDepartmentDat
                             <FontAwesomeIcon icon={faMagnifyingGlass} />
                           </icon>
                           </div>
-                        </div>
+                        </div> */}
                         <div className="ag-theme-alpine" style={{ height: '400px', width: '100%' }}>
                           <AgGridReact
                             ref={gridRef}
