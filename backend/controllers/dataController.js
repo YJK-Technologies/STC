@@ -349,16 +349,16 @@ const login = async (req, res) => {
   }
 };
 const getUsercode = async (req, res) => {
-  try {
-    await connection.connectToDatabase();
-    const result = await sql.query(
-      "EXEC sp_user_info_hdr 'F','','user_code','','', '' ,'','','','','','','','','','','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL",
-    );
-    res.json(result.recordset);
-  } catch (err) {
-    console.error("Error", err);
-    res.status(500).json({ message: err.message || "Internal Server Error" });
-  }
+  try {
+    await connection.connectToDatabase();
+    const result = await sql.query(
+      "EXEC sp_user_info_hdr 'F','','user_code','','', '' ,'','','','','','','','','','','','','','','',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL",
+    );
+    res.json(result.recordset);
+  } catch (err) {
+    console.error("Error", err);
+    res.status(500).json({ message: err.message || "Internal Server Error" });
+  }
 };
 
 const getAlluserData = async (req, res) => {
@@ -2754,7 +2754,7 @@ const Fame_atten_contract = async (req, res) => {
       .input("emp_id", sql.VarChar, emp_id)
       .input("contractor_name", sql.VarChar, contractor_name)
       .input("groupmode", sql.VarChar, groupmode)
-      .query(`EXEC sp_attendance_summary_report_for_contractors_test @mode,@from_date,@to_date,@emp_id,@contractor_name,@groupmode`);
+      .query(`EXEC sp_attendance_summary_report_for_contractors @mode,@from_date,@to_date,@emp_id,@contractor_name,@groupmode`);
     // Send response
     if (result.recordset.length > 0) {
       res.status(200).json(result.recordset);
