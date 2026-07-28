@@ -12,6 +12,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import LoadingScreen from "./LoadingScreen";
 import Swal from "sweetalert2";
+import EmployeePopup from "./EmployeePopup";
 
 const QOanalysis = () => {
   // const formatDate = (isoDateString) => {
@@ -117,6 +118,13 @@ const QOanalysis = () => {
   const [loading, setLoading] = useState(false);
   const [templateList, setTemplateList] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [employee, setEmployee] = useState("");
+  const [employeeName, setEmployeeName] = useState("");
+  const [open1, setOpen1] = React.useState(false);
+
+  const handleEmployee = () => {
+    setOpen1(true);
+  };
 
   useEffect(() => {
     if (departmentId) {
@@ -155,6 +163,7 @@ const QOanalysis = () => {
         dept_type: departmentId,
         from_date: startDate,
         to_date: endDate,
+        emp_id: employee
       };
 
       const response = await fetch(`${config.apiBaseUrl}/Fame_atten_report`, {
@@ -458,6 +467,7 @@ const QOanalysis = () => {
 
   const handleClose = () => {
     setOpen(false);
+    setOpen1(false);
   };
 
   const handleDepartment = () => {
@@ -866,6 +876,17 @@ const QOanalysis = () => {
     setColumnDefs(updated);
   };
 
+  const handleEmployeeData = async (data) => {
+    if (data && data.length > 0) {
+      console.log(data);
+      const [{ Empcd, Empds }] = data;
+      setEmployee(Empcd);
+      setEmployeeName(Empds);
+    } else {
+      console.error("Data is empty or undefined");
+    }
+  };
+
   return (
     <div className="container-fluid Topnav-screen">
       {loading && <LoadingScreen />}
@@ -1170,6 +1191,47 @@ const QOanalysis = () => {
             />
           </div>
 
+          {/* <div className="col-12 col-md-3  mb-2">
+            <label className="form-label">Employee</label>
+            <div class="d-flex justify-content-end">
+              <input
+                id="transactionNumber"
+                className="exp-input-field form-control justify-content-start"
+                type="text"
+                placeholder=""
+                required
+                value={employee}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && fetchDailyAttendanceReport()
+                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setEmployee(value);
+
+                  if (value.trim() === "") {
+                    setEmployeeName("");
+                  }
+                }}
+                autoComplete="off"
+              />
+              <div className="position-absolute mt-1 me-2">
+                <span className="icon searchIcon" onClick={handleEmployee}>
+                  <i class="fa fa-search"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="col-12 col-md-3 mb-2">
+            <label className="form-label">Employee Name</label>
+            <input
+              id="wcode"
+              className="form-control exp-input-field"
+              placeholder=""
+              autoComplete="off"
+              value={employeeName}
+            />
+          </div> */}
+
           <div className="col-md-2 mb-2 d-flex justify-content-start">
             <span
               className="text-dark popups-btn fs-5"
@@ -1188,6 +1250,48 @@ const QOanalysis = () => {
               <i className="fa-solid fa-arrow-rotate-right"></i>
             </span>
           </div>
+
+          <div className="col-12 col-md-3  mb-2">
+            <label className="form-label">Employee</label>
+            <div class="d-flex justify-content-end">
+              <input
+                id="transactionNumber"
+                className="exp-input-field form-control justify-content-start"
+                type="text"
+                placeholder=""
+                required
+                value={employee}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && fetchDailyAttendanceReport()
+                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setEmployee(value);
+
+                  if (value.trim() === "") {
+                    setEmployeeName("");
+                  }
+                }}
+                autoComplete="off"
+              />
+              <div className="position-absolute mt-1 me-2">
+                <span className="icon searchIcon" onClick={handleEmployee}>
+                  <i class="fa fa-search"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="col-12 col-md-3 mb-2">
+            <label className="form-label">Employee Name</label>
+            <input
+              id="wcode"
+              className="form-control exp-input-field"
+              placeholder=""
+              autoComplete="off"
+              value={employeeName}
+            />
+          </div>
+
         </div>
 
         <div>
@@ -1195,6 +1299,11 @@ const QOanalysis = () => {
             open={open}
             handleClose={handleClose}
             handleDepartmentData={handleDepartmentData}
+          />
+          <EmployeePopup
+            open={open1}
+            handleClose={handleClose}
+            handleEmployeeData={handleEmployeeData}
           />
         </div>
         <div className="mb-2 ms-4" ref={dropdownRef}>

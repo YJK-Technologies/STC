@@ -2714,7 +2714,7 @@ const getInvocieType = async (req, res) => {
 
 //code added by pavun on 19-03-25
 const Fame_atten_report = async (req, res) => {
-  const { from_date, to_date, dept_type } = req.body;
+  const { from_date, to_date, dept_type, emp_id } = req.body;
   try {
     // Connect to the database
     const pool = await connection.connectToDatabase();
@@ -2725,9 +2725,8 @@ const Fame_atten_report = async (req, res) => {
       .input("from_date", sql.DateTime, from_date)
       .input("to_date", sql.DateTime, to_date)
       .input("dept_type", sql.NVarChar, dept_type)
-      .query(
-        `EXEC sp_attendance_summary_report @mode,@from_date,@to_date,@dept_type`,
-      );
+      .input("emp_id", sql.NVarChar, emp_id)
+      .query(`EXEC sp_attendance_summary_report_DG @mode,@from_date,@to_date,@dept_type,@emp_id`);
     // Send response
     if (result.recordset.length > 0) {
       res.status(200).json(result.recordset); // 200 OK if data is found
