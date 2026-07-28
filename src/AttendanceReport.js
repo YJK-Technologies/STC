@@ -12,6 +12,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import LoadingScreen from "./LoadingScreen";
 import Swal from "sweetalert2";
+import EmployeePopup from "./EmployeePopup";
 
 const DCanalysis = () => {
   // const formatDate = (isoDateString) => {
@@ -175,6 +176,17 @@ const DCanalysis = () => {
   const [loading, setLoading] = useState(false);
   const [templateList, setTemplateList] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [employee, setEmployee] = useState("");
+  const [employeeName, setEmployeeName] = useState("");
+  const [open, setOpen] = React.useState(false);
+
+  const handleEmployee = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const handleChangeDepartment = (selectedDepartment) => {
     setSelectedDepartment(selectedDepartment);
@@ -255,6 +267,7 @@ const DCanalysis = () => {
         from_date: startDate,
         to_date: endDate,
         dept_type: department,
+        emp_id: employee
       };
 
       const response = await fetch(`${config.apiBaseUrl}/Fame_atten_report`, {
@@ -1060,6 +1073,17 @@ const DCanalysis = () => {
     setColumnDefs(updated);
   };
 
+  const handleEmployeeData = async (data) => {
+    if (data && data.length > 0) {
+      console.log(data);
+      const [{ Empcd, Empds }] = data;
+      setEmployee(Empcd);
+      setEmployeeName(Empds);
+    } else {
+      console.error("Data is empty or undefined");
+    }
+  };
+
   return (
     <div className="container-fluid Topnav-screen">
       {loading && <LoadingScreen />}
@@ -1322,6 +1346,46 @@ const DCanalysis = () => {
                 </div>
               </div>
             </div>
+            <div className="col-12 col-md-3  mb-2">
+              <label className="form-label">Employee</label>
+              <div class="d-flex justify-content-end">
+                <input
+                  id="transactionNumber"
+                  className="exp-input-field form-control justify-content-start"
+                  type="text"
+                  placeholder=""
+                  required
+                  value={employee}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && fetchAttendanceReportData()
+                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setEmployee(value);
+
+                    if (value.trim() === "") {
+                      setEmployeeName("");
+                    }
+                  }}
+                  autoComplete="off"
+                />
+                <div className="position-absolute mt-1 me-2">
+                  <span className="icon searchIcon" onClick={handleEmployee}>
+                    <i class="fa fa-search"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="col-12 col-md-3 mb-2">
+              <label className="form-label">Employee Name</label>
+              <input
+                id="wcode"
+                className="form-control exp-input-field"
+                placeholder=""
+                autoComplete="off"
+                value={employeeName}
+              />
+            </div>
             <div className="col-12 col-md-3">
               <label className="form-label">Department</label>
               <Select
@@ -1373,6 +1437,14 @@ const DCanalysis = () => {
               </div>
             </div>
           </div>
+          <div>
+            <EmployeePopup
+              open={open}
+              handleClose={handleClose}
+              handleEmployeeData={handleEmployeeData}
+            />
+          </div>
+
           <div className="mb-2 ms-4" ref={dropdownRef}>
             <button
               className="btn btn-secondary"
@@ -1478,6 +1550,7 @@ const DCanalysis = () => {
               </div>
             )}
           </div>
+
           <div
             className="ag-theme-alpine mb-4"
             style={{ height: 455, width: "100%" }}
