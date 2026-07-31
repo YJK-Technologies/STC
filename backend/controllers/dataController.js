@@ -2791,7 +2791,7 @@ const getDeptType_Daily_Atte_Report = async (req, res) => {
 const getcontractorname = async (req, res) => {
   try {
     await connection.connectToDatabase();
-    const result = await sql.query("EXEC sp_get_contract_details 'CN'");
+    const result = await sql.query("EXEC sp_get_contract_details 'CN', ''");
     res.json(result.recordset);
   } catch (err) {
     console.error("Error", err);
@@ -2802,7 +2802,7 @@ const getcontractorname = async (req, res) => {
 const fame_emp_details = async (req, res) => {
   try {
     await connection.connectToDatabase();
-    const result = await sql.query(`EXEC sp_get_contract_details 'ED'`);
+    const result = await sql.query(`EXEC sp_get_contract_details 'ED', ''`);
     res.json(result.recordset);
   } catch (err) {
     console.error("Error", err);
@@ -2822,7 +2822,7 @@ const fame_get_emp_details = async (req, res) => {
       .request()
       .input("mode", sql.VarChar, "GED")
       .input("filter", sql.VarChar, departmentCd)
-      .query(`EXEC sp_get_contract_details_Test @mode, @filter`);
+      .query(`EXEC sp_get_contract_details @mode, @filter`);
 
     // Send response
     if (result.recordset.length > 0) {
