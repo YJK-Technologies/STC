@@ -2810,6 +2810,33 @@ const fame_emp_details = async (req, res) => {
   }
 };
 
+const fame_get_emp_details = async (req, res) => {
+  const { departmentCd } = req.body;
+
+  try {
+    // Connect to the database
+    const pool = await connection.connectToDatabase();
+
+    // Execute the stored procedure
+    const result = await pool
+      .request()
+      .input("mode", sql.VarChar, "GED")
+      .input("filter", sql.VarChar, departmentCd)
+      .query(`EXEC sp_get_contract_details_Test @mode, @filter`);
+
+    // Send response
+    if (result.recordset.length > 0) {
+      res.status(200).json(result.recordset);
+    } else {
+      res.status(404).json({ message: "Data not found" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: err.message || "Internal Server Error",
+    });
+  }
+};
 const Fame_atten_machine_log_report = async (req, res) => {
   const { DT1, DT2 } = req.body;
   try {
@@ -4745,5 +4772,6 @@ module.exports = {
   saveEditedData,
   deleteData,
   CompanyUpdate,
-  getGrouping
+  getGrouping,
+  fame_get_emp_details
 };

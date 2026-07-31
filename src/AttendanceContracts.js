@@ -1261,6 +1261,7 @@ const PurchaseOrderAnalysis = () => {
             open={open}
             handleClose={handleClose}
             handleEmployeeData={handleEmployeeData}
+            departmentCd={"Contract"}
           />
           <ContractorPopup
             open={open1}

@@ -168,6 +168,6 @@ const upload = multer({
     { name: 'authorisedSignatur', maxCount: 1 }
   ]), dataController.CompanyUpdate);
   router.post("/getGrouping", dataController.getGrouping);
+  router.post("/fame_get_emp_details", dataController.fame_get_emp_details);
 
 module.exports = router;
-     
