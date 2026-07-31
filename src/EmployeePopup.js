@@ -147,6 +147,18 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData, d
     }
   };
 
+  const handlePopupClose = () => {
+  setSelectedValue("Empcd");
+  setFilterValue("");
+
+  if (gridRef.current?.api) {
+    gridRef.current.api.setFilterModel(null);
+    gridRef.current.api.setQuickFilter("");
+  }
+
+  handleClose();
+};
+
   return (
     <div>
       {open && (
@@ -161,7 +173,7 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData, d
                         <div className="p-0 bg-body-tertiary">
                           <div className=" mb-0 d-flex justify-content-between" >
                             <h1 align="left" className="">Employee Help</h1>
-                            <button onClick={handleClose} className=" btn btn-danger shadow-none rounded-0 h-70 fs-5" required title="Close">
+                            <button onClick={handlePopupClose} className=" btn btn-danger shadow-none rounded-0 h-70 fs-5" required title="Close">
                               <i class="fa-solid fa-xmark"></i>
                             </button>
                           </div>
