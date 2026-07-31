@@ -1304,6 +1304,7 @@ const QOanalysis = () => {
             open={open1}
             handleClose={handleClose}
             handleEmployeeData={handleEmployeeData}
+            departmentCd={departmentName}
           />
         </div>
         <div className="mb-2 ms-4" ref={dropdownRef}>

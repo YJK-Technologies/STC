@@ -40,11 +40,10 @@ const defaultColDef = {
   filter: true,
 };
 
-export default function EmployeePopup({ open, handleClose, handleEmployeeData }) {
+export default function EmployeePopup({ open, handleClose, handleEmployeeData, departmentCd }) {
 
   const [rowData, setRowData] = useState([]);
   const [selectedValue, setSelectedValue] = useState("Empcd");
-  const [fetchTrigger, setFetchTrigger] = useState(false);
   const [gridApi, setGridApi] = useState(null);
   const [gridColumnApi, setGridColumnApi] = useState(null);
   const [selectedEmpcd, setSelectedEmpcd] = useState("");
@@ -58,11 +57,12 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData })
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`${config.apiBaseUrl}/fame_emp_details`, {
-        method: "GET",
+      const response = await fetch(`${config.apiBaseUrl}/fame_get_emp_details`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify({departmentCd}),
       });
 
       if (response.ok) {
@@ -89,7 +89,7 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData })
 
   useEffect(() => {
     fetchData();
-  }, [fetchTrigger]);
+  }, [departmentCd]);
 
   const onGridReady = (params) => {
     setGridApi(params.api);

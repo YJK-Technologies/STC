@@ -1442,6 +1442,7 @@ const DCanalysis = () => {
               open={open}
               handleClose={handleClose}
               handleEmployeeData={handleEmployeeData}
+              departmentCd={departmentName}
             />
           </div>
 
