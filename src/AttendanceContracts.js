@@ -299,7 +299,7 @@ const PurchaseOrderAnalysis = () => {
 
     const reportWindow = window.open("", "_blank");
     reportWindow.document.write(
-      "<html><head><title>Attendance Summary Contracts</title>",
+      "<html><head><title>Attendance Summary for Contracts</title>",
     );
     reportWindow.document.write("<style>");
     reportWindow.document.write(`
@@ -357,13 +357,16 @@ const PurchaseOrderAnalysis = () => {
               display: none;
           }
           body {
-              margin: 0;
-              padding: 0;
+            margin:0;
+            padding:0;
+            background:#fff;
+            -webkit-print-color-adjust:exact !important;
+            print-color-adjust:exact !important;
           }
       }
     `);
     reportWindow.document.write("</style></head><body>");
-    reportWindow.document.write("<h1><u>Attendance Summary Contracts</u></h1>");
+    reportWindow.document.write("<h1><u>Attendance Summary for Contracts</u></h1>");
 
     reportWindow.document.write("<table><thead><tr>");
     Object.keys(reportData[0]).forEach((key) => {
@@ -425,7 +428,7 @@ const PurchaseOrderAnalysis = () => {
     };
 
     const headerData = [
-      ["Attendance Summary Contracts"],
+      ["Attendance Summary for Contracts"],
       [`Company Name: ${companyName}`],
       [`Date Range: ${formatDateExcel(startDate)} to ${formatDateExcel(endDate)}`],
       [`User Name: ${userName}`],
@@ -541,7 +544,7 @@ const PurchaseOrderAnalysis = () => {
 
     doc.setFontSize(6); // Very Small Font
 
-    const reportName = "Attendance Summary Contracts";
+    const reportName = "Attendance Summary for Contracts";
     const userName =
       sessionStorage.getItem("selectedUserName") ||
       sessionStorage.getItem("selectedUserName") ||
