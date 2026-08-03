@@ -121,16 +121,30 @@ const QOanalysis = () => {
   const [employee, setEmployee] = useState("");
   const [employeeName, setEmployeeName] = useState("");
   const [open1, setOpen1] = React.useState(false);
+  const [reloading, setReloading] = useState(true);
 
   const handleEmployee = () => {
     setOpen1(true);
   };
 
+  // useEffect(() => {
+  //   if (departmentId) {
+  //     fetchDailyAttendanceReport();
+  //   }
+  // }, [departmentId]);
+
+
   useEffect(() => {
-    if (departmentId) {
+    if (
+      reloading &&
+      departmentId === "1" &&
+      startDate &&
+      endDate
+    ) {
       fetchDailyAttendanceReport();
+      setReloading(false);
     }
-  }, [departmentId]);
+  }, [reloading, departmentId, startDate, endDate]);
 
   const fetchDailyAttendanceReport = async () => {
     if (!startDate && !endDate) {
@@ -155,6 +169,8 @@ const QOanalysis = () => {
       toast.warning("From Date cannot be greater than To Date");
       return;
     }
+
+    console.log(employee)
 
     try {
       setLoading(true);
@@ -325,8 +341,11 @@ const QOanalysis = () => {
               display: none;
           }
           body {
-              margin: 0;
-              padding: 0;
+            margin:0;
+            padding:0;
+            background:#fff;
+            -webkit-print-color-adjust:exact !important;
+            print-color-adjust:exact !important;
           }
       }
     `);
@@ -485,11 +504,41 @@ const QOanalysis = () => {
     }
   };
 
+  // const reloadGridData = () => {
+  //   const today = new Date().toISOString().split("T")[0];
+
+  //   setDepartmentId("1");
+  //   setDepartmentName("VIVA");
+  //   setStartDate(today);
+  //   setEndDate(today);
+
+  //   if (gridApi) {
+  //     gridApi.deselectAll();
+  //   }
+
+  //   setColumnDefs((prev) =>
+  //     prev.map((col) => ({
+  //       ...col,
+  //       hide: false,
+  //     })),
+  //   );
+
+  //   setSearchColumn("");
+  //   setSearchTerm("");
+  //   setShowDropdown(false);
+  //   setDropdownOpen(false);
+  //   setHeaderChecked(false);
+
+  //   fetchDailyAttendanceReport();
+  // };
+
   const reloadGridData = () => {
     const today = new Date().toISOString().split("T")[0];
 
     setDepartmentId("1");
     setDepartmentName("VIVA");
+    setEmployee("");
+    setEmployeeName("");
     setStartDate(today);
     setEndDate(today);
 
@@ -501,7 +550,7 @@ const QOanalysis = () => {
       prev.map((col) => ({
         ...col,
         hide: false,
-      })),
+      }))
     );
 
     setSearchColumn("");
@@ -510,7 +559,7 @@ const QOanalysis = () => {
     setDropdownOpen(false);
     setHeaderChecked(false);
 
-    fetchDailyAttendanceReport();
+    setReloading(true);
   };
 
   const exportPDF = () => {
