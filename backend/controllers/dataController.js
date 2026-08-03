@@ -2737,7 +2737,7 @@ const Fame_atten_report = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: err.message || "Internal Server Error" });
   }
-};
+}; 
 
 const Fame_atten_contract = async (req, res) => {
   const { from_date, to_date, emp_id, contractor_name, groupmode } = req.body;
