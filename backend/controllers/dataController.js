@@ -2726,7 +2726,7 @@ const Fame_atten_report = async (req, res) => {
       .input("to_date", sql.DateTime, to_date)
       .input("dept_type", sql.NVarChar, dept_type)
       .input("emp_id", sql.NVarChar, emp_id)
-      .query(`EXEC sp_attendance_summary_report_DG @mode,@from_date,@to_date,@dept_type,@emp_id`);
+      .query(`EXEC sp_attendance_summary_report @mode,@from_date,@to_date,@dept_type,@emp_id`);
     // Send response
     if (result.recordset.length > 0) {
       res.status(200).json(result.recordset); // 200 OK if data is found
@@ -2737,7 +2737,7 @@ const Fame_atten_report = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: err.message || "Internal Server Error" });
   }
-};
+}; 
 
 const Fame_atten_contract = async (req, res) => {
   const { from_date, to_date, emp_id, contractor_name, groupmode } = req.body;

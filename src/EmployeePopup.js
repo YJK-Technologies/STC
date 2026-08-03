@@ -114,15 +114,39 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData, d
     }
   };
 
-  const handleConfirm = (params) => {
-    const selectedData = [{
-      Empcd: params.data.Empcd,
-      Empds: params.data.Empds,
-    }];
+  // const handleConfirm = (params) => {
+  //   const selectedData = [{
+  //     Empcd: params.data.Empcd,
+  //     Empds: params.data.Empds,
+  //   }];
 
-    handleEmployeeData(selectedData);
-    handleClose();
-  };
+  //   handleEmployeeData(selectedData);
+  //   handleClose();
+  // };
+
+  const handleConfirm = (params) => {
+  const selectedData = [{
+    Empcd: params.data.Empcd,
+    Empds: params.data.Empds,
+  }];
+
+  handleEmployeeData(selectedData);
+
+  // Clear popup state before closing
+  setSelectedValue("Empcd");
+  setFilterValue("");
+  setSelectedEmpcd("");
+  setSelectedEmpds("");
+  setSelectedDepartmentCd("");
+
+  if (gridRef.current?.api) {
+    gridRef.current.api.setFilterModel(null);
+    gridRef.current.api.setQuickFilter("");
+    gridRef.current.api.deselectAll();
+  }
+
+  handleClose();
+};
 
   const onFilterChange = (e) => {
     setFilterValue(e.target.value);
@@ -147,13 +171,17 @@ export default function EmployeePopup({ open, handleClose, handleEmployeeData, d
     }
   };
 
-  const handlePopupClose = () => {
+const handlePopupClose = () => {
   setSelectedValue("Empcd");
   setFilterValue("");
+  setSelectedEmpcd("");
+  setSelectedEmpds("");
+  setSelectedDepartmentCd("");
 
   if (gridRef.current?.api) {
     gridRef.current.api.setFilterModel(null);
     gridRef.current.api.setQuickFilter("");
+    gridRef.current.api.deselectAll();
   }
 
   handleClose();
