@@ -1267,3 +1267,62 @@ input:-webkit-autofill {
 .confirm-toast-btn:active {
   transform: scale(0.97); 
 }
+
+/* Stack left panel content vertically and center elements */
+.panel.left-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  height: 100vh;
+}
+
+/* Top Illustration Logo Wrapper */
+.top-illustration-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* IBS Logo Sizing & Transparent Background */
+.ibs-top-img {
+  width: 270px; /* Adjust size to fit your design */
+  height: auto;
+  object-fit: contain;
+  mix-blend-mode: multiply;/*  Blends white background seamlessly into dot pattern */
+}
+
+/* Vector Illustration Adjustments */
+.panel.left-panel .vector {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Bottom Website Link Wrapper */
+.bottom-website-link {
+  margin-top: -10px; /* Vector image-ukku pakkathil kondu varavadharkaaha */
+  text-align: center;
+}
+
+/* Website URL Text - Matching Logo Subtext Style */
+.website-url-text {
+  font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif; /* Clean geometric sans-serif */
+  font-size: 13px; /* Logo subtext proportion-ukku etha size */
+  font-weight: 650; /* Semi-bold text weight */
+  color: #2b3b4e; /* Dark slate blue tone from the logo */
+  text-transform: lowercase; /* Logo-il ullapadi all caps-aga maatra */
+  letter-spacing: 2.2px; /* Letter-galukku naduvil ulla wide spacing */
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+/* Hover Effect */
+.website-url-text:hover {
+  color: #003366; /* Deep navy blue on hover */
+  opacity: 0.85;
+}
