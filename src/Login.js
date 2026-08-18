@@ -16,6 +16,7 @@ import ForgotPopup from "./Forgotpopup";
 import { initWebSocket } from "./hooks/websocket";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
+import ibsLogo from "./IBS_LOGO.jpg";
 const config = require("./Apiconfig");
 
 const Login = () => {
@@ -419,8 +420,24 @@ const Login = () => {
       <div className="container2">
         <div className="panels-container">
           <div className="panel left-panel">
-            {/* Load the new image */}
+            {/* Top Logo placed centered above illustration */}
+            <div className="top-illustration-logo">
+              <img src={ibsLogo} alt="IBS Logo" className="ibs-top-img" />
+            </div>
+
+            {/* Centered Illustration Graphic */}
             <img src={vec} className="vector" alt="Login Graphic" />
+
+            <div className="bottom-website-link">
+              <a
+                href="https://www.integratedbellsystems.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="website-url-text"
+              >
+                www.integratedbellsystems.com
+              </a>
+            </div>
           </div>
         </div>
         <div className="forms-container">
