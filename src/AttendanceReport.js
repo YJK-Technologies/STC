@@ -443,8 +443,11 @@ const DCanalysis = () => {
               display: none;
           }
           body {
-              margin: 0;
-              padding: 0;
+            margin:0;
+            padding:0;
+            background:#fff;
+            -webkit-print-color-adjust:exact !important;
+            print-color-adjust:exact !important;
           }
       }
   `);
