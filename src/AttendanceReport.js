@@ -1401,6 +1401,7 @@ const DCanalysis = () => {
                   e.key === "Enter" && fetchAttendanceReportData()
                 }
                 onChange={handleChangeDepartment}
+                styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
               />
             </div>
             {/* <div className="col-12 col-md-3">
