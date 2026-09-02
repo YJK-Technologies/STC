@@ -870,6 +870,7 @@ const DCanalysis = () => {
                 options={filteredOptionDepartment}
                 // onKeyDown={(e) => e.key === "Enter" && fetchAttendanceReportData()}
                 onChange={handleChangeDepartment}
+                styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
               />
             </div>
             <div className="col-12 col-md-3 mb-2">
@@ -881,6 +882,7 @@ const DCanalysis = () => {
                 value={selectedColumn}
                 options={filteredOptionColumn}
                 onChange={handleChangeColumn}
+                styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
               />
             </div>
             <div className="col-12 col-md-3">

@@ -593,15 +593,8 @@ function LocInfoInput({ }) {
                           placeholder=""
                           maxLength={100}
                           ref={City}
-                          onKeyDown={(e) =>
-                            handleKeyDown(
-                              e,
-                              State,
-                              City,
-                              hasValueChanged,
-                              setHasValueChanged
-                            )
-                          }
+                          onKeyDown={(e) => handleKeyDown( e, State, City, hasValueChanged, setHasValueChanged ) }
+                          styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                         />
                       </div>
                     </div>
@@ -625,15 +618,8 @@ function LocInfoInput({ }) {
                           placeholder=""
                           maxLength={100}
                           ref={State}
-                          onKeyDown={(e) =>
-                            handleKeyDown(
-                              e,
-                              Pincode,
-                              State,
-                              hasValueChanged,
-                              setHasValueChanged
-                            )
-                          }
+                          onKeyDown={(e) => handleKeyDown( e, Pincode, State, hasValueChanged, setHasValueChanged ) }
+                          styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                         />
                       </div>
                     </div>
@@ -686,6 +672,7 @@ function LocInfoInput({ }) {
                           maxLength={100}
                           ref={Country}
                           onKeyDown={(e) => handleKeyDown(e, email, Status)}
+                          styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                         />
                       </div>
                     </div>
@@ -733,6 +720,7 @@ function LocInfoInput({ }) {
                           placeholder=""
                           ref={Status}
                           onKeyDown={(e) => handleKeyDown(e, Contactno, Status)}
+                          styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                         />
                       </div>
                     </div>

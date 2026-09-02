@@ -732,6 +732,7 @@ tr:nth-child(even) td{
                   value={selectedStatus}
                   options={filteredOptionStatus}
                   onChange={handleChangeStatus}
+                  styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                 />
               </div>
             </div>

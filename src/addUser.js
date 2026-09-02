@@ -832,6 +832,7 @@ function UserInput({ }) {
                       ref={Gender}
                       isClearable
                       onKeyDown={(e) => handleKeyDown(e, ImagE, Gender)}
+                      styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                     />
                   </div>
                 </div>
@@ -908,6 +909,7 @@ function UserInput({ }) {
                       ref={usertype}
                       onKeyDown={(e) => handleKeyDown(e, email, usertype)}
                       isClearable
+                      styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                     />
                   </div>
                 </div>
@@ -1023,6 +1025,7 @@ function UserInput({ }) {
                       ref={Status}
                       onKeyDown={(e) => handleKeyDown(e, loginlogout, Status)}
                       isClearable
+                      styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                     />
                   </div>
                 </div>
