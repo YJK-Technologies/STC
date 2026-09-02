@@ -297,6 +297,7 @@ function UserScreenInput({ }) {
                     className="exp-input-field"
                     placeholder=""
                     maxLength={18}
+                    styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                   />
                 </div>
               </div>
@@ -322,6 +323,7 @@ function UserScreenInput({ }) {
                     ref={screentype}
                     onKeyDown={(e) => handleKeyDown(e, permissiontype, screentype)}
                     required title="Please select a screen type here"
+                    styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                   />
                 </div>
               </div>
@@ -347,6 +349,7 @@ function UserScreenInput({ }) {
                     ref={permissiontype}
                     onKeyDown={(e) => handleKeyDown(e, permissiontype)}
                     required title="Please select a permission type here"
+                    styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                   />
                 </div>
               </div>

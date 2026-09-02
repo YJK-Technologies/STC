@@ -1227,6 +1227,7 @@ const PurchaseOrderAnalysis = () => {
                 e.key === "Enter" && fetchAttendanceSummaryData()
               }
               onChange={handleChangeGrouping}
+              styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
             />
           </div>
           <div className="col-md-3 form-group mt-4">

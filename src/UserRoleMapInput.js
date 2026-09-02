@@ -267,6 +267,7 @@ function UserRoleInput({ }) {
                           maxLength={18}
                           ref={usercode}
                           onKeyDown={(e) => handleKeyDown(e, roleid, usercode)}
+                          styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                         />
                         {/* {error && !user_code && <div className="text-danger">User Code should not be blank</div>} */}
                       </div>
@@ -301,6 +302,7 @@ function UserRoleInput({ }) {
                               }
                             }
                           }}
+                          styles={{menu: (provided) => ({ ...provided, zIndex: 9999 })}}
                         />
                         {/* {error && !role_id && <div className="text-danger">Role Id should not be blank</div>} */}
                       </div>
