@@ -13,9 +13,9 @@ const HTTPS_PORT = 5507;
 
 /* ================= SSL ================= */
 const sslOptions = {
-  key: fs.readFileSync(path.resolve("C:/Utils/Certificates/STAR.yjktechnologies.com_cert_Nov2025", "STAR.yjktechnologies.com_key.key")),
-  cert: fs.readFileSync(path.resolve("C:/Utils/Certificates/STAR.yjktechnologies.com_cert_Nov2025", "STAR.yjktechnologies.com.crt")),
-  ca: fs.readFileSync(path.resolve("C:/Utils/Certificates/STAR.yjktechnologies.com_cert_Nov2025", "STAR.yjktechnologies.com.ca-bundle")),
+  key: fs.readFileSync(path.resolve("C:/Utils/STAR.yjktechnologies.com_cert_Nov2026", "STAR.yjktechnologies.com_key.key")),
+  cert: fs.readFileSync(path.resolve("C:/Utils/STAR.yjktechnologies.com_cert_Nov2026", "STAR.yjktechnologies.com.crt")),
+  ca: fs.readFileSync(path.resolve("C:/Utils/STAR.yjktechnologies.com_cert_Nov2026", "STAR.yjktechnologies.com.ca-bundle")),
 };
 
 /* ================= Middleware ================= */
